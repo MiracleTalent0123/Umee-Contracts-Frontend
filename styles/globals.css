@@ -1,0 +1,77 @@
+@import './fonts.css';
+
+/** These are from the new Umee Style guide*/
+:root {
+  --lg-grey-tone: linear-gradient(90deg, rgba(74,78,87,1) 0%, rgba(158,160,164,1) 25%, rgba(241,243,242,1) 50%, rgba(255,255,255,1) 100%);
+  --lg-tri-tone: linear-gradient(90deg, rgba(149,64,152,1) 25%, rgba(45,117,255,1) 50%, rgba(2,245,191,1) 75%);
+  --lg-tri-tone-light: linear-gradient(90deg, rgba(239,212,231,1) 25%, rgba(208,222,242,1) 50%, rgba(180,224,218,1) 75%);
+  --umee-full-purple: #954098;   
+  --umee-full-blue: #2D75FF;   
+  --umee-full-green: #02f5bf;   
+  --umee-light-purple: linear-gradient(90deg, #FDA9FF 0%, #C9B8FF 50%, #4DFFE5 100%);   
+  --umee-light-blue: #d0def2;   
+  --umee-light-green: #b4e0da;   
+  --umee-header-dark: #212934;
+  --umee-header-light: #ced3d3;
+  --umee-body-dark: #4a4e57;
+  --umee-body-medium: #9ea0a4;
+  --umee-body-light: #f1f3f2;
+  --umee-body-white: #ffffff;
+  --status-ok: #27ae60;
+  --status-warn: #e67e22;
+  --status-error: #c0392b;
+}
+* { 
+  box-sizing:border-box;
+  margin : 0;
+  padding : 0;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+   font-family : inherit;
+   font-size : 100%;
+   line-height : 1.15;
+   margin : 0;
+}
+html {
+  height: 100%;
+}
+html,
+body {
+  font-family: Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans,
+    Droid Sans, Helvetica Neue, sans-serif;
+    background-image: url('../public/images/background.png');
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input:focus {
+  box-shadow: none !important;
+}
+
+div:focus {
+  box-shadow: none !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

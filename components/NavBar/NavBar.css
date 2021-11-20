@@ -1,0 +1,95 @@
+.sidenav {
+  height: 180%;
+  width: 90px;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  padding-top: 20px;
+  position: absolute;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 25px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  padding-bottom: 50px;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+.icons {
+  margin: 2px 0px 0px -33px;
+}
+
+.icons:hover {
+  border-radius: 0px;
+
+}
+.icon-img {
+  background: #E1F0FF;
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  margin: 0px 0px 0px 0px;
+  padding: 2px 0px 0px 37px;
+}
+.icon-img:hover {
+  border-radius: 5px;
+  transition: 0.6s linear;
+}
+
+.icon-img {
+  position: relative;
+  display: inline-block;
+}
+
+.icon-img .sidenav-text {
+  visibility: hidden;
+  width: 85px;
+  background-color: #121a32;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0px;
+  position: absolute;
+  font-size: initial;
+  z-index: 1;
+  font-weight: 700;
+  top: 3px;
+  left: 114%;
+}
+
+.icon-img .sidenav-text::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #121a32 transparent transparent;
+}
+.icon-img:hover .sidenav-text {
+  visibility: visible;
+}
+
+.stake-vote-icons {
+  margin-left: 25px;
+  margin-bottom: 50px;
+}

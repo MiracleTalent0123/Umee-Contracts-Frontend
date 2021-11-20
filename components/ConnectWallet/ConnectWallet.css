@@ -1,0 +1,47 @@
+.net-text {
+  background: linear-gradient(180deg, #E6B5FA 0%, #43E0FD 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  margin-top: -1px;
+  font-size: 20px !important;
+}
+.connected-text {
+  color: black;
+}
+.net-acc {
+  align-self: end;
+  color: #142A5B
+  ;
+}
+.connect-wallet-btn, .connected-wallet {
+  box-sizing: border-box;
+  padding: 10px 23px;
+  background-color: transparent;
+  position: relative;
+  border-radius: 4px;
+  border: none;
+  overflow: hidden;
+}
+.connect-wallet-btn::before, .connected-wallet::before {
+  box-sizing: border-box;
+  position: absolute;
+  content: "";
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: 4px solid;
+  border-image: linear-gradient(95.01deg, #E6B5FA -2.53%, #43E0FD 102.62%) 4;
+}
+.connect-wallet-btn:hover {
+  background: linear-gradient(95.01deg, #E6B5FA -2.53%, #43E0FD 102.62%);
+}
+.connect-wallet-btn:hover .net-text {
+  background: none;
+  background-clip: unset;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  color: white;
+}

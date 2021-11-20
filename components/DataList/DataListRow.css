@@ -1,0 +1,6 @@
+.row-container:hover {
+  border-left: double 2px transparent;
+  background-image: linear-gradient(white,white), linear-gradient(to bottom, #FDA9FF, #4DFFE5);
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
