@@ -3,9 +3,6 @@ import { Box } from 'grommet';
 import { BigNumber } from 'ethers';
 import {
   ToggleSwitch,
-  InfoPanel,
-  InfoPanelItem,
-  InfoBarBody,
   MarketsDataList,
 } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
@@ -13,8 +10,8 @@ import { IMarketsData } from 'components/MarketsDataList';
 import { useData } from 'api/data';
 import { useState, useEffect } from 'react';
 import PageLoading from 'components/PageLoading';
-import { MainPageContainer } from 'pages/MainPageContainer';
 import './Markets.css';
+
 function Markets() {
   const [marketData, setMarketData] = useState<IMarketsData[]>([]);
   const [totalMarketSizeUsd, setTotalMarketSizeUsd] = useState(0);

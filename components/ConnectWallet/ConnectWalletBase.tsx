@@ -1,10 +1,10 @@
 import React, {useRef, useEffect} from 'react';
 import { Text, Box, BoxProps } from 'grommet';
-import ConnectedWallets from './ConntedWallets';
+import ConnectedWallets from './ConnectedWallets';
 import './ConnectWallet.css';
 
 export const ConnectWalletBase = ({
-  network,
+  walletConnected,
   account,
   justify = 'center',
   align = 'end',
@@ -12,7 +12,7 @@ export const ConnectWalletBase = ({
   onClick,
   setIsShowWallets
 }: {
-  network: string;
+  walletConnected: boolean;
   account?: string;
   justify?: BoxProps['justify'];
   align?: BoxProps['align'];
@@ -20,7 +20,7 @@ export const ConnectWalletBase = ({
   onClick: () => void;
   setIsShowWallets: (isShow: boolean) => void;
 }) => {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
       if (isShowWallets && ref.current && !ref.current.contains(e.target)) {
@@ -37,30 +37,21 @@ export const ConnectWalletBase = ({
 
   return (
     <>
-      {network == 'Connect Wallet' ? (
+      {!walletConnected ? (
         <Box
           align={align}
           justify={justify}
           className="connect-wallet-btn"
           onClick={onClick}
         > 
-          {network == 'Connect Wallet' ?
-            <Text className='net-text' size="normal">
-              {network}
-            </Text>:
-            <Text className='connected-text' size="normal">
-              {network}
-            </Text>
-          }
-          <Text size="xsmall" color="clrConnectWalletText">
-            {account}
+          <Text className='net-text' size="normal">
+            Connect Wallet
           </Text>
         </Box>
       ) : (
         isShowWallets ? (
           <div ref={ref}>
             <ConnectedWallets 
-              network={network}
               account={account}
             />
           </div>

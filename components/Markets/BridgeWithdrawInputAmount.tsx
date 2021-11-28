@@ -8,10 +8,11 @@ import { BigNumber, constants } from 'ethers';
 import ModalHeader from 'components/ModalHeader';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
-import { cosmosAddress } from 'components/connectToKeplr';
 import { mainnet } from 'lib/tokenaddresses';
 import { useWeb3 } from 'api/web3';
 import truncate from 'lib/truncate';
+import { useStore } from '../../api/cosmosStores';
+import { useAccountConnection } from '../../lib/hooks/account/useAccountConnection';
 
 export interface WithdrawProps {
   txnAvailability: TTxnAvailability;
@@ -38,6 +39,10 @@ const BridgeWithdrawInputAmount = ({
   txnType,
   depositBalance,
 }: WithdrawProps) => {
+  const { isAccountConnected } = useAccountConnection();
+  const { accountStore, chainStore } = useStore();
+  const account = accountStore.getAccount(chainStore.current.chainId);
+
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
@@ -123,7 +128,7 @@ const BridgeWithdrawInputAmount = ({
               <Box pad="10px 0" width="100%" direction="row" align="center">
                 {token?.symbol && <TokenLogo symbol={token?.symbol} width="40" height="40" />}
                 <Text margin={{ left: 'small' }} color="#142A5B" size="small">
-                  {cosmosAddress ? truncate(cosmosAddress, 23, 8) : ''}
+                  {isAccountConnected && truncate(account.bech32Address, 25, 4)}
                 </Text>
               </Box>
             </Box>

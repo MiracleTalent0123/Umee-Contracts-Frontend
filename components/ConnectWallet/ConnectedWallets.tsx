@@ -5,14 +5,24 @@ import Keplr from '../../public/images/keplr-icon.png';
 import Eth from '../../public/images/eth-logo.png';
 import { Box, Button, Image, Text } from 'grommet';
 import './ConnectWallet.css';
-import { cosmosAddress } from 'components/connectToKeplr';
 import truncate from 'lib/truncate';
+import { useStore } from '../../api/cosmosStores';
+import { useAccountConnection } from '../../lib/hooks/account/useAccountConnection';
+import { connect } from 'api/web3/providers';
 
-const ConnectedWallets = ({ account, network }: { account?: string; network?: string }) => {
+const ConnectedWallets = ({ account }: { account?: string; }) => {
+  const { isAccountConnected } = useAccountConnection();
+  const { accountStore, chainStore } = useStore();
+  const address = accountStore.getAccount(chainStore.current.chainId).bech32Address;
+
+  type WalletType = 'true' | 'extension' | 'wallet-connect' | null;
+  const KeyConnectingWalletType = 'connecting_wallet_type';
+  const KeyAutoConnectingWalletType = 'account_auto_connect';
+
   return (
     <Box background="white" pad="xsmall" round="5px">
       <Box
-        className="connected-wallet"
+        className={account ? 'connected-wallet' : ''}
         justify="between"
         align="center"
         direction="row"
@@ -36,12 +46,26 @@ const ConnectedWallets = ({ account, network }: { account?: string; network?: st
             <Image width="30px" src={Metamask} alt="Metamask logo" />
           </Box>
           <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
-            {account}
+            {account ? (
+              account
+            ) : (
+              <Box
+                onClick={() => {
+                  connect();
+                }}
+              >
+                Connect
+              </Box>
+            )}
           </Text>
         </Box>
       </Box>
       <Box
-        className="connected-wallet"
+        className={
+          isAccountConnected && accountStore.getAccount(chainStore.current.chainId).bech32Address
+            ? 'connected-wallet'
+            : ''
+        }
         justify="between"
         align="center"
         direction="row"
@@ -66,7 +90,18 @@ const ConnectedWallets = ({ account, network }: { account?: string; network?: st
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>
           <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
-            {truncate(cosmosAddress, 7, 4)}
+            {isAccountConnected && address ? (
+              truncate(address, 7, 4)
+            ) : (
+              <Box
+                onClick={() => {
+                  localStorage.setItem(KeyConnectingWalletType, 'extension');
+                  accountStore.getAccount(chainStore.current.chainId).init();
+                }}
+              >
+                Connect
+              </Box>
+            )}
           </Text>
         </Box>
       </Box>

@@ -4,15 +4,14 @@ import { TxnAmountContainer, ITxnAmount } from 'components/Transactions';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
-import { BigNumber, constants } from 'ethers';
 import { useWeb3 } from 'api/web3';
-import { chainConfig, checkExtensionAndBrowser, getKeplr } from 'components/utils/Keplr';
 import { mainnet } from 'lib/tokenaddresses';
-import { cosmosAddress } from 'components/connectToKeplr';
 import truncate from 'lib/truncate';
 import ModalHeader from 'components/ModalHeader';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
+import { useStore } from '../../api/cosmosStores';
+import { useAccountConnection } from '../../lib/hooks/account/useAccountConnection';
 
 export interface BridgeDepositProps {
   txnAvailability: TTxnAvailability;
@@ -32,6 +31,10 @@ const BridgeInputAmount = ({
   setActiveTab,
   txnType,
 }: BridgeDepositProps) => {
+  const { isAccountConnected } = useAccountConnection();
+  const { accountStore, chainStore } = useStore();
+  const account = accountStore.getAccount(chainStore.current.chainId);
+
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
@@ -112,7 +115,7 @@ const BridgeInputAmount = ({
               <Box direction="row" justify="start" align="center">
                 {token?.symbol && <TokenLogo symbol={token?.symbol} width="40" height="40" />}
                 <Text margin={{ left: 'small' }} color="#142A5B" size="small">
-                  {truncate(cosmosAddress, 23, 8)}
+                  {isAccountConnected && truncate(account.bech32Address, 25, 4)}
                 </Text>
               </Box>
             </Box>

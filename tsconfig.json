@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
+		"experimentalDecorators": true,
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": ".",
     "allowJs": true,
@@ -18,5 +19,4 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
 }

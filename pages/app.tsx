@@ -12,7 +12,6 @@ import { DataProvider } from 'api/data';
 import { Web3Provider } from 'api/web3';
 import { ErrorFallback } from './ErrorFallback';
 import { ErrorBoundary } from 'react-error-boundary';
-import { AlertBar, AlertBarMessage } from 'components';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SideNav } from 'components/NavBar/SideNav';
@@ -23,14 +22,11 @@ import Deposit from 'pages/deposit';
 import Markets from 'pages/markets';
 import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
 import { BetaAuthModal } from 'components/BetaAuth';
-import { ConnectToKeplr } from 'components/connectToKeplr';
+import { StoreProvider } from '../api/cosmosStores';
+import { AccountConnectionProvider } from '../lib/hooks/account/context';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 function Body() {
-  
-  useEffect(() => {
-    ConnectToKeplr();
-  });
-
   return (
     <>
       <Box height="75px" direction="column" margin={{ left: 'small', vertical: '25px', right: '25px' }} gap="small">
@@ -82,20 +78,26 @@ function Auth() {
   );
 }
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <React.StrictMode>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Web3Provider>
-          <DataProvider>
-            <Grommet theme={theme}>
-              <Auth />
-              <ToastContainer />
-            </Grommet>
-          </DataProvider>
-        </Web3Provider>
-      </ErrorBoundary>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <AccountConnectionProvider>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <Web3Provider>
+              <DataProvider>
+                <Grommet theme={theme}>
+                  <Auth />
+                  <ToastContainer />
+                </Grommet>
+              </DataProvider>
+            </Web3Provider>
+          </ErrorBoundary>
+        </AccountConnectionProvider>
+      </StoreProvider>
+    </QueryClientProvider>
   );
 }
 
