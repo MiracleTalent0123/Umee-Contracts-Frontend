@@ -1,21 +1,21 @@
 .sidenav {
-  height: 180%;
+  height: 100%;
   width: 90px;
   z-index: 1;
   top: 0;
   left: 0;
   background-color: #fff;
   padding-top: 20px;
-  position: absolute;
+  position: fixed;
 }
 
 .sidenav a {
-  padding: 6px 8px 6px 25px;
   text-decoration: none;
   font-size: 25px;
   color: #818181;
-  padding-bottom: 50px;
-  display: block;
+  margin-bottom: 50px;
+  display: flex;
+  justify-content: center;
 }
 
 .sidenav a:hover {
@@ -33,30 +33,23 @@
   .sidenav a {font-size: 18px;}
 }
 
-.icons {
-  margin: 2px 0px 0px -33px;
-}
-
 .icons:hover {
   border-radius: 0px;
-
 }
 .icon-img {
+  position: relative;
   background: #E1F0FF;
   height: 40px;
   width: 40px;
-  border-radius: 20px;
+  border-radius: 50%;
   margin: 0px 0px 0px 0px;
-  padding: 2px 0px 0px 37px;
+  transition: 0.3s linear;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .icon-img:hover {
   border-radius: 5px;
-  transition: 0.6s linear;
-}
-
-.icon-img {
-  position: relative;
-  display: inline-block;
 }
 
 .icon-img .sidenav-text {
@@ -65,31 +58,35 @@
   background-color: #121a32;
   color: #fff;
   text-align: center;
-  border-radius: 6px;
-  padding: 5px 0px;
+  border-radius: 5px;
+  padding: 4px 0px;
   position: absolute;
   font-size: initial;
   z-index: 1;
   font-weight: 700;
-  top: 3px;
+  top: 50%;
+  transform: translateY(-50%);
   left: 114%;
 }
 
 .icon-img .sidenav-text::after {
-  content: "";
+  content: '';
   position: absolute;
+  display: block;    
+  width: 0px; 
+  right: 100%;       
+  border: 5px solid transparent;
+  border-left: 0;
+  border-right: 9px solid #121a32;
   top: 50%;
-  right: 100%;
-  margin-top: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent #121a32 transparent transparent;
+  transform: translateY(-50%);
 }
 .icon-img:hover .sidenav-text {
   visibility: visible;
 }
 
 .stake-vote-icons {
-  margin-left: 25px;
   margin-bottom: 50px;
+  display: flex;
+  justify-content: center;
 }

@@ -18,7 +18,7 @@ import { BigNumber, utils } from 'ethers';
 import { useWeb3 } from '../../api/web3';
 import { useHistory } from 'react-router-dom';
 import NoWalletConnectedBox from 'components/NoWalletConnectedBox';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserCollateralChartData, useUserDepositChartData } from 'api/data/userdata';
 import { bigNumberToUSDNumber, bigNumberETHToString} from 'lib/number-utils';
 import InfoDetailPopUp from 'components/InfoBar/InfoDetailPopUp';

@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import './ToggleSwitch.css';
+import { Box } from 'grommet';
   
 export interface ToggleSwitchProps {
   choiceA?: string;
@@ -25,7 +26,7 @@ const ToggleSwitch = ({ label, choiceA, choiceB, defaultSelected, handler, handl
   const getToggleColor = (currency: string) => (selected === currency ? 'clrToggleOffText' : 'clrToggleOnText');
 
   return (
-    <div className="container">
+    <Box className="container" direction="row" align="center" justify="center">
       <div className="toggle-switch">
         <input checked={enabled} onChange={handleClick} type="checkbox" className="checkbox" 
           name={label} id={label} />
@@ -34,7 +35,7 @@ const ToggleSwitch = ({ label, choiceA, choiceB, defaultSelected, handler, handl
           <span className="switch" />
         </label>
       </div>
-    </div>
+    </Box>
   );
 };
   

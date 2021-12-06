@@ -8,7 +8,7 @@ import { IAvailableDepositsData } from 'components/AvailableDepositsDataList';
 import { useData } from 'api/data';
 import { useEffect, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserBalances } from 'api/data/allowanceData';
 import { useWeb3 } from 'api/web3';
 

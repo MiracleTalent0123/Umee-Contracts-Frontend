@@ -75,3 +75,9 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.gradient-text {
+  background: linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}

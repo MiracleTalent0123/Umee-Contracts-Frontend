@@ -9,11 +9,11 @@ export interface DataListHeaderProps {
 const DataListHeader = ({ columns }: DataListHeaderProps) => {
   const columnSizes = columns.map((col) => col.size);
   return (
-    <Box direction="row" pad={{ vertical: 'small', left: '3px' }} align="center" justify="start" fill="horizontal">
-      <Grid columns={columnSizes} pad={{ horizontal: 'small' }} gap="small" fill="horizontal">
+    <Box direction="row" pad="small" align="center" justify="start" fill="horizontal">
+      <Grid columns={columnSizes} pad={{ horizontal: 'small', vertical: 'xsmall' }} gap="small" fill="horizontal">
         {columns.map((column, i) => (
           <Box key={`column-${i}`} align={i === 0 ? 'start' : 'center'}>
-            <Text size="small" weight={i === 0 ? 'bold' : 'normal'}>
+            <Text size="small" weight={'bold'}>
               {column.title}
             </Text>
           </Box>

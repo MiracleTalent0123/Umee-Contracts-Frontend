@@ -8,7 +8,7 @@ import { IAvailableBorrowsData } from 'components/AvailableBorrowsDataList';
 import { useData } from 'api/data';
 import { useParams } from 'react-router-dom';
 import { BigNumber, utils } from 'ethers';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { useWeb3 } from 'api/web3';
 import { getMaxBorrows } from 'lib/health-utils';
 import './borrow.css';
@@ -38,7 +38,7 @@ const Borrow = () => {
   const [myBorrowsData, setMyBorrowsData] = useState<IAvailableBorrowsData[]>();
 
   const [filteredData, setFilteredData] = useState<IAvailableBorrowsData[]>([]);
-  const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -48,10 +48,26 @@ const Borrow = () => {
   }, [web3.account]);
 
   useEffect(() => {
-    if (ReserveData && UserReserveData && ReserveConfigurationData && tokens.length > 0) {
+    if (
+      UserReserveData &&
+      ReserveConfigurationData &&
+      priceData &&
+      ReserveData &&
+      tokens.length > 0
+    ) {
       setPageLoading(false);
     }
-  }, [ReserveConfigurationData, UserReserveData, ReserveData, tokens.length]);
+    if (!web3.account && ReserveData) {
+      setPageLoading(false);
+    }
+  }, [
+    ReserveConfigurationData,
+    ReserveData,
+    UserReserveData,
+    priceData,
+    web3.account,
+    tokens.length
+  ]);
 
   useEffect(() => {
     if (ReserveData.length) {

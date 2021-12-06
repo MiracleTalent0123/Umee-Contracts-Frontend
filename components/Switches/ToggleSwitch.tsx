@@ -1,5 +1,6 @@
 import { Box, Text } from 'grommet';
 import * as React from 'react';
+import './ToggleSwitch.css';
 
 const { useEffect, useState } = React;
 
@@ -22,7 +23,13 @@ const ToggleSwitch = ({ choiceA, choiceB, defaultSelected, handler }: ToggleSwit
   const getToggleColor = (currency: string) => (selected === currency ? 'clrToggleOnText' : 'clrToggleOffText');
 
   return (
-    <Box round={true} width="small" direction="row" background={{color:'#131A33'}} border={{ color: 'clrToggleBg', size: 'medium' }}>
+    <Box
+      round={true}
+      width="small"
+      direction="row"
+      background={{ color: '#131A33' }}
+      border={{ color: 'clrToggleBg', size: '3px' }}
+    >
       <Box
         round={true}
         focusIndicator={false}
@@ -33,7 +40,7 @@ const ToggleSwitch = ({ choiceA, choiceB, defaultSelected, handler }: ToggleSwit
         pad="xxsmall"
         background={getToggleColor(choiceA)}
       >
-        <Text size="small" color={getToggleColor(choiceB)}>
+        <Text className={selected != choiceA ? 'toggle-hover-label toggle-label' : 'toggle-label'} color={getToggleColor(choiceB)}>
           {choiceA}
         </Text>
       </Box>
@@ -47,7 +54,7 @@ const ToggleSwitch = ({ choiceA, choiceB, defaultSelected, handler }: ToggleSwit
         pad="xxsmall"
         background={getToggleColor(choiceB)}
       >
-        <Text size="small" color={getToggleColor(choiceA)}>
+        <Text className={selected != choiceB ? 'toggle-hover-label toggle-label' : 'toggle-label'} color={getToggleColor(choiceA)}>
           {choiceB}
         </Text>
       </Box>

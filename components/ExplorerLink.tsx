@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Text, Image, Spinner } from 'grommet';
+import { Box, Text, Image } from 'grommet';
 import * as Icons from 'grommet-icons';
 import { useWeb3 } from 'api/web3/';
 

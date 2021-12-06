@@ -1,0 +1,10 @@
+.toggle-label {
+  font-size: 15px !important;
+}
+
+.toggle-hover-label:hover {
+  background: linear-gradient(to right, #e6b5fa, #43e0fd);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

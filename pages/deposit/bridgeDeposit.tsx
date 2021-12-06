@@ -6,7 +6,7 @@ import { useTransaction } from 'api/data/transactions';
 import { useWeb3 } from 'api/web3';
 import { useAllowanceData, useUserBalance } from 'api/data/allowanceData';
 import { useErc20DetailedContract } from 'api/data/contracts';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { ETxnType, ITokenData, ETxnSteps} from 'lib/types';
 import './depositModal.css';
 import BridgeInputAmount from 'components/Markets/BridgeInputAmount';

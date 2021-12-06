@@ -29,6 +29,8 @@
   "dependencies": {
     "@cosmjs/launchpad": "^0.24.1",
     "@cosmjs/stargate": "^0.26.3",
+    "@emotion/styled": "^11.6.0",
+    "@headlessui/react": "^1.4.2",
     "@keplr-wallet/common": "^0.9.7",
     "@keplr-wallet/cosmos": "^0.9.7",
     "@keplr-wallet/crypto": "^0.9.7",

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, Image, Spinner } from 'grommet';
+import { Box, Text, Image } from 'grommet';
+import Loading from 'components/common/Loading/Loading';
 import { TxnAmountContainer, ITxnAmount } from 'components/Transactions';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
@@ -189,7 +190,7 @@ const BorrowInputAmount = ({
       {isPending && (
         <>
           <Box pad="20px 0" width="100%" direction="row" justify="center">
-            <Spinner size="large" color="clrSpinnerLarge" />
+            <Loading />
           </Box>
           <Box margin="0 0 30px" width="100%" direction="row" justify="center">
             <Text size="small">Confirm transaction in Metamask wallet</Text>

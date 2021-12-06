@@ -29,18 +29,22 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 function Body() {
   return (
     <>
-      <Box height="75px" direction="column" margin={{ left: 'small', vertical: '25px', right: '25px' }} gap="small">
-        <ConnectWalletButton />
-      </Box>
-      <Router>
-        <SideNav />
-        <Switch>
-          <Route path="/borrow"><Borrow /></Route>
-          <Route path="/deposit"><Deposit /></Route>
-          <Route path="/markets"><Markets /></Route>
-          <Route path="/"><Markets /> </Route>
-        </Switch>
-      </Router>
+      <AccountConnectionProvider>
+        <Box style={{position: 'absolute', right: '0'}} direction="column" margin={{ left: 'small', vertical: '25px', right: '25px' }} gap="small">
+          <ConnectWalletButton />
+        </Box>
+        <Router>
+          <SideNav />
+          <Box margin={{top: 'xlarge'}} pad={{bottom: 'xlarge'}}>
+            <Switch>
+              <Route path="/borrow"><Borrow /></Route>
+              <Route path="/deposit"><Deposit /></Route>
+              <Route path="/markets"><Markets /></Route>
+              <Route path="/"><Markets /> </Route>
+            </Switch>
+          </Box>
+        </Router>
+      </AccountConnectionProvider>
     </>
   );
 }

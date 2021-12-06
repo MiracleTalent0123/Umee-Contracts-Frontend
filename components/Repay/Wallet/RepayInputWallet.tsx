@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, Image, Spinner } from 'grommet';
+import { Box, Text, Image } from 'grommet';
+import Loading from 'components/common/Loading/Loading';
 import { ETxnSteps, ETxnType, TTxnNavHandlers } from 'lib/types';
 import { TxnAmountContainer, AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
@@ -195,7 +196,7 @@ const RepayInputWallet = ({
           {isPending && (
             <>
               <Box pad="20px 0" width="100%" direction="row" justify="center">
-                <Spinner size="large" color="clrSpinnerLarge" />
+                <Loading />
               </Box>
               <Box margin="0 0 30px" width="100%" direction="row" justify="center">
                 <Text size="small">Confirm transaction in Metamask wallet</Text>

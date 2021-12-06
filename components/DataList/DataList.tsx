@@ -14,7 +14,7 @@ export interface DataListProps {
 
 const DataList = ({ background, children, columns }: DataListProps) => {
   return (
-    <Box height="100%" align="center" background='white' fill="horizontal">
+    <Box height="100%" align="center" round="8px" background='white' fill="horizontal">
       <DataListHeader columns={columns} />
       <DataListBody>{children}</DataListBody>
     </Box>

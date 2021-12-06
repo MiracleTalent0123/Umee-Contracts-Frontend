@@ -2,12 +2,13 @@ import React from 'react';
 import { Box, Text } from 'grommet';
 import TokenLogo from 'components/TokenLogo';
 
-const ModalHeader = ({symbol}: {symbol: string}) => {
+const ModalHeader = ({symbol, src}: {symbol: string, src?: string;}) => {
   return (
     <>
       <Box margin="-65px 0 0" direction="row" justify="center">
         <TokenLogo 
           symbol={symbol} 
+          src={src}
           width="70"
           height="70"
         />

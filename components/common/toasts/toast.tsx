@@ -1,11 +1,16 @@
 import React, { FunctionComponent, ReactComponentElement, ReactElement, ReactNode } from 'react';
 import { toast, ToastOptions } from 'react-toastify';
+import load from '../../../public/assets/Loading.png'
+import failed from '../../../public/assets/FailedTx.png'
+import success from '../../../public/assets/ToastSuccess.png'
+import view from '../../../public/assets/Link.png'
+import close from '../../../public/assets/ToastClose.png'
 
 const CloseButton: FunctionComponent<{ closeToast: () => void }> = ({ closeToast }) => (
 	<button
 		onClick={closeToast}
 		className="hover:opacity-75 absolute top-2 md:-top-2 right-2 md:-left-2 z-100 h-5 md:h-6 w-5 md:w-6">
-		<img alt="x" className="w-full h-full" src="/public/assets/Icons/ToastClose.png" />
+		<img alt="x" className="w-full h-full" src={close} />
 	</button>
 );
 
@@ -75,7 +80,7 @@ export const displayToast: DisplayToastFn = (
 
 const ToastTxBroadcasting: FunctionComponent = () => (
 	<div className="flex gap-3 md:gap-3.75">
-		<img alt="ldg" className="s-spin w-7 h-7" src="/public/assets/Icons/Loading.png" />
+		<img alt="ldg" className="s-spin w-7 h-7" src={load} />
 		<section className="text-white-high">
 			<h6 className="mb-2 text-base md:text-lg">Transaction Broadcasting</h6>
 			<p className="text-xs md:text-sm">Waiting for transaction to be included in the block</p>
@@ -85,7 +90,7 @@ const ToastTxBroadcasting: FunctionComponent = () => (
 
 const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
 	<div className="flex gap-3 md:gap-3.75">
-		<img className="w-8 h-8" alt="x" src="/public/assets/Icons/FailedTx.png" />
+		<img className="w-8 h-8" alt="x" src={failed} />
 		<section className="text-white-high">
 			<h6 className="mb-2 text-base md:text-lg">Transaction Failed</h6>
 			<p className="text-xs md:text-sm">{message}</p>
@@ -95,11 +100,11 @@ const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
 
 const ToastTxSuccess: FunctionComponent<{ link: string }> = ({ link }) => (
 	<div className="flex gap-3 md:gap-3.75">
-		<img className="w-8 h-8" alt="b" src="/public/assets/Icons/ToastSuccess.png" />
+		<img className="w-8 h-8" alt="b" src={success} />
 		<section className="text-white-high">
 			<h6 className="mb-2 text-base md:text-lg">Transaction Successful</h6>
 			<a target="__blank" href={link} className="text-xs md:text-sm inline hover:opacity-75 cursor-pointer">
-				View explorer <img alt="link" src="/public/assets/Icons/Link.png" className="inline-block h-4 w-4 mb-0.75" />
+				View explorer <img alt="link" src={view} className="inline-block h-4 w-4 mb-0.75" />
 			</a>
 		</section>
 	</div>

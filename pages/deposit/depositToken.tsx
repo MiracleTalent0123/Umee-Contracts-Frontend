@@ -8,7 +8,7 @@ import { useWeb3 } from 'api/web3';
 import { useAllowanceData, useUserBalance } from 'api/data/allowanceData';
 import { useErc20DetailedContract } from 'api/data/contracts';
 import { ETxnType, ITokenData } from 'lib/types';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { isZero } from 'lib/number-utils';
 import { getNewHealthDeposit } from 'lib/health-utils';
 import { ETxnSteps } from 'lib/types';

@@ -4,7 +4,7 @@ import { useTransaction } from 'api/data/transactions';
 import { BigNumber, utils, constants } from 'ethers';
 import { useWeb3 } from 'api/web3';
 import { ETxnType, ITokenData } from 'lib/types';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserCollateralChartData } from 'api/data/userdata';
 import { getMaxWithdraws, checkHealth } from 'lib/health-utils';
 import { ETxnSteps } from 'lib/types';

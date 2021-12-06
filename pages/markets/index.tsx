@@ -9,8 +9,9 @@ import { IDataListColumn } from 'components/DataList/DataList';
 import { IMarketsData } from 'components/MarketsDataList';
 import { useData } from 'api/data';
 import { useState, useEffect } from 'react';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import './Markets.css';
+import { AssetBalancesList } from 'pages/AssetBalancesList';
 
 function Markets() {
   const [marketData, setMarketData] = useState<IMarketsData[]>([]);
@@ -23,6 +24,7 @@ function Markets() {
     { title: 'Deposit APY', size: 'flex' },
     { title: 'Borrow APY', size: 'flex' },
     { title: 'Bridge', size: 'flex' },
+    { title: 'IBC', size: 'flex' },
   ];
 
   const { ReserveData, ReserveConfigurationData } = useData();

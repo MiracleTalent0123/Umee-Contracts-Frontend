@@ -6,6 +6,7 @@ import { BigNumber, utils } from 'ethers';
 import MarketModal from 'pages/markets/marketsDetail';
 import { ButtonItem } from 'components';
 import BridgeModal from 'pages/markets/marketModal';
+import { AssetBalancesList } from 'pages/AssetBalancesList';
 
 export interface IMarketsData {
   name: string;
@@ -43,7 +44,7 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
     setTokenAddress(token.address);
     setIsModalShow('deposit'); 
   };
-
+  
   return (
     <>
       {isModalShow && (
@@ -56,13 +57,13 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
         /> 
       )} 
       {token && token.address && (
-      <MarketModal
+        <MarketModal
           token={token && token}
           onClose={() => {
             setToken('');
           }}
         />
-      )}   
+      )}
       <DataList background="clrDefaultBg" columns={columns}>
         {data.map((row) => {
           const {
@@ -129,6 +130,12 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
                   Bridge
                 </ButtonItem>
               </TextItem>
+              {name == "ATOM" ? 
+                <TextItem>
+                  <AssetBalancesList />
+                </TextItem>
+              : <></>
+              }
             </DataListRow>
           );
         })}

@@ -38,6 +38,7 @@ export class RootStore {
 
 	      msgOpts: {
 	        ibcTransfer: {
+						type: 'cosmos-sdk/MsgTransfer',
 	          gas: 1000000,
 	        },
 	      },

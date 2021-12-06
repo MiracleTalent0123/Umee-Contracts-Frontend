@@ -1,6 +1,10 @@
+.row-container {
+  border-left: 2px solid transparent;
+}
+
 .row-container:hover {
   border-left: double 2px transparent;
-  background-image: linear-gradient(white,white), linear-gradient(to bottom, #FDA9FF, #4DFFE5);
+  background-image: linear-gradient(white,white), linear-gradient(180deg, #E6B5FA 0%, #43E0FD 99.12%);
   background-clip: padding-box, border-box;
   background-origin: border-box;
 }

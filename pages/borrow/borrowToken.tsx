@@ -6,7 +6,7 @@ import { useData } from 'api/data';
 import { BigNumber, utils } from 'ethers';
 import { useTransaction } from 'api/data/transactions';
 import { useWeb3 } from 'api/web3';
-import PageLoading from 'components/PageLoading';
+import PageLoading from 'components/common/Loading/PageLoading';
 import { getMaxBorrows } from 'lib/health-utils';
 import { toast } from 'react-toastify';
 import { GREATER_THAN_ZERO_MESSAGE } from 'lib/constants';

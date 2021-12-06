@@ -30,8 +30,7 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
 
   const props: BoxProps = {
     direction: 'row',
-    pad: { vertical: 'small' },
-    background: 'white',
+    pad: { vertical: '8px', horizontal: 'small' },
     align: 'center',
     justify: 'start',
     fill: 'horizontal',
@@ -43,13 +42,13 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
   }
 
   return (
-    <div className="row-container" >
-      <Card {...props}>
+    <div className="row-container">
+      <Box border={{side: 'top', color: '#DFEFFF', size: '2px'}} {...props}>
         {rowColor && <Box border={{ color: rowColor, side: 'left', size: '3px' }} height="2rem" />}
         <Grid columns={columnSizes} pad={{ horizontal: 'small' }} gap="small" fill="horizontal">
           {children}
         </Grid>
-      </Card>
+      </Box>
     </div>
   );
 };

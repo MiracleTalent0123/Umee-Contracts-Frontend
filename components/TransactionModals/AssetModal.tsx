@@ -1,10 +1,11 @@
-import { Box, Button, Image, Main, Text, Spinner } from 'grommet';
+import { Box, Button, Image, Main, Text } from 'grommet';
 import React, { useEffect, useState } from 'react';
 import TokenLogo from 'components/TokenLogo';
 import { ETxnSteps } from 'lib/types';
 import { bigNumberToString } from 'lib/number-utils';
 import { BigNumber, constants } from 'ethers';
 import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
+import Loading from 'components/common/Loading/Loading';
 
 const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => void, steps: ETxnSteps }) => {
   const [isPending, setIsPending] = React.useState(false);
@@ -76,7 +77,7 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => v
       {isPending && (
         <>
           <Box pad="20px 0" width="100%" direction="row" justify="center">
-            <Spinner size="large" color="clrSpinnerLarge" />
+            <Loading />
           </Box>
           <Box margin="0 0 30px" width="100%" direction="row" justify="center">
             <Text size="small">

@@ -1,8 +1,9 @@
-import { Box, Button, Image, Main, Text, Spinner } from 'grommet';
-import React, { useEffect, useState } from 'react';
+import { Box, Button, Text } from 'grommet';
+import React from 'react';
 import { BaseModal } from 'components/common/BaseModal';
 import TokenLogo from 'components/TokenLogo';
 import { ETxnSteps } from 'lib/types';
+import Loading from 'components/common/Loading/Loading';
 
 const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled, steps, collateralSwitchChecked }: { token: any, address: string; onClose: (show: boolean) => void, enabled: () => void, steps:  ETxnSteps, collateralSwitchChecked: any }) => {
   const [isPending, setIsPending] = React.useState(false);
@@ -52,7 +53,7 @@ const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled
         {isPending && (
           <>
             <Box pad="20px 0" width="100%" direction="row" justify="center">
-              <Spinner size="large" color="clrSpinnerLarge" />
+              <Loading />
             </Box>
             <Box margin="0 0 30px" width="100%" direction="row" justify="center">
               <Text size="small">
