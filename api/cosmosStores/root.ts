@@ -1,6 +1,6 @@
 import { QueriesStore } from '@keplr-wallet/stores';
 import { AccountStore } from '@keplr-wallet/stores';
-import { IndexedDBKVStore } from '@keplr-wallet/common';
+import { DenomHelper, IndexedDBKVStore } from '@keplr-wallet/common';
 import { ChainStore } from './chain';
 import { ChainInfo } from '@keplr-wallet/types';
 import { EmbedChainInfos } from '../../config';
@@ -11,12 +11,14 @@ import { isSlippageError } from '../../utils/tx';
 import { prettifyTxError } from './prettify-tx-error';
 import { KeplrWalletConnectV1 } from '@keplr-wallet/wc-client';
 import { ConnectWalletManager } from '../../dialogs/connect-wallet';
+import { PoolIntermediatePriceStore } from './price';
 
 export class RootStore {
 	public readonly chainStore: ChainStore;
 	public readonly accountStore: AccountStore<Account>;
 	public readonly queriesStore: QueriesStore<Queries>;
 	public readonly connectWalletManager: ConnectWalletManager;
+	public readonly priceStore: PoolIntermediatePriceStore;
 
 	constructor() {
 	  this.chainStore = new ChainStore(EmbedChainInfos, EmbedChainInfos[0].chainId);
@@ -38,7 +40,7 @@ export class RootStore {
 
 	      msgOpts: {
 	        ibcTransfer: {
-						type: 'cosmos-sdk/MsgTransfer',
+	          type: 'cosmos-sdk/MsgTransfer',
 	          gas: 1000000,
 	        },
 	      },
@@ -126,7 +128,23 @@ export class RootStore {
 	      };
 	    }),
 	  });
-	  // this.connectWalletManager.setAccountStore(this.accountStore);
+
+	  this.priceStore = new PoolIntermediatePriceStore(
+	    EmbedChainInfos[0].chainId,
+	    this.chainStore,
+	    new IndexedDBKVStore('store_web_prices'),
+	    {
+	      usd: {
+	        currency: 'usd',
+	        symbol: '$',
+	        maxDecimals: 2,
+	        locale: 'en-US',
+	      },
+	    },
+	    'usd',
+	  );
+		
+	  this.connectWalletManager.setAccountStore(this.accountStore);
 	}
 }
 

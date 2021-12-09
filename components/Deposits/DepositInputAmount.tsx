@@ -20,12 +20,15 @@ export interface DepositProps {
   setTxnAmount(amount: string): void;
   handleContinue(e: React.MouseEvent): void;
   txnStep: ETxnSteps;
-  setActiveTab(activeTab: string): void;
+  setIsDeposit(activeTab: boolean): void;
   currentLtv: string;
   initialborrowLimit: string;
   ltv: string;
   borrowLimit: string;
   txnType: ETxnType;
+  isDeposit: boolean;
+  txnAmount: string;
+  balance: BigNumber;
 }
 
 const DepositInputAmount = ({
@@ -33,12 +36,15 @@ const DepositInputAmount = ({
   setTxnAmount,
   handleContinue,
   txnStep,
-  setActiveTab,
+  setIsDeposit,
   initialborrowLimit,
   currentLtv,
   ltv,
   borrowLimit,
   txnType,
+  txnAmount,
+  isDeposit,
+  balance,
 }: DepositProps) => {
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
@@ -65,27 +71,20 @@ const DepositInputAmount = ({
             {!isPending && !isFinal && (
               <>
                 <Box margin="-40px 0 0" direction="row" justify="between">
-                  <Box>
-                    <Text
-                      size="medium"
-                      style={{
-                        background: 'linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%)',
-                        WebkitTextFillColor: 'transparent',
-                        WebkitBackgroundClip: 'text',
-                      }}
-                    >
+                  <Box onClick={() => setIsDeposit(true)}>
+                    <Text size="medium" className={isDeposit ? 'tab active-tab' : 'tab no-active-tab'}>
                       Deposit
                     </Text>
                   </Box>
-                  <Box onClick={() => setActiveTab('Withdraw')}>
-                    <Text size="medium" color="#133A33">
+                  <Box onClick={() => setIsDeposit(false)}>
+                    <Text size="medium" className={!isDeposit ? 'tab active-tab' : 'tab no-active-tab'}>
                       Withdraw
                     </Text>
                   </Box>
                 </Box>
                 <Box direction="row" margin="10px 0 10px 0">
-                  <Box className="modal-tab modal-tab1 active"></Box>
-                  <Box className="modal-tab modal-tab2"></Box>
+                  <Box className={isDeposit ? 'modal-tab modal-tab1 active' : 'modal-tab modal-tab1'}></Box>
+                  <Box className={!isDeposit ? 'modal-tab modal-tab2 active' : 'modal-tab modal-tab2'}></Box>
                 </Box>
               </>
             )}
@@ -98,10 +97,10 @@ const DepositInputAmount = ({
           <AvailableToTxnInformationRow
             txnType={txnType}
             symbol={token.symbol ? token.symbol : ''}
-            availableAmount={availableAmount}
+            availableAmount={balance}
             tokenDecimals={tokenDecimals}
           />
-          <TxnAmountInputRow txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
+          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
           <Box>
             <Text size="xsmall" weight="bold" color="black">
               {ETxnType.deposit} Rates

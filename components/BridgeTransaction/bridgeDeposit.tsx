@@ -8,10 +8,10 @@ import { useAllowanceData, useUserBalance } from 'api/data/allowanceData';
 import { useErc20DetailedContract } from 'api/data/contracts';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { ETxnType, ITokenData, ETxnSteps} from 'lib/types';
-import './depositModal.css';
 import BridgeInputAmount from 'components/Markets/BridgeInputAmount';
 import contractArtifcat from '../../api/types/Peggy.json';
 import Web3 from 'web3';
+import '../TransactionModals/modals.css';
 
 import { bech32 } from 'bech32';
 

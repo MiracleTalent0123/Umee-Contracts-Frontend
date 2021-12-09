@@ -19,13 +19,15 @@ export interface DepositProps {
   setTxnAmount(amount: string): void;
   handleContinue(e: React.MouseEvent): void;
   txnStep: ETxnSteps;
-  setActiveTab(activeTab: string): void;
+  setIsBorrow(activeTab: boolean): void;
   currentLtv: string;
   ltv: string;
   initialBorrowBalance: number;
   borrowBalance: string;
   txnType: ETxnType;
-  borrowedBalance: BigNumber;
+  balance: BigNumber;
+  isBorrow: boolean;
+  txnAmount: string;
 }
 
 const BorrowInputAmount = ({
@@ -33,13 +35,15 @@ const BorrowInputAmount = ({
   setTxnAmount,
   handleContinue,
   txnStep,
-  setActiveTab,
+  setIsBorrow,
   currentLtv,
   ltv,
   initialBorrowBalance,
   borrowBalance,
   txnType,
-  borrowedBalance
+  balance,
+  isBorrow,
+  txnAmount
 }: DepositProps) => {
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
@@ -66,27 +70,20 @@ const BorrowInputAmount = ({
             {!isPending && !isFinal && (
               <>
                 <Box margin="-40px 0 0" direction="row" justify="between">
-                  <Box>
-                    <Text
-                      size="medium"
-                      style={{
-                        background: 'linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%)',
-                        WebkitTextFillColor: 'transparent',
-                        WebkitBackgroundClip: 'text',
-                      }}
-                    >
+                  <Box onClick={() => setIsBorrow(true)}>
+                    <Text size="medium" className={isBorrow ? 'tab active-tab' : 'tab no-active-tab'}>
                       Borrow
                     </Text>
                   </Box>
-                  <Box onClick={() => setActiveTab('Repay')}>
-                    <Text size="medium" color="#133A33">
+                  <Box onClick={() => setIsBorrow(false)}>
+                    <Text size="medium" className={!isBorrow ? 'tab active-tab' : 'tab no-active-tab'}>
                       Repay
                     </Text>
                   </Box>
                 </Box>
                 <Box direction="row" margin="10px 0 10px 0">
-                  <Box className="modal-tab modal-tab1 active"></Box>
-                  <Box className="modal-tab modal-tab2"></Box>
+                  <Box className={isBorrow ? 'modal-tab modal-tab1 active' : 'modal-tab modal-tab1'}></Box>
+                  <Box className={!isBorrow ? 'modal-tab modal-tab2 active' : 'modal-tab modal-tab2'}></Box>
                 </Box>
               </>
             )}
@@ -99,10 +96,10 @@ const BorrowInputAmount = ({
           <AvailableToTxnInformationRow
             txnType={txnType}
             symbol={token.symbol ? token.symbol : ''}
-            availableAmount={borrowedBalance}
+            availableAmount={balance}
             tokenDecimals={tokenDecimals}
           />
-          <TxnAmountInputRow txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
+          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
           <Box>
             <Text size="12px" weight="bold" color="black">
               {ETxnType.borrow} Rates

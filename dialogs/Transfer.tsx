@@ -5,9 +5,10 @@ import { IBCCurrency } from '@keplr-wallet/types';
 import { useStore } from '../api/cosmosStores';
 import { Bech32Address } from '@keplr-wallet/cosmos';
 import { WalletStatus } from '@keplr-wallet/stores';
+import { CoinPretty, Dec, DecUtils, Int } from '@keplr-wallet/unit';
+import { PricePretty } from '@keplr-wallet/unit/build/price-pretty';
 import { useFakeFeeConfig } from '../lib/hooks';
 import { useBasicAmountConfig } from '../lib/hooks/basic-amount-config';
-import { wrapBaseDialog } from './base';
 import { useAccountConnection } from '../lib/hooks/account/useAccountConnection';
 import { ConnectAccountButton } from '../components/ConnectAccountButton';
 import { Buffer } from 'buffer/';
@@ -15,7 +16,6 @@ import { BaseModal } from 'components/common';
 import { Box, Button, Text, Image, TextInput } from 'grommet';
 import ModalHeader from 'components/ModalHeader';
 import TxnAmountRangeInput from 'components/Transactions/TxnAmountRangeInput';
-import { useData } from 'api/data';
 import ATOM from '../public/images/cosmos-hub-logo.svg';
 import UMEE from '../public/images/Umee_logo_icon_only.png';
 
@@ -39,16 +39,7 @@ export const TransferDialog = observer(
   }) => {
     const [isWithdraw, setIsWithdraw] = useState<boolean>(false);
     const [percentage, setPercentage] = useState<number>(0);
-    const { chainStore, accountStore, queriesStore } = useStore();
-    const { priceData } = useData();
-    const [usdAtom, setUsdAtom] = useState<number>(0);
-
-    useEffect(() => {
-      if (priceData) {
-        setUsdAtom(priceData['ATOM'].usd);
-      }
-    }, [priceData]);
-
+    const { chainStore, accountStore, queriesStore, priceStore } = useStore();
     const account = accountStore.getAccount(chainStore.current.chainId);
     const counterpartyAccount = accountStore.getAccount(counterpartyChainId);
     const bal = queriesStore
@@ -85,6 +76,34 @@ export const TransferDialog = observer(
     );
     amountConfig.setFeeConfig(feeConfig);
     const { isAccountConnected, connectAccount } = useAccountConnection();
+
+    const coinPretty = (() => {
+      if (currency.originCurrency) {
+        if (amountConfig.amount) {
+          try {
+            const result = new CoinPretty(
+              currency.originCurrency,
+              new Dec(amountConfig.amount).mul(DecUtils.getPrecisionDec(currency.originCurrency.coinDecimals))
+            );
+            if (result.toDec().gte(new Dec(0))) {
+              return result;
+            }
+          } catch {
+            return new CoinPretty(currency.originCurrency, new Dec(0));
+          }
+        }
+
+        return new CoinPretty(currency.originCurrency, new Dec(0));
+      }
+    })();
+
+    let price;
+
+    if (coinPretty) {
+      const p =
+        priceStore.calculatePrice(coinPretty) ?? new PricePretty(priceStore.getFiatCurrency('usd')!, new Int(0));
+      price = p.maxDecimals(2).toString();
+    }
 
     return (
       <BaseModal onClose={onClose}>
@@ -144,7 +163,11 @@ export const TransferDialog = observer(
                         isWithdraw
                       );
                       setPercentage(
-                        parseFloat(max) > 0 ? parseFloat(((parseFloat(value) / parseFloat(max)) * 100).toFixed(0)) : 0
+                        parseFloat(value) > parseFloat(max)
+                          ? 100
+                          : parseFloat(max) > 0
+                            ? parseFloat(((parseFloat(value ? value : '0') / parseFloat(max)) * 100).toFixed(0))
+                            : 0
                       );
                     }}
                     value={amountConfig.amount}
@@ -156,10 +179,7 @@ export const TransferDialog = observer(
                   </Text>
                 </Box>
                 <Text margin={{ top: '-6px' }} textAlign="end" size="medium">
-                  ~$
-                  {parseFloat(amountConfig.amount) >= 0
-                    ? (parseFloat(amountConfig.amount) * usdAtom).toFixed(2)
-                    : '0.00'}
+                  ~{price}
                 </Text>
               </Box>
               <Box width="20%">
@@ -205,12 +225,7 @@ export const TransferDialog = observer(
                 From
               </Text>
               <Box margin={{ top: 'small' }} direction="row" justify="start" align="center">
-                <Image
-                  width="40px"
-                  height="40px"
-                  alt="token logo"
-                  src={pickOne(UMEE, ATOM, isWithdraw)}
-                />
+                <Image width="40px" height="40px" alt="token logo" src={pickOne(UMEE, ATOM, isWithdraw)} />
                 <Text color="#142A5B" margin={{ left: 'small' }} size="small">
                   {pickOne(
                     Bech32Address.shortenAddress(account.bech32Address, 25),
@@ -225,12 +240,7 @@ export const TransferDialog = observer(
                 To
               </Text>
               <Box margin={{ top: 'small' }} direction="row" justify="start" align="center">
-                <Image
-                  width="40px"
-                  height="40px"
-                  alt="token logo"
-                  src={pickOne(ATOM, UMEE, isWithdraw)}
-                />
+                <Image width="40px" height="40px" alt="token logo" src={pickOne(ATOM, UMEE, isWithdraw)} />
                 <Text color="#142A5B" margin={{ left: 'small' }} size="small">
                   {pickOne(
                     Bech32Address.shortenAddress(counterpartyAccount.bech32Address, 25),

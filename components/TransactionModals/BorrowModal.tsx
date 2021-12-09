@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { BaseModal } from 'components/common/BaseModal';
 import { Box } from 'grommet';
-import BorrowToken from 'pages/borrow/borrowToken';
-import RepayToken from 'pages/repay/repayToken';
+import BorrowToken from './BorrowToken';
 import { useData } from 'api/data';
 import { BigNumber, utils } from 'ethers';
-import { bigNumberToUSDNumber, BN, bigNumberToString } from 'lib/number-utils';
+import { bigNumberToUSDNumber, BN } from 'lib/number-utils';
+import './modals.css';
 
 const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void }) => {
   const { priceData, UserReserveData, UserAccountData, ReserveConfigurationData } = useData();
-
-  const [activeTab, setActiveTab] = useState('Borrow');
   const [myDepositsTotal, setMyDepositsTotal] = useState<number>(0);
   const [myBorrowsUSDTotal, setMyBorrowsUSDTotal] = useState<number>(0);
   const [currentltv, setCurrentLtv] = useState<string>('0');
@@ -68,23 +66,12 @@ const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onCl
   return (
     <BaseModal onClose={onClose}>
       <Box width="320px">
-        {activeTab === 'Borrow' ? (
-          <BorrowToken
-            address={tokenAddress}
-            setActiveTab={setActiveTab}
-            myBorrowsTotal={myBorrowsUSDTotal}
-            currentLtv={currentltv}
-            initialBorrowLimit={initialBorrowLimit}
-          />
-        ) : (
-          <RepayToken
-            address={tokenAddress}
-            setActiveTab={setActiveTab}
-            myBorrowsTotal={myBorrowsUSDTotal}
-            currentLtv={currentltv}
-            initialBorrowLimit={initialBorrowLimit}
-          />
-        )}
+        <BorrowToken
+          address={tokenAddress}
+          myBorrowsTotal={myBorrowsUSDTotal}
+          currentLtv={currentltv}
+          initialBorrowLimit={initialBorrowLimit}
+        />
       </Box>
     </BaseModal>
   );

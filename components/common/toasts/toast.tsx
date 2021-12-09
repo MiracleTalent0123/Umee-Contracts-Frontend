@@ -1,111 +1,152 @@
 import React, { FunctionComponent, ReactComponentElement, ReactElement, ReactNode } from 'react';
 import { toast, ToastOptions } from 'react-toastify';
-import load from '../../../public/assets/Loading.png'
-import failed from '../../../public/assets/FailedTx.png'
-import success from '../../../public/assets/ToastSuccess.png'
-import view from '../../../public/assets/Link.png'
-import close from '../../../public/assets/ToastClose.png'
+import failed from '../../../public/assets/FailedTx.png';
+import success from '../../../public/assets/ToastSuccess.png';
+import loading from '../../../public/assets/Loading.png';
+import view from '../../../public/assets/Link.png';
+import close from '../../../public/assets/Exit.png';
+import { Image, Box, Text } from 'grommet';
+import './toast.css';
 
 const CloseButton: FunctionComponent<{ closeToast: () => void }> = ({ closeToast }) => (
-	<button
-		onClick={closeToast}
-		className="hover:opacity-75 absolute top-2 md:-top-2 right-2 md:-left-2 z-100 h-5 md:h-6 w-5 md:w-6">
-		<img alt="x" className="w-full h-full" src={close} />
-	</button>
+  <Image
+    width="15px"
+    height="16px"
+    style={{ position: 'absolute', top: '15px', right: '15px' }}
+    onClick={() => closeToast()}
+    alt="close"
+    src={close}
+  />
 );
 
 const defaultOptions = {
-	position: 'top-right',
-	autoClose: 7000,
-	hideProgressBar: true,
-	closeOnClick: false,
-	pauseOnHover: true,
-	draggable: false,
-	progress: undefined,
-	pauseOnFocusLoss: false,
-	closeButton: CloseButton,
+  position: 'top-right',
+  autoClose: 5000,
+  hideProgressBar: true,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: false,
+  progress: undefined,
+  pauseOnFocusLoss: false,
+  closeButton: CloseButton,
 };
 
 const defaultExtraData = { message: '', customLink: '' };
 
 export enum TToastType {
-	TX_BROADCASTING,
-	TX_SUCCESSFUL,
-	TX_FAILED,
+  TX_BROADCASTING,
+  TX_SUCCESSFUL,
+  TX_FAILED,
 }
 
 interface IToastExtra {
-	message: string;
-	customLink: string;
+  message: string;
+  customLink: string;
 }
 
 export type DisplayToastFn = ((type: TToastType.TX_BROADCASTING, options?: Partial<ToastOptions>) => void) &
-	((
-		type: TToastType.TX_SUCCESSFUL,
-		extraData?: Partial<Pick<IToastExtra, 'customLink'>>,
-		options?: Partial<ToastOptions>
-	) => void) &
-	((
-		type: TToastType.TX_FAILED,
-		extraData?: Partial<Pick<IToastExtra, 'message'>>,
-		options?: Partial<ToastOptions>
-	) => void);
+  ((
+    type: TToastType.TX_SUCCESSFUL,
+    extraData?: Partial<Pick<IToastExtra, 'customLink'>>,
+    options?: Partial<ToastOptions>
+  ) => void) &
+  ((
+    type: TToastType.TX_FAILED,
+    extraData?: Partial<Pick<IToastExtra, 'message'>>,
+    options?: Partial<ToastOptions>
+  ) => void);
 
 export interface DisplayToast {
-	displayToast: DisplayToastFn;
+  displayToast: DisplayToastFn;
 }
 
 export const displayToast: DisplayToastFn = (
-	type: TToastType,
-	extraData?: Partial<IToastExtra> | Partial<ToastOptions>,
-	options?: Partial<ToastOptions>
+  type: TToastType,
+  extraData?: Partial<IToastExtra> | Partial<ToastOptions>,
+  options?: Partial<ToastOptions>
 ) => {
-	const refinedOptions = type === TToastType.TX_BROADCASTING ? extraData ?? {} : options ?? {};
-	const refinedExtraData = extraData ? extraData : {};
-	const inputExtraData = { ...defaultExtraData, ...refinedExtraData } as IToastExtra;
-	const inputOptions = {
-		...defaultOptions,
-		...refinedOptions,
-	} as ToastOptions;
-	if (type === TToastType.TX_BROADCASTING) {
-		toast(<ToastTxBroadcasting />, inputOptions);
-	} else if (type === TToastType.TX_SUCCESSFUL) {
-		toast(<ToastTxSuccess link={inputExtraData.customLink} />, inputOptions);
-	} else if (type === TToastType.TX_FAILED) {
-		toast(<ToastTxFailed message={inputExtraData.message} />, inputOptions);
-	} else {
-		console.error(`Undefined toast type - ${type}`);
-	}
+  const refinedOptions = type === TToastType.TX_BROADCASTING ? extraData ?? {} : options ?? {};
+  const refinedExtraData = extraData ? extraData : {};
+  const inputExtraData = { ...defaultExtraData, ...refinedExtraData } as IToastExtra;
+  const inputOptions = {
+    ...defaultOptions,
+    ...refinedOptions,
+  } as ToastOptions;
+  if (type === TToastType.TX_BROADCASTING) {
+    toast(<ToastTxBroadcasting />, inputOptions);
+  } else if (type === TToastType.TX_SUCCESSFUL) {
+    toast(<ToastTxSuccess link={inputExtraData.customLink} />, inputOptions);
+  } else if (type === TToastType.TX_FAILED) {
+    toast(<ToastTxFailed message={inputExtraData.message} />, inputOptions);
+  } else {
+    console.error(`Undefined toast type - ${type}`);
+  }
 };
 
 const ToastTxBroadcasting: FunctionComponent = () => (
-	<div className="flex gap-3 md:gap-3.75">
-		<img alt="ldg" className="s-spin w-7 h-7" src={load} />
-		<section className="text-white-high">
-			<h6 className="mb-2 text-base md:text-lg">Transaction Broadcasting</h6>
-			<p className="text-xs md:text-sm">Waiting for transaction to be included in the block</p>
-		</section>
-	</div>
+  <Box
+    style={{
+      fontFamily:
+        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+    }}
+    direction="row"
+    align="center"
+  >
+    <Image className="toast-loading" style={{ display: 'flex' }} width="50px" alt="loading" src={loading} />
+    <Box margin={{ left: 'small' }}>
+      <Text weight="bold" color="#000000">
+        Transferring
+      </Text>
+      <Text size="small" color="#131A33">
+        Waiting for transaction to be included in the block
+      </Text>
+    </Box>
+  </Box>
 );
 
 const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
-	<div className="flex gap-3 md:gap-3.75">
-		<img className="w-8 h-8" alt="x" src={failed} />
-		<section className="text-white-high">
-			<h6 className="mb-2 text-base md:text-lg">Transaction Failed</h6>
-			<p className="text-xs md:text-sm">{message}</p>
-		</section>
-	</div>
+  <Box
+    style={{
+      fontFamily:
+        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+    }}
+    direction="row"
+    align="center"
+  >
+    <Image style={{ display: 'flex' }} width="50px" alt="failed" src={failed} />
+    <Box margin={{ left: 'small' }}>
+      <Text weight="bold" color="#000000">
+        Transfer Failed
+      </Text>
+      <Text size="small" color="#131A33">
+        {message}
+      </Text>
+    </Box>
+  </Box>
 );
 
 const ToastTxSuccess: FunctionComponent<{ link: string }> = ({ link }) => (
-	<div className="flex gap-3 md:gap-3.75">
-		<img className="w-8 h-8" alt="b" src={success} />
-		<section className="text-white-high">
-			<h6 className="mb-2 text-base md:text-lg">Transaction Successful</h6>
-			<a target="__blank" href={link} className="text-xs md:text-sm inline hover:opacity-75 cursor-pointer">
-				View explorer <img alt="link" src={view} className="inline-block h-4 w-4 mb-0.75" />
-			</a>
-		</section>
-	</div>
+  <Box
+    style={{
+      fontFamily:
+        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+    }}
+    direction="row"
+    align="center"
+  >
+    <Image style={{ display: 'flex' }} width="50px" alt="success" src={success} />
+    <Box margin={{ left: 'small' }}>
+      <Text weight="bold" color="#000000">
+        Transfer Successful
+      </Text>
+      <a target="__blank" href={link}>
+        <Box direction="row" align="center">
+          <Text size="small" color="#131A33">
+            View in explorer
+          </Text>{' '}
+          <Image style={{ display: 'flex' }} alt="external link" src={view} />
+        </Box>
+      </a>
+    </Box>
+  </Box>
 );

@@ -3,7 +3,7 @@ import { Box, Text, TextInput } from 'grommet';
 import { BigNumber, utils } from 'ethers';
 import { TTxnAvailability } from 'lib/types';
 import { MaxBtn } from 'components/common';
-import '../../pages/deposit/depositModal.css';
+import '../TransactionModals/modals.css';
 import TxnAmountRangeInput from './TxnAmountRangeInput';
 import { useData } from 'api/data';
 
@@ -11,10 +11,10 @@ export type TTxnAmountInput = {
   setTxnAmount: (amount: string) => void;
   txnAvailability: TTxnAvailability;
   disabled?: boolean;
+  txnAmount: string;
 };
-export const TxnAmountInput = ({ setTxnAmount, disabled = false, txnAvailability }: TTxnAmountInput) => {
+export const TxnAmountInput = ({ setTxnAmount, disabled = false, txnAvailability, txnAmount }: TTxnAmountInput) => {
   const { availableAmount, token, tokenDecimals } = txnAvailability;
-  const [_txnAmount, _setTxnAmount] = useState('');
   const [usdPrice, setUsdPrice] = useState<string>('0.00');
   const maxAmount = utils.formatUnits(availableAmount, tokenDecimals);
   const scales = [0, 1, 2, 3, 4];
@@ -22,19 +22,21 @@ export const TxnAmountInput = ({ setTxnAmount, disabled = false, txnAvailability
   const { priceData } = useData();
 
   useEffect(() => {
-    if (priceData && _txnAmount && token.symbol) {
-      setUsdPrice((Number(_txnAmount) * priceData[token.symbol].usd).toFixed(2));
+    if(txnAmount == '') {
+      setPercentage(0);
+      setUsdPrice('0.00');
     }
-  }, [_txnAmount, priceData, token]);
+    if (priceData && txnAmount && token.symbol) {
+      setUsdPrice((Number(txnAmount) * priceData[token.symbol].usd).toFixed(2));
+    }
+  }, [txnAmount, priceData, token]);
 
   const setInputValue = (val: string) => {
-    _setTxnAmount(val);
     if (Number(maxAmount) > 0) setPercentage(Number(((Number(val) / Number(maxAmount)) * 100).toFixed(0)));
     else setPercentage(0);
   };
 
-  const setPercentageValue = (val: string, percent: string) => {
-    _setTxnAmount(val);
+  const setPercentageValue = (percent: string) => {
     setPercentage(Number(percent));
   };
 
@@ -68,7 +70,7 @@ export const TxnAmountInput = ({ setTxnAmount, disabled = false, txnAvailability
                   setTxnAmount(tgt.value);
                 }
               }}
-              value={_txnAmount}
+              value={txnAmount}
               placeholder="0.00"
               type="number"
               min="0"
@@ -100,7 +102,7 @@ export const TxnAmountInput = ({ setTxnAmount, disabled = false, txnAvailability
         min={0}
         max={100}
         setValue={(value: any) => {
-          setPercentageValue(((value * Number(maxAmount)) / 100).toString(), value);
+          setPercentageValue(value);
           setTxnAmount(((value * Number(maxAmount)) / 100).toString());
         }}
         scales={scales}

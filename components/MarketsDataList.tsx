@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, utils } from 'ethers';
-//import MarketModal from 'pages/markets/marketModal';
 import MarketModal from 'pages/markets/marketsDetail';
 import { ButtonItem } from 'components';
-import BridgeModal from 'pages/markets/marketModal';
+import BridgeModal from './BridgeTransaction/BridgeModal';
 import { AssetBalancesList } from 'pages/AssetBalancesList';
 
 export interface IMarketsData {
@@ -83,11 +82,11 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
                 handleClick={() => setToken(row)} 
               />
               <TextItem handleClick={() => {
-                    setToken(row);
-                    setTokenAddress('');
-                    setIsModalShow('');
-                  }
-                }  
+                setToken(row);
+                setTokenAddress('');
+                setIsModalShow('');
+              }
+              }  
               >
                 {showUsd ? (
                   <PrimaryText>${marketSizeUsd.toFixed(2)}</PrimaryText>
@@ -96,22 +95,22 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
                 )}
               </TextItem>
               <TextItem handleClick={() => {
-                    setToken(row);
-                    setTokenAddress('');
-                    setIsModalShow('');
-                  }
-                }
+                setToken(row);
+                setTokenAddress('');
+                setIsModalShow('');
+              }
+              }
               >
                 <PrimaryText>
                   {depositAPY && parseFloat(utils.formatUnits(depositAPY, aprDecimals)).toFixed(2).toString()}%
                 </PrimaryText>
               </TextItem>
               <TextItem handleClick={() => {
-                    setToken(row);
-                    setTokenAddress('');
-                    setIsModalShow('');
-                  }
-                }
+                setToken(row);
+                setTokenAddress('');
+                setIsModalShow('');
+              }
+              }
               >
                 <PrimaryText>
                   {variableBorrowAPR &&
@@ -130,11 +129,11 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress }: Marke
                   Bridge
                 </ButtonItem>
               </TextItem>
-              {name == "ATOM" ? 
+              {name == 'ATOM' ? 
                 <TextItem>
                   <AssetBalancesList />
                 </TextItem>
-              : <></>
+                : <></>
               }
             </DataListRow>
           );

@@ -7,10 +7,12 @@ export const TxnAmountInputRow = ({
   txnAvailability,
   disabled = false,
   setTxnAmount,
+  txnAmount,
 }: {
   txnAvailability: TTxnAvailability;
   disabled?: boolean;
   setTxnAmount: (amount: string) => void;
+  txnAmount: string;
 }) => {
   return (
     <Box margin={{bottom: '20px'}}>
@@ -18,6 +20,7 @@ export const TxnAmountInputRow = ({
         txnAvailability={txnAvailability}
         disabled={disabled}
         setTxnAmount={setTxnAmount}
+        txnAmount={txnAmount}
       />
     </Box>
   );

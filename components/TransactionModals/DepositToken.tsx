@@ -15,7 +15,6 @@ import { toast } from 'react-toastify';
 import { GREATER_THAN_ZERO_MESSAGE } from 'lib/constants';
 import { getMaxWithdraws } from 'lib/health-utils';
 import EnableDeposit from 'components/TransactionModals/AssetModal';
-import './depositModal.css';
 
 const DepositToken = ({
   address: tokenAddress,

@@ -3,7 +3,7 @@ import BorrowInputAmount from 'components/Borrows/BorrowInputAmount';
 import { InterestRateTypeEnums } from 'components/Borrows/BorrowInputRate';
 import { ITokenData, ETxnSteps, ETxnType } from 'lib/types';
 import { useData } from 'api/data';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, constants, utils } from 'ethers';
 import { useTransaction } from 'api/data/transactions';
 import { useWeb3 } from 'api/web3';
 import PageLoading from 'components/common/Loading/PageLoading';
@@ -11,18 +11,17 @@ import { getMaxBorrows } from 'lib/health-utils';
 import { toast } from 'react-toastify';
 import { GREATER_THAN_ZERO_MESSAGE } from 'lib/constants';
 import { isZero } from 'lib/number-utils';
+import { useUserBalance } from 'api/data/allowanceData';
 
 const { useEffect, useState } = React;
 
 const BorrowToken = ({
   address: tokenAddress,
-  setActiveTab,
   currentLtv,
   myBorrowsTotal,
   initialBorrowLimit,
 }: {
   address: string;
-  setActiveTab: (activeTab: string) => void;
   currentLtv: string;
   myBorrowsTotal: number;
   initialBorrowLimit: string;
@@ -34,18 +33,41 @@ const BorrowToken = ({
   const { account } = useWeb3();
 
   const { contractCall: contractCallBorrow, pending: pendingBorrow } = useTransaction();
+  const { contractCall: contractCallRepay, pending: pendingRepay } = useTransaction();
 
   const [token, setToken] = useState<ITokenData>();
+  const [isBorrow, setIsBorrow] = useState<boolean>(true);
   const [borrowStep, setBorrowStep] = useState<ETxnSteps>(ETxnSteps.InputAmount);
-  const [borrowAmount, setBorrowAmount] = useState<string>('');
-  const [availableAmount, setAvailableAmount] = useState<BigNumber>(BigNumber.from(0));
+  const [repayStep, setRepayStep] = useState<ETxnSteps>(ETxnSteps.InputAmount);
+  const [txnAmount, setTxnAmount] = useState<string>('');
+  const userBalance = useUserBalance(tokenAddress) || BigNumber.from(0);
+  const [availableBorrowAmount, setAvailableBorrowAmount] = useState<BigNumber>(BigNumber.from(0));
+  const [availableRepayAmount, setAvailableRepayAmount] = useState<BigNumber>(BigNumber.from(0));
   const [tokenDecimals, setTokenDecimals] = useState<BigNumber>(BigNumber.from(0));
-  const [borrowAmountBN, setBorrowAmountBN] = useState(BigNumber.from(0));
+  const [txnAmountBN, setTxnAmountBN] = useState(BigNumber.from(0));
   const [pageLoading, setPageLoading] = useState<boolean>(true);
 
   const [ltv, setLtv] = useState<string>('');
   const [borrowBalance, setBorrowBalance] = useState<string>('');
-  const [borrowedBalance, setBorrowedBalance] = useState<BigNumber>(BigNumber.from(0));
+  const [amountBorrowed, setAmountBorrowed] = useState<BigNumber>(BigNumber.from(0));
+
+  const interestRateType = InterestRateTypeEnums.Variable;
+
+  useEffect(() => {
+    setTxnAmount('');
+  }, [isBorrow]);
+
+  useEffect(() => {
+    if (pendingRepay) {
+      setRepayStep(ETxnSteps.PendingSubmit);
+    }
+  }, [pendingRepay]);
+
+  useEffect(() => {
+    if (pendingBorrow) {
+      setRepayStep(ETxnSteps.PendingSubmit);
+    }
+  }, [pendingBorrow]);
 
   useEffect(() => {
     if (ReserveData && UserAccountData && ReserveConfigurationData && lendingPool && account && token) {
@@ -56,41 +78,55 @@ const BorrowToken = ({
 
   useEffect(() => {
     if (!tokenAddress || !UserReserveData) {
-      setBorrowedBalance(BigNumber.from(0));
+      setAmountBorrowed(BigNumber.from(0));
       return;
     }
 
     const userReserve = UserReserveData.find((r) => r.address === tokenAddress);
 
     if (!userReserve) {
-      setBorrowedBalance(BigNumber.from(0));
+      setAmountBorrowed(BigNumber.from(0));
       return;
     }
 
-    setBorrowedBalance(userReserve.currentVariableDebt);
+    setAmountBorrowed(userReserve.currentVariableDebt);
   }, [UserReserveData, tokenAddress]);
 
   useEffect(() => {
-    if (!borrowAmount) {
-      setBorrowAmountBN(BigNumber.from(0));
+    if (userBalance.lt(amountBorrowed)) {
+      setAvailableRepayAmount(userBalance);
+    } else {
+      setAvailableRepayAmount(amountBorrowed);
+    }
+  }, [amountBorrowed, userBalance, UserReserveData, tokenAddress]);
+
+  useEffect(() => {
+    if (!txnAmount) {
+      setTxnAmountBN(BigNumber.from(0));
       return;
     }
 
-    setBorrowAmountBN(utils.parseUnits(parseFloat(borrowAmount).toFixed(tokenDecimals.toNumber()), tokenDecimals));
-  }, [borrowAmount, tokenDecimals]);
+    setTxnAmountBN(utils.parseUnits(parseFloat(txnAmount).toFixed(tokenDecimals.toNumber()), tokenDecimals));
+  }, [txnAmount, tokenDecimals]);
 
   useEffect(() => {
     if (priceData && token?.symbol) {
-      if (parseFloat(borrowAmount) > 0) {
-        let borrowUsdAmount = myBorrowsTotal + parseFloat(borrowAmount) * priceData[token.symbol].usd;
+      if (parseFloat(txnAmount) > 0) {
+        let borrowUsdAmount = isBorrow
+          ? myBorrowsTotal + parseFloat(txnAmount) * priceData[token.symbol].usd
+          : myBorrowsTotal - parseFloat(txnAmount) * priceData[token.symbol].usd;
         setBorrowBalance(borrowUsdAmount.toFixed(2));
         setLtv(((borrowUsdAmount / parseFloat(initialBorrowLimit)) * 100).toFixed(2));
+        if(borrowUsdAmount < 0) {
+          setBorrowBalance('0.00');
+          setLtv('0.00');
+        }
       } else {
         setBorrowBalance('');
         setLtv('');
       }
     }
-  }, [borrowAmount, priceData, token, myBorrowsTotal, initialBorrowLimit]);
+  }, [txnAmount, priceData, token, myBorrowsTotal, initialBorrowLimit, isBorrow]);
 
   useEffect(() => {
     if (tokenAddress) {
@@ -99,7 +135,7 @@ const BorrowToken = ({
       setTokenDecimals(ReserveConfigurationData.find((r) => r.address === t?.address)?.decimals || BigNumber.from(18));
       setToken(t);
 
-      if ( UserAccountData && token && priceData && token.symbol && t) {
+      if (UserAccountData && token && priceData && token.symbol && t) {
         // Maximum a user can Borrow to keep health in good standing
         const MaxAvailable = getMaxBorrows(
           UserAccountData,
@@ -111,20 +147,20 @@ const BorrowToken = ({
         // If the User's deposits is less than healthFactor max => Can withdraw all
         // If deposits are less => can withdraw up to healthFactor max
         if (t.availableLiquidity.lt(MaxAvailable)) {
-          setAvailableAmount(t.availableLiquidity);
+          setAvailableBorrowAmount(t.availableLiquidity);
         } else {
-          setAvailableAmount(MaxAvailable);
+          setAvailableBorrowAmount(MaxAvailable);
         }
       }
     }
   }, [ReserveConfigurationData, ReserveData, UserAccountData, tokenAddress, token, priceData, tokenDecimals]);
 
   const handleContinue = () => {
-    if (borrowAmount === '' || isZero(borrowAmount)) {
+    if (txnAmount === '' || isZero(txnAmount)) {
       toast.error(GREATER_THAN_ZERO_MESSAGE);
       return;
     }
-    handleBorrow();
+    isBorrow ? handleBorrow() : handleRepay();
   };
 
   const handleBorrow = () => {
@@ -136,7 +172,7 @@ const BorrowToken = ({
     }
     // Must approve transaction first
     contractCallBorrow(
-      () => lendingPool.borrow(token.address || '', borrowAmountBN, InterestRateTypeEnums.Variable, 0, account),
+      () => lendingPool.borrow(token.address || '', txnAmountBN, InterestRateTypeEnums.Variable, 0, account),
       'Borrowing',
       'Borrow failed',
       'Borrow succeeded',
@@ -147,25 +183,68 @@ const BorrowToken = ({
     );
   };
 
+  const handleRepay = () => {
+    setRepayStep(ETxnSteps.Pending);
+
+    if (!lendingPool || !token || !account) {
+      setRepayStep(ETxnSteps.Failure);
+      return;
+    }
+
+    if (txnAmountBN && amountBorrowed && txnAmountBN.gte(amountBorrowed.sub(10))) {
+      contractCallRepay(
+        () => lendingPool.repay(token.address || '', constants.MaxUint256, interestRateType, account),
+        'Repaying',
+        'Repay failed',
+        'Repay succeeded',
+        () => setRepayStep(ETxnSteps.Failure),
+        () => setRepayStep(ETxnSteps.Success),
+        undefined,
+        (hash: string) => setTxnHash(hash)
+      );
+    } else if (txnAmountBN) {
+      contractCallRepay(
+        () => lendingPool.repay(token.address || '', txnAmountBN, interestRateType, account),
+        'Repaying',
+        'Repay failed',
+        'Repay succeeded',
+        () => setRepayStep(ETxnSteps.Failure),
+        () => setRepayStep(ETxnSteps.Success),
+        undefined,
+        (hash: string) => setTxnHash(hash)
+      );
+    }
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
+
+  const pickOne = <V1, V2>(v1: V1, v2: V2, first: boolean): V1 | V2 => {
+    return first ? v1 : v2;
+  };
 
   return (
     <>
       {!!token && (
         <BorrowInputAmount
-          txnAvailability={{ availableAmount, token, tokenDecimals }}
-          setTxnAmount={setBorrowAmount}
+          txnAvailability={{
+            availableAmount: pickOne(availableBorrowAmount, availableRepayAmount, isBorrow),
+            token,
+            tokenDecimals,
+          }}
+          setTxnAmount={setTxnAmount}
           handleContinue={handleContinue}
-          txnStep={borrowStep}
-          setActiveTab={setActiveTab}
+          txnStep={pickOne(borrowStep, repayStep, isBorrow)}
+          setIsBorrow={setIsBorrow}
+          isBorrow={isBorrow}
           initialBorrowBalance={myBorrowsTotal}
           borrowBalance={borrowBalance}
-          borrowedBalance={borrowedBalance}
+          balance={pickOne(amountBorrowed, availableRepayAmount, isBorrow)}
+          txnAmount={txnAmount}
           currentLtv={currentLtv}
           ltv={ltv}
-          txnType={ETxnType.borrow}
+          txnType={pickOne(ETxnType.borrow, ETxnType.repay, isBorrow)}
         />
       )}
     </>

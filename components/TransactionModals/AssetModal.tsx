@@ -39,7 +39,7 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => v
       )}
       {(!isPending && !isFinal) && (
         <>
-          <Text size="small">Deposit Rates</Text>
+          <Text weight="bold" size="xsmall">Deposit Rates</Text>
           <Box pad="10px 0" width="100%" direction="row" justify="between" align="center"> 
             <Box direction="row" justify="start" align="center">
               {token?.symbol && (
@@ -49,9 +49,9 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => v
                   height="40"
                 />
               )}
-              <Text margin="0 0 0 10px" size="medium">Deposit APY</Text>
+              <Text margin="0 0 0 10px" size="small">Deposit APY</Text>
             </Box>
-            <Text>
+            <Text size="small">
               {token?.liquidityRate && bigNumberToString(token.liquidityRate, aprDecimals)}%
             </Text>
           </Box>
@@ -63,9 +63,9 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => v
                 height="40"
                 src={UmeeLogo}
               />
-              <Text margin="0 0 0 -66px" size="medium">Umee APY</Text>
+              <Text margin="0 0 0 -66px" size="small">Umee APY</Text>
             </Box>
-            <Text>x.xx%</Text>
+            <Text size="small">x.xx%</Text>
           </Box>
           <Button onClick={enabled} style={{borderRadius: '10px', backgroundColor: '#131A33'}} size="large" color="black" primary>
             <Box pad="15px 0" justify="center">

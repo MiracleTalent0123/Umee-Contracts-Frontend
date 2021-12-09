@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BaseModal } from 'components/common/BaseModal';
-import BridgeDeposit from 'pages/deposit/bridgeDeposit';
-import BridgeWithdraw from 'pages/withdraw/bridgeWithdraw';
+import BridgeDeposit from './bridgeDeposit';
+import BridgeWithdraw from './bridgeWithdraw';
 import { Box } from 'grommet';
 
-const MarketModal = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void}) => {
+const BridgeModal = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void}) => {
   const [activeTab, setActiveTab] = useState('Deposit');
 
   return (
@@ -26,4 +26,4 @@ const MarketModal = ({ address: tokenAddress, onClose }: { address: string; onCl
   );
 };
 
-export default MarketModal;
+export default BridgeModal;
