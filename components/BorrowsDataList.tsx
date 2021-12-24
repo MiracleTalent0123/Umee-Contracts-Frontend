@@ -29,7 +29,7 @@ export interface BorrowsDataListProps {
 
 const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
   const history = useHistory();
-  const aprDecimals = BigNumber.from(23);
+  const aprDecimals = BigNumber.from(25);
   const handleBorrowToken = (e: any, tokenAddress: string) => {
     e.preventDefault();
     history.push(`/borrow/${tokenAddress}`);

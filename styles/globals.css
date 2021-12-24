@@ -21,6 +21,7 @@
   --status-warn: #e67e22;
   --status-error: #c0392b;
 }
+
 * { 
   box-sizing:border-box;
   margin : 0;
@@ -80,4 +81,8 @@ input[type=number] {
   background: linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
+}
+
+.modal-width {
+  min-width: 320px !important;
 }

@@ -8,21 +8,20 @@ interface ConnectAccountButtonProps {
 
 export function ConnectAccountButton(props: React.HTMLAttributes<HTMLButtonElement> & ConnectAccountButtonProps) {
 
-	return (
-		<ConnectAccountButtonWrapper {...props}>
-			<WalletImg src="/public/assets/Icons/Wallet.svg" />
-			<Text
-				style={{
-					marginLeft: '10px',
-					...props.textStyle,
-				}}>
+  return (
+    <ConnectAccountButtonWrapper {...props}>
+      <Text
+        style={{
+          ...props.textStyle,
+        }}>
 				Connect Wallet
-			</Text>
-		</ConnectAccountButtonWrapper>
-	);
+      </Text>
+    </ConnectAccountButtonWrapper>
+  );
 }
 
 const ConnectAccountButtonWrapper = styled.button`
+	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -34,9 +33,4 @@ const ConnectAccountButtonWrapper = styled.button`
 	@media (min-width: 768px) {
 		padding: 14px 4px;
 	}
-`;
-
-const WalletImg = styled.img`
-	width: 1.25rem;
-	height: 1.25rem;
 `;

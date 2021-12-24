@@ -7,7 +7,7 @@ interface IAddressMap {
 
 const mainnet: IAddressMap = {
   AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
-  ATOM: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',  // copied AAVE here for now
+  ATOM: '',  //using other form of api for this price
   BAT: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
   BUSD: '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',

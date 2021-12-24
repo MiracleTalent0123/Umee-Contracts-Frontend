@@ -19,10 +19,10 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any, enabled: () => v
     steps === ETxnSteps.Failure || steps === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false);
   }, [steps]);
 
-  const aprDecimals = BigNumber.from(23);
+  const aprDecimals = BigNumber.from(25);
   
   return (
-    <Box width="320px" pad="20">
+    <Box className="modal-width" pad="20">
       {token?.symbol && (
         <>
           <Box margin="-65px 0 0" direction="row" justify="center">

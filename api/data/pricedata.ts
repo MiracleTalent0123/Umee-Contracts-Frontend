@@ -7,7 +7,6 @@ export interface IAssetPrices {
         'eth': number;
     }
 }
-
 /*
 *   returns a { symbol: price } map
 */
@@ -18,7 +17,8 @@ const usePriceData = () => {
     const symbols = Object.keys(mainnet);
     const addresses = symbols.map(s => mainnet[s]).join(',');
     const response = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addresses}&vs_currencies=usd,eth`);
-      
+    const atomAPICall = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd,eth');
+    const atomPrice = await atomAPICall.json();
     if(response && response.status == 200) {
       const pricesByAddress: IAssetPrices = await response.json();
       const symbolPriceMap = symbols.reduce((pMap, s) => {
@@ -27,6 +27,8 @@ const usePriceData = () => {
         }
         return pMap;
       }, {} as IAssetPrices);
+      symbolPriceMap['ATOM'].usd = atomPrice['cosmos'].usd;
+      symbolPriceMap['ATOM'].eth = atomPrice['cosmos'].eth;
       setPriceData(symbolPriceMap);
     } else {
       console.error(response);
@@ -37,6 +39,7 @@ const usePriceData = () => {
     getPrices();
     const interval = setInterval(getPrices, 60000);
     return () => clearInterval(interval);
+    
   }, []);
 
   return priceData;

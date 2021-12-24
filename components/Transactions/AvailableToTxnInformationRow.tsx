@@ -19,7 +19,7 @@ export const AvailableToTxnInformationRow = ({
 }) => {
   return (
     <Box direction="row" justify="between">
-      <Text size="small">{txnType} Amount</Text>
+      <Text margin={{right: 'medium'}} size="small">{txnType} Amount</Text>
       <Text size="small" weight="bold">
         Balance:
         <Text

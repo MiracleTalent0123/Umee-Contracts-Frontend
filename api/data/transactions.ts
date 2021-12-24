@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import React, { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { displayToast, TToastType } from 'components/common/toasts';
+import { useWeb3 } from 'api/web3';
 
 interface ProviderRpcError extends Error {
   message: string;
@@ -10,6 +12,8 @@ interface ProviderRpcError extends Error {
 
 const useTransaction = () => {
   const [pending, setPending] = useState(false);
+  const { chainId } = useWeb3();
+  const exploreUrl = chainId === 4 ? 'https://rinkeby.etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
 
   const contractCall = useCallback(
     (
@@ -24,7 +28,7 @@ const useTransaction = () => {
     ) => {
       setPending(true);
       let toastId: React.ReactText;
-      toastId = toast(pendingMessage, {
+      displayToast(pendingMessage, TToastType.TX_BROADCASTING, {
         autoClose: false,
         closeOnClick: false,
         draggable: false,
@@ -40,10 +44,12 @@ const useTransaction = () => {
           }, 5000);
           toast.dismiss(toastId);
           if (txReceipt.status === 0) {
-            toast.error(failedMessage);
+            displayToast(failedMessage, TToastType.TX_FAILED);
             if (failedCallback) failedCallback();
           } else if (txReceipt.status === 1) {
-            toast(successMessage);
+            displayToast(successMessage, TToastType.TX_SUCCESSFUL, {
+              customLink: exploreUrl + txReceipt.transactionHash,
+            });
             if (successCallback) successCallback();
           } else {
             toast.error('Not sure what happened with that transaction');
@@ -78,7 +84,9 @@ const useTransaction = () => {
           if (completedCallback) completedCallback();
           if (failedCallback) failedCallback();
         });
-    }, []);
+    },
+    []
+  );
 
   return { contractCall, pending };
 };

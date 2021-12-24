@@ -12,7 +12,7 @@ import Arrow from '/public/images/arrow.png';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
 
-const aprDecimals = BigNumber.from(23);
+const aprDecimals = BigNumber.from(25);
 
 export interface RepayProps {
   tokenDecimals: BigNumberish;

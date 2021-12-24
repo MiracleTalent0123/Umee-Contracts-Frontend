@@ -7,8 +7,11 @@ import {
   LendingPool,
   LendingPoolFactory,
   ERC20,
-  ERC20Factory
-
+  ERC20Factory,
+  MockDAI,
+  MockDAIFactory,
+  MockUSDC,
+  MockUSDCFactory
 } from '../types';
 
 const useUmeeProtocolDataProviderContract = () => {
@@ -48,6 +51,7 @@ const useLendingPoolContract = () => {
 const useErc20DetailedContract = ( asset: string) => {
   const { chainId, signerOrProvider } = useWeb3();
   const Erc20DetailedAddress = asset;
+
   const [Erc20DetailedAddressContract, setErc20DetailedAddressContract] = useState<ERC20>();
 
   useEffect(() => {
@@ -57,6 +61,24 @@ const useErc20DetailedContract = ( asset: string) => {
     }
 
     setErc20DetailedAddressContract(ERC20Factory.connect(Erc20DetailedAddress, signerOrProvider));
+  }, [chainId, Erc20DetailedAddress, signerOrProvider]);
+
+  return Erc20DetailedAddressContract;
+};
+
+const useErc20MintContract = (asset: string) => {
+  const { chainId, signerOrProvider } = useWeb3();
+  const Erc20DetailedAddress = asset;
+
+  const [Erc20DetailedAddressContract, setErc20DetailedAddressContract] = useState<MockDAI>();
+
+  useEffect(() => {
+    if (!chainId || !Erc20DetailedAddress || !signerOrProvider) {
+      setErc20DetailedAddressContract(undefined);
+      return;
+    }
+
+    setErc20DetailedAddressContract(MockDAIFactory.connect(Erc20DetailedAddress, signerOrProvider));
   }, [chainId, Erc20DetailedAddress, signerOrProvider]);
 
   return Erc20DetailedAddressContract;
@@ -86,4 +108,5 @@ export {
   useLendingPoolContract,
   useErc20DetailedContract,
   useErc20DetailedContracts,
+  useErc20MintContract
 };

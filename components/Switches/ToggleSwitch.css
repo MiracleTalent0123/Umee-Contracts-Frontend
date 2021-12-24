@@ -1,5 +1,8 @@
 .toggle-label {
   font-size: 15px !important;
+  position: relative;
+  z-index: 1;
+  transition: ease-in-out 0.3s;
 }
 
 .toggle-hover-label:hover {
@@ -7,4 +10,16 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.toggle-box {
+  position: relative;
+}
+
+.toggle-active {
+  position: absolute;
+  top: 0;
+  background-color: white;
+  float: right;
+  transition: ease-in-out 0.3s;
 }

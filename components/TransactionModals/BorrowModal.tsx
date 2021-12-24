@@ -65,7 +65,7 @@ const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onCl
 
   return (
     <BaseModal onClose={onClose}>
-      <Box width="320px">
+      <Box className="modal-width">
         <BorrowToken
           address={tokenAddress}
           myBorrowsTotal={myBorrowsUSDTotal}

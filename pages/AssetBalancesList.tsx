@@ -1,6 +1,6 @@
 import { AppCurrency, Currency, IBCCurrency } from '@keplr-wallet/types';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { IBCAssetInfos } from '../config';
 import { TransferDialog } from '../dialogs/Transfer';
 import { useStore } from '../api/cosmosStores';
@@ -15,19 +15,28 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
 
   const ibcBalances = IBCAssetInfos.map(channelInfo => {
     const chainInfo = chainStore.getChain(channelInfo.counterpartyChainId);
-    const ibcDenom = makeIBCMinimalDenom(channelInfo.sourceChannelId, channelInfo.coinMinimalDenom);
+    const counterpartyAccount = accountStore.getAccount(channelInfo.counterpartyChainId);
 
-    const originCurrency = chainInfo.currencies.find(
+    const currency = chainStore.current.currencies.find(
       cur => cur.coinMinimalDenom === channelInfo.coinMinimalDenom
     ) as Currency;
 
-    if (!originCurrency) {
-      throw new Error(`Unknown currency ${channelInfo.coinMinimalDenom} for ${channelInfo.counterpartyChainId}`);
+    const counterpartyCurrency = chainInfo.currencies.find(
+      cur => cur.coinMinimalDenom === channelInfo.counterpartyCoinMinimalDenom
+    ) as Currency;
+
+    if (!currency) {
+      throw new Error(`Unknown currency ${channelInfo.coinMinimalDenom} for ${chainStore.current.chainId}`);
     }
 
-    const balance = queries.queryBalances.getQueryBech32Address(account.bech32Address).getBalanceFromCurrency({
-      ...originCurrency,
-      coinMinimalDenom: ibcDenom,
+    if (!counterpartyCurrency) {
+      throw new Error(`Unknown currency ${channelInfo.counterpartyCoinMinimalDenom} for ${channelInfo.counterpartyChainId}`);
+    }
+
+    const balance = queries.queryBalances.getQueryBech32Address(account.bech32Address).getBalanceFromCurrency(currency);
+
+    const counterpartyBalance = queries.queryBalances.getQueryBech32Address(counterpartyAccount.bech32Address).getBalanceFromCurrency({
+      ...counterpartyCurrency,
       paths: [
         {
           portId: 'transfer',
@@ -35,29 +44,30 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
         },
       ],
       originChainId: chainInfo.chainId,
-      originCurrency,
     });
 
     return {
       chainInfo: chainInfo,
       balance,
+      counterpartyBalance,
       sourceChannelId: channelInfo.sourceChannelId,
       destChannelId: channelInfo.destChannelId,
     };
   });
 
   const [dialogState, setDialogState] = React.useState<
-		| {
-				open: true;
-				currency: IBCCurrency;
-				counterpartyChainId: string;
-				sourceChannelId: string;
-				destChannelId: string;
-		  }
-		| {
-				open: false;
-		  }
-	>({ open: false });
+    | {
+        open: true;
+        currency: IBCCurrency;
+        counterpartyCurrency: IBCCurrency;
+        counterpartyChainId: string;
+        sourceChannelId: string;
+        destChannelId: string;
+      }
+    | {
+        open: false;
+      }
+  >({ open: false });
 
   const close = () => setDialogState(v => ({ ...v, open: false }));
 
@@ -67,6 +77,7 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
         <TransferDialog
           onClose={close}
           currency={dialogState.currency}
+          counterpartyCurrency={dialogState.counterpartyCurrency}
           counterpartyChainId={dialogState.counterpartyChainId}
           sourceChannelId={dialogState.sourceChannelId}
           destChannelId={dialogState.destChannelId}
@@ -82,20 +93,14 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
             .getBalanceFromCurrency(cur);
         })} */}
       {ibcBalances.map(bal => {
-        const currency = bal.balance.currency;
-        const coinDenom = (() => {
-          if ('originCurrency' in currency && currency.originCurrency) {
-            return currency.originCurrency.coinDenom;
-          }
-
-          return currency.coinDenom;
-        })();
+        const currency = bal.balance.currency
+        const counterpartyCurrency = bal.counterpartyBalance.currency
 
         return (
           <AssetBalanceRow
             key={currency.coinMinimalDenom}
             chainName={bal.chainInfo.chainName}
-            coinDenom={coinDenom}
+            coinDenom={currency.coinDenom}
             currency={currency}
             balance={bal.balance
               .hideDenom(true)
@@ -107,6 +112,7 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
                 open: true,
                 counterpartyChainId: bal.chainInfo.chainId,
                 currency: currency as IBCCurrency,
+                counterpartyCurrency: counterpartyCurrency as IBCCurrency,
                 sourceChannelId: bal.sourceChannelId,
                 destChannelId: bal.destChannelId,
               });
@@ -120,14 +126,14 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
 });
 
 interface AssetBalanceRowProps {
-	chainName: string;
-	coinDenom: string;
-	currency: AppCurrency;
-	balance: string;
-	onDeposit?: () => void;
-	onWithdraw?: () => void;
-	showComingSoon?: boolean;
-	isMobileView: boolean;
+  chainName: string;
+  coinDenom: string;
+  currency: AppCurrency;
+  balance: string;
+  onDeposit?: () => void;
+  onWithdraw?: () => void;
+  showComingSoon?: boolean;
+  isMobileView: boolean;
 }
 
 function AssetBalanceRow({
@@ -149,7 +155,7 @@ function AssetBalanceRow({
         textSize="small"
         round="5px"
       >
-				IBC
+        IBC
       </ButtonItem>
     </>
   );

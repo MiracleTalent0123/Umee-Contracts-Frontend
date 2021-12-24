@@ -28,7 +28,7 @@ export interface AvailableBorrowsDataListProps {
 
 const AvailableBorrowsDataList = ({ columns, data, loggedIn, selectedTokenAddress }: AvailableBorrowsDataListProps) => {
   const columnSizes = columns.map((col) => col.size);
-  const aprDecimals = BigNumber.from(23);
+  const aprDecimals = BigNumber.from(25);
   const [tokenAddress, setTokenAddress] = React.useState<string>('');
 
   React.useEffect(() => {

@@ -44,13 +44,19 @@ interface IToastExtra {
   customLink: string;
 }
 
-export type DisplayToastFn = ((type: TToastType.TX_BROADCASTING, options?: Partial<ToastOptions>) => void) &
+export type DisplayToastFn = ((
+  string: String,
+  type: TToastType.TX_BROADCASTING,
+  options?: Partial<ToastOptions>
+) => void) &
   ((
+    string: String,
     type: TToastType.TX_SUCCESSFUL,
     extraData?: Partial<Pick<IToastExtra, 'customLink'>>,
     options?: Partial<ToastOptions>
   ) => void) &
   ((
+    string: String,
     type: TToastType.TX_FAILED,
     extraData?: Partial<Pick<IToastExtra, 'message'>>,
     options?: Partial<ToastOptions>
@@ -61,6 +67,7 @@ export interface DisplayToast {
 }
 
 export const displayToast: DisplayToastFn = (
+  string: String,
   type: TToastType,
   extraData?: Partial<IToastExtra> | Partial<ToastOptions>,
   options?: Partial<ToastOptions>
@@ -73,17 +80,17 @@ export const displayToast: DisplayToastFn = (
     ...refinedOptions,
   } as ToastOptions;
   if (type === TToastType.TX_BROADCASTING) {
-    toast(<ToastTxBroadcasting />, inputOptions);
+    toast(<ToastTxBroadcasting string={string} />, inputOptions);
   } else if (type === TToastType.TX_SUCCESSFUL) {
-    toast(<ToastTxSuccess link={inputExtraData.customLink} />, inputOptions);
+    toast(<ToastTxSuccess string={string} link={inputExtraData.customLink} />, inputOptions);
   } else if (type === TToastType.TX_FAILED) {
-    toast(<ToastTxFailed message={inputExtraData.message} />, inputOptions);
+    toast(<ToastTxFailed string={string} message={inputExtraData.message} />, inputOptions);
   } else {
     console.error(`Undefined toast type - ${type}`);
   }
 };
 
-const ToastTxBroadcasting: FunctionComponent = () => (
+const ToastTxBroadcasting: FunctionComponent<{ string: String }> = ({ string }) => (
   <Box
     style={{
       fontFamily:
@@ -95,16 +102,16 @@ const ToastTxBroadcasting: FunctionComponent = () => (
     <Image className="toast-loading" style={{ display: 'flex' }} width="50px" alt="loading" src={loading} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
-        Transferring
+        {string}
       </Text>
-      <Text size="small" color="#131A33">
+      <Text size="small" style={{ lineHeight: '16px' }} color="#131A33">
         Waiting for transaction to be included in the block
       </Text>
     </Box>
   </Box>
 );
 
-const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
+const ToastTxFailed: FunctionComponent<{ string: String; message: string }> = ({ string, message }) => (
   <Box
     style={{
       fontFamily:
@@ -116,7 +123,7 @@ const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
     <Image style={{ display: 'flex' }} width="50px" alt="failed" src={failed} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
-        Transfer Failed
+        {string}
       </Text>
       <Text size="small" color="#131A33">
         {message}
@@ -125,7 +132,7 @@ const ToastTxFailed: FunctionComponent<{ message: string }> = ({ message }) => (
   </Box>
 );
 
-const ToastTxSuccess: FunctionComponent<{ link: string }> = ({ link }) => (
+const ToastTxSuccess: FunctionComponent<{ string: String; link: string }> = ({ link, string }) => (
   <Box
     style={{
       fontFamily:
@@ -137,7 +144,7 @@ const ToastTxSuccess: FunctionComponent<{ link: string }> = ({ link }) => (
     <Image style={{ display: 'flex' }} width="50px" alt="success" src={success} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
-        Transfer Successful
+        {string}
       </Text>
       <a target="__blank" href={link}>
         <Box direction="row" align="center">

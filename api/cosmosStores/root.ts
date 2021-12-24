@@ -17,8 +17,8 @@ export class RootStore {
 	public readonly chainStore: ChainStore;
 	public readonly accountStore: AccountStore<Account>;
 	public readonly queriesStore: QueriesStore<Queries>;
-	public readonly connectWalletManager: ConnectWalletManager;
 	public readonly priceStore: PoolIntermediatePriceStore;
+	public readonly connectWalletManager: ConnectWalletManager;
 
 	constructor() {
 	  this.chainStore = new ChainStore(EmbedChainInfos, EmbedChainInfos[0].chainId);
@@ -96,12 +96,12 @@ export class RootStore {
 	              console.log(e);
 	            }
 
-	            displayToast(TToastType.TX_FAILED, {
+	            displayToast('Transfer Failed', TToastType.TX_FAILED, {
 	              message,
 	            });
 	          },
 	          onBroadcasted: (txHash: Uint8Array) => {
-	            displayToast(TToastType.TX_BROADCASTING);
+	            displayToast('Transferring', TToastType.TX_BROADCASTING);
 	          },
 	          onFulfill: (tx: any) => {
 	            if (tx.code) {
@@ -117,9 +117,9 @@ export class RootStore {
 	                }
 	              }
 
-	              displayToast(TToastType.TX_FAILED, { message });
+	              displayToast('Transfer Failed', TToastType.TX_FAILED, { message });
 	            } else {
-	              displayToast(TToastType.TX_SUCCESSFUL, {
+	              displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
 	                customLink: chainInfo.raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
 	              });
 	            }

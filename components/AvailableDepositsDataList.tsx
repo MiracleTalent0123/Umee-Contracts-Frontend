@@ -61,10 +61,11 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
       setTokenAddress(selectedTokenAddress);
       setIsModalShow('deposit');
     }
+    
   }, [selectedTokenAddress]);
 
   const columnSizes = columns.map((col) => col.size);
-  const aprDecimals = BigNumber.from(23);
+  const aprDecimals = BigNumber.from(25);
   const setAssetModal = (token: any) => {
     setToken(token);
     setTokenAddress(token.address);

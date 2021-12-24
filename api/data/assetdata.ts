@@ -8,29 +8,62 @@ import {
 } from '../types';
 import { IReserveData, IReserveConfigurationData } from 'lib/types';
 import { result } from 'lodash';
+import { useWeb3 } from 'api/web3';
 
 const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined) => {
   let [reservesAddresses, setReservesAddresses] = useState<{ symbol: string; tokenAddress: string; }[]>([]);
-
+  const {chainId} = useWeb3();
   useEffect(() => {
     if (!umeeProtocolDataProvider) {
       setReservesAddresses([]);
       return;
     }
-
+    
     umeeProtocolDataProvider.getAllReservesTokens()
       .then(function(result){
         let assets = [];
-        for(let i = 0; i<result.length; i++){
-          if(result[i].symbol == ''){
-            let build = ['ATOM', '0xA0944413193a94Da2BC6593204B5988f40870ed4'];
-            build.symbol = 'ATOM';
-            build.tokenAddress = '0xA0944413193a94Da2BC6593204B5988f40870ed4';
-            assets.push(build);
-          }else{
-            assets.push(result[i]);
+        //for Goerli
+        if(chainId === 5){
+          for(let i = 0; i<result.length; i++){
+            if(result[i].symbol == 'uatom'){
+              let build = ['ATOM', '0xad3fd5a0faf3818df880c6f18af4971d2f7f3bb2'];
+              build.symbol = 'ATOM';
+              build.tokenAddress = '0xad3fd5a0faf3818df880c6f18af4971d2f7f3bb2';
+              assets.push(build);
+            }else{
+              assets.push(result[i]);
+            }
+          }
+        //for Rinkeby
+        }else if (chainId === 4){
+          for(let i = 0; i<result.length; i++){
+            if(result[i].symbol == ''){
+              let build = ['ATOM', '0xA0944413193a94Da2BC6593204B5988f40870ed4'];
+              build.symbol = 'ATOM';
+              build.tokenAddress = '0xA0944413193a94Da2BC6593204B5988f40870ed4';
+              assets.push(build);
+            }else{
+              assets.push(result[i]);
+            }
           }
         }
+        //if you add another chain, add another elseif here
+        /*
+        TEMPLATE FOR NEW EXCEPTION
+        else if (chainId === [put new chainId here]){
+          for(let i = 0; i<result.length; i++){
+            if(result[i].symbol == [put new chain symbol here]){
+              let build = [[put matching mainnet symbol here], '[put new chain token address here]'];
+              build.symbol = [put matching mainnet symbol here];
+              build.tokenAddress = [put new chain token address here];
+              assets.push(build);
+            }else{
+              assets.push(result[i]);
+            }
+          }
+        }
+        */ 
+       
         return assets;
       })
       .then(setReservesAddresses)
@@ -138,6 +171,7 @@ const useReserveData = (umeeProtocolDataProvider: UmeeProtocolDataProvider | und
           variableBorrowIndex: data.variableBorrowRate,
           lastUpdateTimestamp: data.lastUpdateTimestamp,
         })));
+        
       })
       .catch(console.error);
     

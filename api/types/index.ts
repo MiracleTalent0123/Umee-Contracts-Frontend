@@ -97,3 +97,7 @@ export { UTokenFactory } from "./UTokenFactory";
 export type { UToken } from "./UToken";
 export { VariableDebtTokenFactory } from "./VariableDebtTokenFactory";
 export type { VariableDebtToken } from "./VariableDebtToken";
+export { MockDAIFactory } from "./MockDAIFactory";
+export type { MockDAI } from "./MockDAI";
+export { MockUSDCFactory } from "./MockUSDCFactory";
+export type { MockUSDC } from "./MockUSDC";

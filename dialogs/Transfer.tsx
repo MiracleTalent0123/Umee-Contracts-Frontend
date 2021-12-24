@@ -1,5 +1,5 @@
 import cn from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { IBCCurrency } from '@keplr-wallet/types';
 import { useStore } from '../api/cosmosStores';
@@ -19,24 +19,28 @@ import TxnAmountRangeInput from 'components/Transactions/TxnAmountRangeInput';
 import ATOM from '../public/images/cosmos-hub-logo.svg';
 import UMEE from '../public/images/Umee_logo_icon_only.png';
 
+interface TransferDialogProps {
+  currency: IBCCurrency
+  counterpartyCurrency: IBCCurrency
+  counterpartyChainId: string
+  sourceChannelId: string
+  destChannelId: string
+  close?: () => void
+  onClose: (show: boolean) => void
+  isMobileView: boolean
+}
+
 export const TransferDialog = observer(
   ({
     currency,
+    counterpartyCurrency,
     counterpartyChainId,
     sourceChannelId,
     destChannelId,
     close,
     onClose,
     isMobileView,
-  }: {
-    currency: IBCCurrency;
-    counterpartyChainId: string;
-    sourceChannelId: string;
-    destChannelId: string;
-    close?: () => void;
-    onClose: (show: boolean) => void;
-    isMobileView: boolean;
-  }) => {
+  }: TransferDialogProps) => {
     const [isWithdraw, setIsWithdraw] = useState<boolean>(false);
     const [percentage, setPercentage] = useState<number>(0);
     const { chainStore, accountStore, queriesStore, priceStore } = useStore();
@@ -50,7 +54,7 @@ export const TransferDialog = observer(
     const counterpartyBal = queriesStore
       .get(counterpartyChainId)
       .queryBalances.getQueryBech32Address(counterpartyAccount.bech32Address)
-      .getBalanceFromCurrency(currency.originCurrency!);
+      .getBalanceFromCurrency(counterpartyCurrency);
 
     useEffect(() => {
       if (account.bech32Address && counterpartyAccount.walletStatus === WalletStatus.NotInit) {
@@ -62,7 +66,7 @@ export const TransferDialog = observer(
       chainStore,
       chainStore.current.chainId,
       pickOne(account.bech32Address, counterpartyAccount.bech32Address, isWithdraw),
-      pickOne(currency, currency.originCurrency!, isWithdraw),
+      pickOne(currency, counterpartyCurrency, isWithdraw),
       pickOne(
         queriesStore.get(chainStore.current.chainId).queryBalances,
         queriesStore.get(counterpartyChainId).queryBalances,
@@ -74,36 +78,35 @@ export const TransferDialog = observer(
       pickOne(chainStore.current.chainId, counterpartyChainId, isWithdraw),
       pickOne(account.msgOpts.ibcTransfer.gas, counterpartyAccount.msgOpts.ibcTransfer.gas, isWithdraw)
     );
-    amountConfig.setFeeConfig(feeConfig);
+
+    useEffect(() => {
+      amountConfig.setFeeConfig(feeConfig);
+    }, [amountConfig, feeConfig]);
+
     const { isAccountConnected, connectAccount } = useAccountConnection();
 
-    const coinPretty = (() => {
-      if (currency.originCurrency) {
+    const price = useMemo(() => {
+      const coinPretty = (() => {
         if (amountConfig.amount) {
           try {
             const result = new CoinPretty(
-              currency.originCurrency,
-              new Dec(amountConfig.amount).mul(DecUtils.getPrecisionDec(currency.originCurrency.coinDecimals))
+              currency,
+              new Dec(amountConfig.amount).mul(DecUtils.getPrecisionDec(currency.coinDecimals))
             );
             if (result.toDec().gte(new Dec(0))) {
               return result;
             }
           } catch {
-            return new CoinPretty(currency.originCurrency, new Dec(0));
+            return new CoinPretty(currency, new Dec(0));
           }
         }
-
-        return new CoinPretty(currency.originCurrency, new Dec(0));
-      }
-    })();
-
-    let price;
-
-    if (coinPretty) {
-      const p =
-        priceStore.calculatePrice(coinPretty) ?? new PricePretty(priceStore.getFiatCurrency('usd')!, new Int(0));
-      price = p.maxDecimals(2).toString();
-    }
+  
+        return new CoinPretty(currency, new Dec(0));
+      })();
+  
+      const p = priceStore.calculatePrice(coinPretty) ?? new PricePretty(priceStore.getFiatCurrency('usd')!, new Int(0));
+      return p.maxDecimals(2).toString();
+    }, [amountConfig.amount, currency, priceStore]);
 
     return (
       <BaseModal onClose={onClose}>
@@ -254,8 +257,6 @@ export const TransferDialog = observer(
           <Box margin={{ top: 'medium' }}>
             {!isAccountConnected ? (
               <ConnectAccountButton
-                className="w-full md:w-2/3 p-4 md:p-6 rounded-2xl"
-                style={{ marginTop: isMobileView ? '16px' : '32px' }}
                 onClick={(e) => {
                   e.preventDefault();
                   connectAccount();
@@ -277,7 +278,6 @@ export const TransferDialog = observer(
 
                   try {
                     if (isWithdraw) {
-                      console.log('IF');
                       if (account.isReadyToSendMsgs && counterpartyAccount.bech32Address) {
                         const sender = account.bech32Address;
                         const recipient = counterpartyAccount.bech32Address;
@@ -347,15 +347,10 @@ export const TransferDialog = observer(
                         );
                       }
                     } else {
-                      console.log('ELSE');
                       // Depositing atom from test node to umee network
                       if (counterpartyAccount.isReadyToSendMsgs && account.bech32Address) {
                         const sender = counterpartyAccount.bech32Address;
                         const recipient = account.bech32Address;
-                        console.log('Current Chain ID ', chainStore.current.chainId);
-                        console.log('Counter Party Chain ID ', counterpartyChainId);
-                        console.log('Destination Channel ID ', destChannelId);
-
                         await counterpartyAccount.cosmos.sendIBCTransferMsg(
                           {
                             portId: 'transfer',

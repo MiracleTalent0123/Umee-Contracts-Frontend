@@ -12,9 +12,9 @@ import { useAccountConnection } from '../../lib/hooks/account/useAccountConnecti
 import { connect } from 'api/web3/providers';
 
 const ConnectedWallets = ({ account }: { account?: string; }) => {
-  const { isAccountConnected } = useAccountConnection();
+  const { isAccountConnected, isCosmosAccountConnected } = useAccountConnection();
   const { accountStore, chainStore } = useStore();
-  const cosmosAddress = accountStore.getAccount('gaia-internal-testnet-1').bech32Address;
+  const cosmosAccount = accountStore.getAccount('gaia-internal-testnet-1');
   const address = accountStore.getAccount(chainStore.current.chainId).bech32Address;
   const KeyConnectingWalletType = 'connecting_wallet_type';
 
@@ -61,7 +61,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
       </Box>
       <Box
         className={
-          isAccountConnected && accountStore.getAccount('gaia-internal-testnet-1').bech32Address
+          isCosmosAccountConnected && cosmosAccount.bech32Address
             ? 'connected-wallet'
             : ''
         }
@@ -89,12 +89,12 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>
           <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
-            {isAccountConnected && cosmosAddress ? (
-              truncate(cosmosAddress, 7, 4)
+            {isCosmosAccountConnected && cosmosAccount.bech32Address ? (
+              truncate(cosmosAccount.bech32Address, 7, 4)
             ) : (
               <Box
                 onClick={() => {
-                  accountStore.getAccount('gaia-internal-testnet-1').init();
+                  cosmosAccount.init();
                 }}
               >
                 Connect

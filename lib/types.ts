@@ -20,6 +20,7 @@ export enum ETxnType {
   repay = 'Repay',
   borrow = 'Borrow',
   deposit = 'Deposit',
+  mint = 'Mint'
 }
 
 export interface IUserTxnCommon { 

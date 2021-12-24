@@ -19,7 +19,7 @@ const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled
   
   return (
     <BaseModal onClose={onClose}>
-      <Box width="320px" pad="20">
+      <Box className="modal-width" pad="20">
         {token?.symbol && (
           <>
             <Box margin="-65px 0 0" direction="row" justify="center">

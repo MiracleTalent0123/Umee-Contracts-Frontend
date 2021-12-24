@@ -1,22 +1,20 @@
 import React from 'react';
 import { Box } from 'grommet';
 import { BigNumber } from 'ethers';
-import {
-  ToggleSwitch,
-  MarketsDataList,
-} from 'components';
+import { ToggleSwitch, MarketsDataList } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
 import { IMarketsData } from 'components/MarketsDataList';
 import { useData } from 'api/data';
 import { useState, useEffect } from 'react';
 import PageLoading from 'components/common/Loading/PageLoading';
 import './Markets.css';
-import { AssetBalancesList } from 'pages/AssetBalancesList';
+import { bigNumberToUSDString, bigNumberToString, bigNumberToNumber } from 'lib/number-utils';
 
 function Markets() {
   const [marketData, setMarketData] = useState<IMarketsData[]>([]);
   const [totalMarketSizeUsd, setTotalMarketSizeUsd] = useState(0);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
+  const [usdDecimals, setUsdDecimals] = useState<BigNumber>(BigNumber.from(18));
 
   const marketColumns: IDataListColumn[] = [
     { title: 'Assets', size: 'flex' },
@@ -38,26 +36,29 @@ function Markets() {
 
   useEffect(() => {
     let localTotalMarketSizeUsd = 0;
-    setMarketData(
-      ReserveData.map((reserveData) => {
-        const bigTen = BigNumber.from(10);
-        const decimals = bigTen.pow(
-          ReserveConfigurationData.find((rc) => rc.address === reserveData.address)?.decimals || BigNumber.from(18)
-        ); // TODO find a better way to handle this
+    let marketsData = ReserveData.reduce((acc, reserveData, index) => {
+      let decimals =
+        ReserveConfigurationData.find((rc) => rc.address === reserveData.address)?.decimals || BigNumber.from(18);
+      setUsdDecimals(decimals);
+      let totalBorrowed = reserveData.totalStableDebt.add(reserveData.totalVariableDebt);
 
-        const totalBorrowed = reserveData.totalStableDebt.add(reserveData.totalVariableDebt).div(decimals);
-        const marketSize = reserveData.availableLiquidity.add(totalBorrowed.mul(decimals)).div(decimals);
+      const marketSize = bigNumberToNumber(
+        reserveData.availableLiquidity.add(totalBorrowed),
+        decimals
+      ).toLocaleString();
+      const totalBorrowedUsd = bigNumberToUSDString(totalBorrowed, decimals, reserveData.usdPrice);
+      const marketSizeUsd = parseFloat(
+        bigNumberToUSDString(reserveData.availableLiquidity.add(totalBorrowed), decimals, reserveData.usdPrice)
+      ).toLocaleString();
 
-        const totalBorrowedUsd = totalBorrowed.toNumber() * reserveData.usdPrice;
-        const marketSizeUsd = marketSize.toNumber() * reserveData.usdPrice;
+      const depositAPY = reserveData.liquidityRate;
+      const variableBorrowAPR = reserveData.variableBorrowRate;
+      const stableBorrowAPR = reserveData.stableBorrowRate;
 
-        const depositAPY = reserveData.liquidityRate;
-        const variableBorrowAPR = reserveData.variableBorrowRate;
-        const stableBorrowAPR = reserveData.stableBorrowRate;
+      localTotalMarketSizeUsd += parseFloat(marketSizeUsd);
 
-        localTotalMarketSizeUsd += marketSizeUsd;
-
-        return {
+      if (reserveData.symbol !== 'WETH') {
+        acc.push({
           name: reserveData.symbol,
           address: reserveData.address,
           color: 'clrReserveIndicatorSecondary',
@@ -68,9 +69,12 @@ function Markets() {
           depositAPY,
           variableBorrowAPR,
           stableBorrowAPR,
-        };
-      })
-    );
+        });
+      }
+
+      return acc;
+    }, Array<IMarketsData>());
+    setMarketData(marketsData);
     setTotalMarketSizeUsd(localTotalMarketSizeUsd);
   }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd]);
 
@@ -85,7 +89,7 @@ function Markets() {
         <p>Markets available for cross-chain leverage</p>
       </div>
       <Box className="markets-container" direction="row" justify="center" gap="medium">
-        <Box width="100%" style={{maxWidth: '1027px'}}>
+        <Box width="100%" style={{ maxWidth: '1027px' }}>
           <Box direction="row" fill="horizontal" justify="center">
             <ToggleSwitch
               choiceA="USD"
@@ -94,8 +98,8 @@ function Markets() {
               handler={(choice) => setDisplayUsd(choice === 'USD')}
             />
           </Box>
-          <Box width='auto' pad={{vertical: 'small'}} direction="row" gap="medium">
-            <MarketsDataList columns={marketColumns} data={marketData} showUsd={displayUsd} />
+          <Box width="auto" pad={{ vertical: 'small' }} direction="row" gap="medium">
+            <MarketsDataList columns={marketColumns} data={marketData} showUsd={displayUsd} decimals={usdDecimals} />
           </Box>
         </Box>
       </Box>

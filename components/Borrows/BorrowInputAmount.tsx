@@ -12,7 +12,7 @@ import Arrow from '/public/images/arrow.png';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
 
-const aprDecimals = BigNumber.from(23);
+const aprDecimals = BigNumber.from(25);
 
 export interface DepositProps {
   txnAvailability: TTxnAvailability;
@@ -142,7 +142,7 @@ const BorrowInputAmount = ({
               Borrow Limit
             </Text>
             <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
-              <Text size="small">Borrow Balance</Text>
+              <Text margin={{right: 'medium'}} size="small">Borrow Balance</Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   ${initialBorrowBalance.toFixed(2)}
@@ -166,7 +166,7 @@ const BorrowInputAmount = ({
               border="top"
               style={{ borderColor: '#E1F0FF' }}
             >
-              <Text size="small">Borrow Limit Used</Text>
+              <Text margin={{right: 'medium'}} size="small">Borrow Limit Used</Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   {currentLtv}%

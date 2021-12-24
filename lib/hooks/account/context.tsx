@@ -5,9 +5,10 @@ import { WalletStatus } from '@keplr-wallet/stores';
 import { observer } from 'mobx-react-lite';
 
 export interface AccountConnection {
-	isAccountConnected: true | WalletType;
-	disconnectAccount: () => Promise<void>;
-	connectAccount: () => void;
+  isCosmosAccountConnected: boolean;
+  isAccountConnected: true | WalletType;
+  disconnectAccount: () => Promise<void>;
+  connectAccount: () => void;
 }
 
 export const AccountConnectionContext = React.createContext<AccountConnection | null>(null);
@@ -17,12 +18,16 @@ export const AccountConnectionProvider: FunctionComponent = observer(({ children
   const [isOpenDialog, setIsOpenDialog] = useState(false);
 
   const account = accountStore.getAccount(chainStore.current.chainId);
+  const counterPartyAccount = accountStore.getAccount('gaia-internal-testnet-1');
 
   // Even though the wallet is not loaded, if `shouldAutoConnectAccount` is true, set the `isAccountConnected` as true.
   // Because the initing the wallet is asyncronous, when users enter the site the wallet is seen as not loaded.
   // To reduce this problem, if the wallet is connected when users enter the site, just assume that the wallet is already connected.
   const isAccountConnected =
-		account.walletStatus === WalletStatus.Loaded || connectWalletManager.autoConnectingWalletType;
+    account.walletStatus === WalletStatus.Loaded || connectWalletManager.autoConnectingWalletType;
+
+  const isCosmosAccountConnected =
+    counterPartyAccount.walletStatus === WalletStatus.Loaded;
 
   const disconnectAccount = useCallback(async () => {
     connectWalletManager.disableAutoConnect();
@@ -33,14 +38,20 @@ export const AccountConnectionProvider: FunctionComponent = observer(({ children
   const closeDialog = useCallback(() => setIsOpenDialog(false), []);
 
   const connectAccount = useCallback(() => {
-    openDialog();
-  }, [openDialog]);
+    account.init();
+  }, [account]);
 
   useEffect(() => {
     if (!!connectWalletManager.autoConnectingWalletType && account.walletStatus === WalletStatus.NotInit) {
       account.init();
     }
   }, [account, connectWalletManager.autoConnectingWalletType]);
+
+  useEffect(() => {
+    if (counterPartyAccount.walletStatus === WalletStatus.NotInit) {
+      counterPartyAccount.init();
+    }
+  }, [counterPartyAccount]);
 
   /*
 	    Disconnect the accounts if the wallet doesn't exist or the connection rejected.
@@ -69,11 +80,13 @@ export const AccountConnectionProvider: FunctionComponent = observer(({ children
     <AccountConnectionContext.Provider
       value={useMemo(() => {
         return {
+          isCosmosAccountConnected,
           isAccountConnected,
           disconnectAccount,
           connectAccount,
         };
-      }, [connectAccount, disconnectAccount, isAccountConnected])}>
+      }, [connectAccount, disconnectAccount, isAccountConnected, isCosmosAccountConnected])}
+    >
       {children}
     </AccountConnectionContext.Provider>
   );

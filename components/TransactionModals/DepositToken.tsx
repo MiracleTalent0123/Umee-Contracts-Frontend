@@ -6,7 +6,7 @@ import { BigNumber, constants } from 'ethers';
 import { useTransaction } from 'api/data/transactions';
 import { useWeb3 } from 'api/web3';
 import { useAllowanceData, useUserBalance } from 'api/data/allowanceData';
-import { useErc20DetailedContract } from 'api/data/contracts';
+import { useErc20DetailedContract, useErc20MintContract } from 'api/data/contracts';
 import { ETxnType, ITokenData } from 'lib/types';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { isZero } from 'lib/number-utils';
@@ -37,9 +37,14 @@ const DepositToken = ({
   const [depositBalance, setDepositBalance] = useState<BigNumber>(BigNumber.from(0));
   const [depositStep, setDepositStep] = useState<ETxnSteps>(ETxnSteps.Input);
   const [withdrawalStep, setWithdrawalStep] = useState<ETxnSteps>(ETxnSteps.Input);
+  const [mintStep, setMintStep] = useState<ETxnSteps>(ETxnSteps.Input);
+  const [step, setStep] = useState<string>('deposit');
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [txnHash, setTxnHash] = useState('');
+
   const erc20Contract = useErc20DetailedContract(tokenAddress);
+  const erc20MintContract = useErc20MintContract(tokenAddress);
+
   const availableAmount = useUserBalance(tokenAddress) || BigNumber.from(0);
   const [availableWithdrawalAmount, setAvailableWithdrawalAmount] = useState<BigNumber>(BigNumber.from(0));
   const [reserveCfgData, setReserveCfgData] = useState<{
@@ -65,6 +70,7 @@ const DepositToken = ({
   const { contractCall: contractCallApprove, pending: pendingApprove } = useTransaction();
   const { contractCall: contractCallDeposit, pending: pendingDeposit } = useTransaction();
   const { contractCall: contractCallWithdrawal, pending: pendingWithdrawal } = useTransaction();
+  const { contractCall: contractCallMint, pending: pendingMint } = useTransaction();
 
   const [ltv, setLtv] = useState<string>('');
   const [borrowLimit, setBorrowLimit] = useState<string>('');
@@ -94,6 +100,12 @@ const DepositToken = ({
     }
   }, [pendingWithdrawal]);
 
+  useEffect(() => {
+    if (pendingMint) {
+      setDepositStep(ETxnSteps.PendingSubmit);
+    }
+  }, [pendingMint]);
+
   const { account } = useWeb3();
   const allowance = useAllowanceData(erc20Contract, lendingPool ? lendingPool.address : '');
 
@@ -102,6 +114,8 @@ const DepositToken = ({
 
   useEffect(() => {
     setTxnAmount('');
+    if(isDeposit) setStep('deposit');
+    else setStep('withdraw');
   }, [isDeposit]);
 
   useEffect(() => {
@@ -214,7 +228,7 @@ const DepositToken = ({
 
     contractCallApprove(
       () => erc20Contract.approve(lendingPool.address, constants.MaxUint256),
-      'Approving token allowance',
+      'Approving allowance',
       'Approval failed',
       'Approval succeeded',
       () => setDepositStep(ETxnSteps.Failure),
@@ -275,13 +289,32 @@ const DepositToken = ({
 
   const handleContinue = () => {
     if (txnAmount === '' || isZero(txnAmount)) {
-      console.log(txnAmount);
       toast.error(GREATER_THAN_ZERO_MESSAGE);
       return;
     }
 
     if (isDeposit) handleDeposit();
     else handleWithdrawal();
+  };
+
+  const handleFaucet = () => {
+    if(token?.symbol === 'DAI' || token?.symbol === 'USDC') {
+      setStep('faucet');
+      setMintStep(ETxnSteps.Pending);
+      if (!erc20MintContract || !lendingPool) {
+        setMintStep(ETxnSteps.Failure);
+        return;
+      }
+
+      contractCallMint(
+        () => erc20MintContract.mint(utils.parseUnits('1000', tokenDecimals)),
+        `Minting 1000 ${token?.symbol}`,
+        'Mint failed',
+        'Mint succeeded',
+        () => setMintStep(ETxnSteps.Failure),
+        () => setMintStep(ETxnSteps.Success)
+      );
+    }
   };
 
   if (pageLoading) {
@@ -292,10 +325,14 @@ const DepositToken = ({
     return first ? v1 : v2;
   };
 
+  const pickDataOne = <V1, V2, V3>(v1: V1, v2: V2, v3: V3, first: string): V1 | V2 | V3 => {
+    return first == 'deposit' ? v1 : first == 'withdraw' ? v2 : v3;
+  };
+
   return (
     <>
       {!!token &&
-        (allowance.gte(txnAmountBN) ? (
+        (allowance.gt(txnAmountBN) ? (
           <DepositInputAmount
             txnAvailability={{
               availableAmount: pickOne(availableAmount, availableWithdrawalAmount, isDeposit),
@@ -306,14 +343,15 @@ const DepositToken = ({
             setTxnAmount={setTxnAmount}
             txnAmount={txnAmount}
             handleContinue={handleContinue}
-            txnStep={pickOne(depositStep, withdrawalStep, isDeposit)}
+            txnStep={pickDataOne(depositStep, withdrawalStep, mintStep, step)}
             setIsDeposit={setIsDeposit}
+            handleFaucet={handleFaucet}
             isDeposit={isDeposit}
             currentLtv={currentLtv}
             initialborrowLimit={initialBorrowLimit}
             ltv={ltv}
             borrowLimit={borrowLimit}
-            txnType={pickOne(ETxnType.deposit, ETxnType.withdraw, isDeposit)}
+            txnType={pickDataOne(ETxnType.deposit, ETxnType.withdraw, ETxnType.mint, step)}
           />
         ) : (
           <EnableDeposit token={token} steps={depositStep} enabled={handleApprove} />

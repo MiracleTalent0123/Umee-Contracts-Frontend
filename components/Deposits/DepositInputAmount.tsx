@@ -5,20 +5,22 @@ import { TxnAmountContainer, ITxnAmount } from 'components/Transactions';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
-import { bigNumberToString, isZero } from 'lib/number-utils';
-import { BigNumber, constants } from 'ethers';
+import { bigNumberToString, isZero, safeBigNumberToStringAllDecimals, BN } from 'lib/number-utils';
+import { BigNumber, constants, utils } from 'ethers';
 import ModalHeader from 'components/ModalHeader';
 import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
 import Arrow from '/public/images/arrow.png';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
 
-const aprDecimals = BigNumber.from(23);
+const aprDecimals = BigNumber.from(25);
+const maxMantissa = 6;
 
 export interface DepositProps {
   txnAvailability: TTxnAvailability;
   setTxnAmount(amount: string): void;
   handleContinue(e: React.MouseEvent): void;
+  handleFaucet(e: React.MouseEvent): void;
   txnStep: ETxnSteps;
   setIsDeposit(activeTab: boolean): void;
   currentLtv: string;
@@ -35,6 +37,7 @@ const DepositInputAmount = ({
   txnAvailability,
   setTxnAmount,
   handleContinue,
+  handleFaucet,
   txnStep,
   setIsDeposit,
   initialborrowLimit,
@@ -49,6 +52,24 @@ const DepositInputAmount = ({
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
+  const [newTxnAvail, setNewTxnAvail] = React.useState(txnAvailability);
+
+  /** 
+   * Convert to max maxMantissa decimals to deal with possible overrun issues causing unpredictable gas errors.
+   */
+  React.useEffect(() => {
+    // this function will generate a string with the proper length; then will need to convert back to a BN.
+    const wrkNum: string = bigNumberToString(availableAmount, tokenDecimals, maxMantissa);
+    const theMantissa: string = wrkNum.split('.')[1];
+
+    // recombine without the decimal place in order to create the BigNumber.
+    const adjustedAvailAmt: BigNumber = BN(wrkNum.split('.')[0] + theMantissa);
+    const tmpDecimals = tokenDecimals as BigNumber;
+    const decimalAdjust = tmpDecimals.toNumber() - maxMantissa;
+    const adjustedDecimals = tmpDecimals.sub(decimalAdjust);
+    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals});
+
+  }, [availableAmount, tokenDecimals, txnAvailability, txnType]);
 
   React.useEffect(() => {
     txnStep === ETxnSteps.Pending || txnStep === ETxnSteps.PendingApprove || txnStep === ETxnSteps.PendingSubmit
@@ -100,7 +121,7 @@ const DepositInputAmount = ({
             availableAmount={balance}
             tokenDecimals={tokenDecimals}
           />
-          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
+          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={newTxnAvail} setTxnAmount={setTxnAmount} />
           <Box>
             <Text size="xsmall" weight="bold" color="black">
               {ETxnType.deposit} Rates
@@ -141,7 +162,7 @@ const DepositInputAmount = ({
               Borrow Limit
             </Text>
             <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
-              <Text size="small">Borrow Limit</Text>
+              <Text size="small" margin={{right: 'medium'}}>Borrow Limit</Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   ${parseFloat(initialborrowLimit).toFixed(2)}
@@ -165,7 +186,7 @@ const DepositInputAmount = ({
               border="top"
               style={{ borderColor: '#E1F0FF' }}
             >
-              <Text size="small">Borrow Limit Used</Text>
+              <Text margin={{right: 'medium'}} size="small">Borrow Limit Used</Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   {currentLtv}%
@@ -180,6 +201,19 @@ const DepositInputAmount = ({
                 )}
               </Box>
             </Box>
+            {isDeposit && (
+              <Box direction="row" justify="center">
+                <Text
+                  style={{ cursor: 'pointer' }}
+                  onClick={handleFaucet}
+                  size="large"
+                  weight="bold"
+                  className="gradient-text"
+                >
+                  Faucet
+                </Text>
+              </Box>
+            )}
           </Box>
         </>
       )}
