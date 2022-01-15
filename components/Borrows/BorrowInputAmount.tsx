@@ -11,8 +11,10 @@ import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
 import Arrow from '/public/images/arrow.png';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
+import { bigNumberToString, BN } from 'lib/number-utils';
 
 const aprDecimals = BigNumber.from(25);
+const maxMantissa = 6;
 
 export interface DepositProps {
   txnAvailability: TTxnAvailability;
@@ -48,6 +50,20 @@ const BorrowInputAmount = ({
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
+  const [newTxnAvail, setNewTxnAvail] = React.useState(txnAvailability);
+
+  React.useEffect(() => {
+    // this function will generate a string with the proper length; then will need to convert back to a BN.
+    const wrkNum: string = bigNumberToString(availableAmount, tokenDecimals, maxMantissa);
+    const theMantissa: string = wrkNum.split('.')[1];
+
+    // recombine without the decimal place in order to create the BigNumber.
+    const adjustedAvailAmt: BigNumber = BN(wrkNum.split('.')[0] + theMantissa);
+    const tmpDecimals = tokenDecimals as BigNumber;
+    const decimalAdjust = tmpDecimals.toNumber() - maxMantissa;
+    const adjustedDecimals = tmpDecimals.sub(decimalAdjust);
+    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals });
+  }, [availableAmount, tokenDecimals, txnAvailability, txnType]);
 
   React.useEffect(() => {
     txnStep === ETxnSteps.Pending || txnStep === ETxnSteps.PendingApprove || txnStep === ETxnSteps.PendingSubmit
@@ -95,11 +111,12 @@ const BorrowInputAmount = ({
         <>
           <AvailableToTxnInformationRow
             txnType={txnType}
+            withdrawModal={true}
             symbol={token.symbol ? token.symbol : ''}
             availableAmount={balance}
             tokenDecimals={tokenDecimals}
           />
-          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
+          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={newTxnAvail} setTxnAmount={setTxnAmount} />
           <Box>
             <Text size="12px" weight="bold" color="black">
               {ETxnType.borrow} Rates
@@ -117,32 +134,15 @@ const BorrowInputAmount = ({
                 %
               </Text>
             </Box>
-            <Box
-              style={{ borderColor: '#E1F0FF' }}
-              border="top"
-              pad="10px 0 30px"
-              width="100%"
-              direction="row"
-              justify="between"
-              align="center"
-            >
-              <Box direction="row" justify="start" align="center">
-                <Image alt="icon" width="115" height="40" src={UmeeLogo} />
-                <Text margin="0 0 0 -66px" size="small">
-                  Umee APY
-                </Text>
-              </Box>
-              <Text size="small" weight="bold">
-                X.XX%
-              </Text>
-            </Box>
           </Box>
           <Box margin="5px 0 10px 0">
             <Text size="12px" weight="bold" color="black">
-              Borrow Limit
+              Borrow Info
             </Text>
             <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
-              <Text margin={{right: 'medium'}} size="small">Borrow Balance</Text>
+              <Text margin={{ right: 'medium' }} size="small">
+                Borrow Position
+              </Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   ${initialBorrowBalance.toFixed(2)}
@@ -166,7 +166,9 @@ const BorrowInputAmount = ({
               border="top"
               style={{ borderColor: '#E1F0FF' }}
             >
-              <Text margin={{right: 'medium'}} size="small">Borrow Limit Used</Text>
+              <Text margin={{ right: 'medium' }} size="small">
+                Borrow Limit Used
+              </Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   {currentLtv}%

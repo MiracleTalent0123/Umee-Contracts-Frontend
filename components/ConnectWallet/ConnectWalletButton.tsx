@@ -13,13 +13,6 @@ export const ConnectWalletButton = () => {
   const { accountStore, chainStore } = useStore();
 
   const web3 = useWeb3();
-  // const displayNames: { [key: number]: string } = {
-  //   0: 'Unsupported Network',
-  //   1: 'Ethereum Mainnet',
-  //   4: 'Rinkeby Test Network',
-  //   42: 'Kovan Test Network',
-  // };
-  // const network = displayNames[web3.chainId || 0];
   const [isShowWallets, setIsShowWallets] = React.useState<boolean>(false);
   const [walletConnected, setWalletConnected] = React.useState<boolean>(false);
 

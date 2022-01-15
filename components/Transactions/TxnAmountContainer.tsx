@@ -20,6 +20,7 @@ export type TxnAmountContainerProps = {
   handleContinue?: (e: React.MouseEvent) => void;
   header?: React.ReactNode | string;
   txnType?: string;
+  buttonDisabled?: boolean;
   isPending?: boolean;
   isFinal?: boolean;
 };
@@ -29,6 +30,7 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
   header,
   children,
   txnType,
+  buttonDisabled,
   isPending,
   isFinal,
 }) => {
@@ -47,6 +49,7 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
                 style={{ borderRadius: '10px', backgroundColor: '#131A33', width: '100%' }}
                 size="large"
                 color="black"
+                disabled={buttonDisabled}
                 primary
               >
                 <Box pad="15px 0" justify="center">

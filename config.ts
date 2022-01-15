@@ -32,14 +32,13 @@ export const EmbedChainInfos: ChainInfoWithExplorer[] = [
   {
     rpc: 'https://internal-umee-rpc.umee.cc',
     rest: 'https://internal-umee-api.umee.cc',
-    chainId: 'umee-internal-testnet-1',
+    chainId: 'umee-internal-gravity-1',
     chainName: 'Umee',
     stakeCurrency: {
       coinDenom: 'UMEE',
       coinMinimalDenom: 'uumee',
       coinDecimals: 6,
     },
-    
     bip44: {
       coinType: 118,
     },
@@ -65,7 +64,7 @@ export const EmbedChainInfos: ChainInfoWithExplorer[] = [
       },
     ],
     coinType: 118,
-    features: ['stargate', 'ibc-transfer'],
+    features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx'],
     explorerUrlToTx: 'https://www.mintscan.io/cosmos/txs/{txHash}',
   },
   {
@@ -100,7 +99,7 @@ export const EmbedChainInfos: ChainInfoWithExplorer[] = [
       },
     ],
     coinType: 118,
-    features: ['stargate', 'ibc-transfer'],
+    features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx'],
     explorerUrlToTx: 'https://www.mintscan.io/cosmos/txs/{txHash}',
   },
 ];

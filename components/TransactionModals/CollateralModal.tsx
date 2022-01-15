@@ -5,7 +5,21 @@ import TokenLogo from 'components/TokenLogo';
 import { ETxnSteps } from 'lib/types';
 import Loading from 'components/common/Loading/Loading';
 
-const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled, steps, collateralSwitchChecked }: { token: any, address: string; onClose: (show: boolean) => void, enabled: () => void, steps:  ETxnSteps, collateralSwitchChecked: any }) => {
+const CollateralModal = ({
+  token: token,
+  address: tokenAddress,
+  onClose,
+  enabled,
+  steps,
+  collateralSwitchChecked,
+}: {
+  token: any;
+  address: string;
+  onClose: (show: boolean) => void;
+  enabled: () => void;
+  steps: ETxnSteps;
+  collateralSwitchChecked: any;
+}) => {
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
 
@@ -16,35 +30,49 @@ const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled
 
     steps === ETxnSteps.Failure || steps === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false);
   }, [steps]);
-  
+
   return (
     <BaseModal onClose={onClose}>
-      <Box className="modal-width" pad="20">
+      <Box width="320px" pad="20">
         {token?.symbol && (
           <>
             <Box margin="-65px 0 0" direction="row" justify="center">
-              <TokenLogo 
-                symbol={token?.symbol} 
-                width="70"
-                height="70"
-              />
+              <TokenLogo symbol={token?.symbol} width="70" height="70" />
             </Box>
             <Box margin="-10px 0 20px" direction="row" justify="center">
-              <Text size="small" style={{color: 'black', padding: '2px 8px', borderRadius: '5px', background: 'linear-gradient(110.73deg, #FDA9FF -7.25%, #4DFFE5 105.72%)'}}>{token.symbol}</Text>
+              <Text
+                size="small"
+                style={{
+                  color: 'black',
+                  padding: '2px 8px',
+                  borderRadius: '5px',
+                  background: 'linear-gradient(110.73deg, #FDA9FF -7.25%, #4DFFE5 105.72%)',
+                }}
+              >
+                {token.symbol}
+              </Text>
             </Box>
           </>
         )}
-        {(!isPending && !isFinal) && (
+        {!isPending && !isFinal && (
           <>
-            <Text color="black" textAlign="center" size="medium" weight="bold">Use as Collateral</Text>
-            <Text style={{lineHeight: '15px'}} margin="5px 0 50px" size="small" textAlign="center">
-              Enable {token?.symbol && token.symbol} to be used as collateral to increase your borrowing limit. 
-              Please note collateralized assets can be seized in liquidation.
+            <Text color="black" textAlign="center" size="medium" weight="bold">
+              Use as Collateral
             </Text>
-            <Button onClick={enabled} style={{borderRadius: '10px', backgroundColor: '#131A33'}} size="large" color="black" primary>
+            <Text style={{ lineHeight: '15px' }} margin="5px 0 50px" size="small" textAlign="center">
+              Enable {token?.symbol && token.symbol} to be used as collateral to increase your borrowing limit. Please
+              note collateralized assets can be seized in liquidation.
+            </Text>
+            <Button
+              onClick={enabled}
+              style={{ borderRadius: '10px', backgroundColor: '#131A33' }}
+              size="large"
+              color="black"
+              primary
+            >
               <Box pad="15px 0" justify="center">
                 <Text textAlign="center" size="large">
-                  {!collateralSwitchChecked ? 'Disable': 'Enable'}
+                  {!collateralSwitchChecked ? 'Disable' : 'Enable'}
                 </Text>
               </Box>
             </Button>
@@ -56,14 +84,12 @@ const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled
               <Loading />
             </Box>
             <Box margin="0 0 30px" width="100%" direction="row" justify="center">
-              <Text size="small">
-                Confirm transaction in Metamask wallet
-              </Text>
+              <Text size="small">Confirm transaction in Metamask wallet</Text>
             </Box>
           </>
         )}
-        {isFinal && (
-          steps === ETxnSteps.Failure ? (
+        {isFinal &&
+          (steps === ETxnSteps.Failure ? (
             <Box pad="30px 0" direction="row" justify="between" align="center" gap="xsmall">
               <Text size="xsmall">Failure</Text>
               <Box round="100%" background="status-error" width="10px" height="10px" />
@@ -73,8 +99,7 @@ const CollateralModal = ({ token: token, address: tokenAddress, onClose, enabled
               <Text size="xsmall">Success</Text>
               <Box round="100%" background="status-ok" width="10px" height="10px" />
             </Box>
-          )
-        )}
+          ))}
       </Box>
     </BaseModal>
   );

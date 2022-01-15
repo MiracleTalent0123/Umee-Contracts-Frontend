@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, utils } from 'ethers';
 import MarketModal from 'pages/markets/marketsDetail';
 import { ButtonItem } from 'components';
-import { bigNumberToString } from 'lib/number-utils';
 import BridgeModal from './BridgeTransaction/BridgeModal';
 import { AssetBalancesList } from 'pages/AssetBalancesList';
+import { bigNumberToString } from 'lib/number-utils';
+import abbreviateNumber from 'lib/abbreviate';
+import { TTokenConfig } from 'lib/types';
 
 export interface IMarketsData {
   name: string;
@@ -29,27 +31,46 @@ export interface MarketsDataListProps {
   decimals?: BigNumber;
 }
 
-const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress, decimals }: MarketsDataListProps) => {
-  const [token, setToken] = useState<any>();
+const aprDecimals = BigNumber.from(25);
+
+const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, showUsd, selectedTokenAddress, decimals }) => {
   const [tokenAddress, setTokenAddress] = useState<string>('');
+  const [tokenName, setTokenName] = useState<string>('');
   const [isModalShow, setIsModalShow] = useState<string>('');
   const columnSizes = columns.map((col) => col.size);
-  const aprDecimals = BigNumber.from(25);
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (selectedTokenAddress) {
       setTokenAddress(selectedTokenAddress);
     }
   }, [selectedTokenAddress]);
 
-  const setBridgeModal = (token: any) => {
-    setTokenAddress(token.address);
-    setIsModalShow('deposit');
+  const setBridgeModal = ({ address, name }: IMarketsData) => {
+    setTokenAddress(address);
+    setTokenName(name);
+    setIsModalShow('bridge');
+  };
+
+  const setMarketsModal = (address: string) => {
+    setTokenAddress(address);
+    setIsModalShow('markets');
   };
 
   return (
     <>
-      {isModalShow && (
+      {isModalShow == 'bridge' && (
         <BridgeModal
+          address={tokenAddress}
+          tokenName={tokenName}
+          onClose={() => {
+            setTokenAddress('');
+            setTokenName('');
+            setIsModalShow('');
+          }}
+        />
+      )}
+      {isModalShow == 'markets' && (
+        <MarketModal
           address={tokenAddress}
           onClose={() => {
             setTokenAddress('');
@@ -57,80 +78,52 @@ const MarketsDataList = ({ columns, data, showUsd, selectedTokenAddress, decimal
           }}
         />
       )}
-      {token && token.address && (
-        <MarketModal
-          token={token && token}
-          onClose={() => {
-            setToken('');
-          }}
-        />
-      )}
       <DataList background="clrDefaultBg" columns={columns}>
-        {data.map((row) => {
-          const { name, marketSize, marketSizeUsd, depositAPY, variableBorrowAPR } = row;
-          return (
-            <DataListRow columnSizes={columnSizes} key={`row-${name}`}>
-              <TokenItem name={name} handleClick={() => setToken(row)} />
-              <TextItem
-                handleClick={() => {
-                  setToken(row);
-                  setTokenAddress('');
-                  setIsModalShow('');
-                }}
-              >
+        {data.map(({ name, marketSize, marketSizeUsd, depositAPY, variableBorrowAPR, address }) => (
+          <DataListRow columnSizes={columnSizes} key={`row-${name}`}>
+            <TokenItem name={name} handleClick={() => setMarketsModal(address)} />
+            <TextItem handleClick={() => setMarketsModal(address)}>
+              <PrimaryText>
                 {showUsd ? (
-                  <>
-                    <PrimaryText>${marketSizeUsd}</PrimaryText>
-                  </>
+                  '$' + abbreviateNumber(marketSizeUsd)
                 ) : (
-                  <>
-                    <PrimaryText>{marketSize}</PrimaryText>
-                  </>
+                  abbreviateNumber(marketSize)
                 )}
-              </TextItem>
-              <TextItem
-                handleClick={() => {
-                  setToken(row);
-                  setTokenAddress('');
-                  setIsModalShow('');
-                }}
-              >
-                <PrimaryText>{depositAPY && bigNumberToString(depositAPY, aprDecimals)}%</PrimaryText>
-              </TextItem>
-              <TextItem
-                handleClick={() => {
-                  setToken(row);
-                  setTokenAddress('');
-                  setIsModalShow('');
-                }}
-              >
-                <PrimaryText>{variableBorrowAPR && bigNumberToString(variableBorrowAPR, aprDecimals)}%</PrimaryText>
-              </TextItem>
-              <TextItem>
-                <ButtonItem
-                  onClick={() => setBridgeModal(row)}
-                  textColor="white"
-                  background="#131A33"
-                  textSize="small"
-                  round="5px"
-                >
-                  Bridge
-                </ButtonItem>
-              </TextItem>
-              {name == 'ATOM' ? (
+              </PrimaryText>
+            </TextItem>
+            <TextItem handleClick={() => setMarketsModal(address)}>
+              <PrimaryText>
+                {depositAPY && bigNumberToString(depositAPY, aprDecimals)}%
+              </PrimaryText>
+            </TextItem>
+            <TextItem handleClick={() =>  setMarketsModal(address)}>
+              <PrimaryText>
+                {variableBorrowAPR && bigNumberToString(variableBorrowAPR, aprDecimals)}%
+              </PrimaryText>
+            </TextItem>
+            {name == 'ATOM' && (
+              <>
+                <TextItem>
+                  <ButtonItem
+                    onClick={() => setBridgeModal({ address, name } as IMarketsData)}
+                    textColor="white"
+                    background="#131A33"
+                    textSize="small"
+                    round="5px"
+                  >
+                    Bridge
+                  </ButtonItem>
+                </TextItem>
                 <TextItem>
                   <AssetBalancesList />
                 </TextItem>
-              ) : (
-                <></>
-              )}
-            </DataListRow>
-          );
-        })}
+              </>
+            )}
+          </DataListRow>
+        ))}
       </DataList>
     </>
   );
 };
 
 export default MarketsDataList;
-//              <PrimaryText>{marketSize.toNumber().toFixed(2)}</PrimaryText>

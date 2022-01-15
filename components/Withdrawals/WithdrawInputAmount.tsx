@@ -99,6 +99,7 @@ const WithdrawInputAmount = ({
         <>
           <AvailableToTxnInformationRow
             txnType={txnType}
+            withdrawModal={false}
             symbol={token.symbol ? token.symbol : ''}
             availableAmount={depositBalance}
             tokenDecimals={tokenDecimals}

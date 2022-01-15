@@ -9,15 +9,12 @@ import { useErc20DetailedContract, useErc20DetailedContracts } from './contracts
 function useAllowanceData(asset: ERC20 | undefined, spender: string) {
   const { account } = useWeb3();
 
-  const [userAllowance, setUserAllowance] = useState(BigNumber.from(0));
+  const [userAllowance, setUserAllowance] = useState<BigNumber>();
 
   useEffect(() => {
-    if (!asset || !account || !spender) {
-      setUserAllowance(BigNumber.from(0));
-      return;
+    if(account && asset) {
+      asset.allowance(account, spender).then(setUserAllowance).catch(console.error);
     }
-
-    asset.allowance(account, spender).then(setUserAllowance).catch(console.error);
   }, [account, asset, spender]);
 
   return userAllowance;

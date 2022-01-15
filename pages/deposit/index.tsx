@@ -30,7 +30,7 @@ const Deposit = () => {
 
   const [filteredData, setFilteredData] = useState<IAvailableDepositsData[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [loggedIn, setLoggedIn] = useState<boolean>();
 
   const { ReserveConfigurationData, ReserveData } = useData();
   const { UserReserveData, Addresses, priceData } = useData();
@@ -44,9 +44,9 @@ const Deposit = () => {
     { title: 'Collateral', size: 'flex' },
   ];
 
-  const userAssetsColums: IDataListColumn[] = [
+  const userAssetsColumns: IDataListColumn[] = [
     { title: 'Asset', size: 'flex' },
-    { title: 'Balance', size: 'flex' },
+    { title: 'Supplied', size: 'flex' },
     { title: 'APY', size: 'flex' },
     { title: 'Collateral', size: 'flex' },
   ];
@@ -54,7 +54,7 @@ const Deposit = () => {
   useEffect(() => {
     if (web3.account) {
       setLoggedIn(true);
-    }
+    } else setLoggedIn(false);
   }, [web3.account]);
 
   useEffect(() => {
@@ -155,43 +155,24 @@ const Deposit = () => {
   return (
     <>
       <div className="nav-title assets-container">
-        <h1>Deposit</h1>
-        <p>Lend assets and set collateral for borrowing.</p>
+        <h1>Supply</h1>
+        <p>Supply assets and set collateral for borrowing.</p>
       </div>
-      {/**
-       * @todo: ADK: This section is nearly identical to the the on in borrow/index.tsx.
-       * Prime candidate for refactoring, but I'm too tired right now to do it. :)  */}
       <Box direction="row" justify="center" gap="medium" className="assets-container">
         <Box width="100%" style={{ maxWidth: '700px' }}>
           <DataListControls fullDataList={depositsData} setFilteredData={setFilteredData} />
-          <Box pad={{ vertical: 'small' }} direction="row" gap="medium">
-            {web3.account && userDeposits.length > 0 ? (
+          <Box pad={{ vertical: 'small' }}>
+            {loggedIn !== undefined && 
               <AvailableDepositsDataList
-                columns={userAssetsColums}
-                data={userDeposits}
+                columns={availableTokensColumns}
+                userAssetsColumns={userAssetsColumns}
+                data={filteredData}
+                userDeposits={userDeposits}
                 loggedIn={loggedIn}
-                reserveData={ReserveData}
+                selectedTokenAddress={state && state.tokenAddress}
               />
-            ) : (
-              <></>
-            )}
+            }
           </Box>
-          {filteredData.length > 0 ? (
-            <Box pad={{ vertical: 'small' }}>
-              <Text size="small" margin={{ bottom: '10px' }}>
-                Available Markets
-              </Text>
-              <Box direction="row" gap="medium">
-                <AvailableDepositsDataList
-                  columns={availableTokensColumns}
-                  data={filteredData}
-                  loggedIn={loggedIn}
-                  reserveData={ReserveData}
-                  selectedTokenAddress={state && state.tokenAddress}
-                />
-              </Box>
-            </Box>
-          ) : null}
         </Box>
       </Box>
     </>

@@ -104,6 +104,7 @@ const RepayInputWallet = ({
             <>
               <AvailableToTxnInformationRow
                 txnType={txnType}
+                withdrawModal={false}
                 symbol={token.symbol ? token.symbol : ''}
                 availableAmount={availableAmount ? availableAmount : BigNumber.from(0)}
                 tokenDecimals={tokenDecimals}

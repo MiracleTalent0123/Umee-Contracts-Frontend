@@ -3,7 +3,6 @@ import { AlignContentType, JustifyContentType } from 'grommet/utils';
 import * as React from 'react';
 import { BigNumber } from 'ethers';
 
-
 export interface InfoPanelData {
   value?: string;
   textSize?: string;
@@ -20,10 +19,12 @@ export interface InfoPanelItemProps {
   title: string;
   data: InfoPanelData[];
   style?: InfoPanelItemStyles;
-  centered?: boolean;
+  align?: BoxProps['align'];
   justify?: BoxProps['justify'];
   subTitle?: string;
   textSize?: string;
+  titleBg?: string;
+  titleDirection?: BoxProps['direction'];
 }
 
 const InfoPanelItem = ({
@@ -32,13 +33,22 @@ const InfoPanelItem = ({
   justify,
   subTitle,
   textSize,
-  centered,
+  align,
+  titleBg,
+  titleDirection,
   style = InfoPanelItemStyles.Vertical,
 }: InfoPanelItemProps) => {
   const VerticalItem = () => (
-    <Box justify={justify ? justify : 'center'} pad={{ vertical: 'xsmall' }} align={centered ? 'center' : 'end'} flex>
-      <Text size={textSize || 'medium'}>{title}</Text>
-      <Box direction="row" align={centered ? 'center' : 'end'} gap="xsmall">
+    <Box justify={justify ? justify : 'center'} pad={{ vertical: 'xsmall' }} align={align ? align : 'end'} flex>
+      {titleBg ? (
+        <Box align="center" direction={titleDirection}>
+          <Box margin={{ top: '2px', horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
+          <Text size={textSize || 'medium'}>{title}</Text>
+        </Box>
+      ) : (
+        <Text size={textSize || 'medium'}>{title}</Text>
+      )}
+      <Box direction="row" align={align ? align : 'end'}>
         {data &&
           data.map((datum) => (
             <Text
@@ -46,6 +56,7 @@ const InfoPanelItem = ({
               size={datum.textSize || 'medium'}
               weight={datum.bold ? 'bold' : 'normal'}
               color={datum.color}
+              style={{ lineHeight: '22px' }}
             >
               {datum.value}
             </Text>
@@ -55,12 +66,12 @@ const InfoPanelItem = ({
   );
 
   const HorizontalItem = () => (
-    <Box direction="row" align="center" flex justify="between">
+    <Box direction="row" align="center" flex justify={justify ? justify : 'between'}>
       <Box justify="start">
         <Text size={textSize || 'medium'}>{title}</Text>
         {!!subTitle && <Text size="xsmall">{subTitle}</Text>}
       </Box>
-      <Box align="end">
+      <Box direction="row" align="end" margin={{ left: 'xsmall' }}>
         {data &&
           data.map((datum) => (
             <Text

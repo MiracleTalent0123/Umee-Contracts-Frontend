@@ -1,5 +1,5 @@
 .toast-loading {
-  animation: loading 0.8s linear infinite; 
+  animation: loading 1s linear infinite; 
 }
 
 @keyframes loading {

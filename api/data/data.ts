@@ -3,12 +3,14 @@ import { useWeb3 } from '../web3';
 
 import {
   UmeeProtocolDataProvider,
-  LendingPool
+  LendingPool,
+  Gravity
 } from '../types';
 
 import {
   useUmeeProtocolDataProviderContract,
-  useLendingPoolContract
+  useLendingPoolContract,
+  useGravityContract
 } from './contracts';
 
 import {
@@ -29,7 +31,8 @@ import {
 export interface Data {
   Contracts: {
     dataProvider?: UmeeProtocolDataProvider,
-    lendingPool?: LendingPool
+    lendingPool?: LendingPool,
+    gravity?: Gravity
   },
   Addresses: {
     addressProvider?: string,
@@ -95,13 +98,14 @@ function useSystemData() {
 
   const UmeeProtocolDataProviderContract = useUmeeProtocolDataProviderContract();
   const LendingPoolContract = useLendingPoolContract();
+  const GravityContract = useGravityContract();
 
   // price data
   const priceData = usePriceData();
 
   // Asset Data Access
   const returnAssetData = useAllReserveTokens(UmeeProtocolDataProviderContract);
-  let returnReserveConfigurationData = useReserveConfigurationData(UmeeProtocolDataProviderContract, LendingPoolContract, account, returnAssetData);
+  const returnReserveConfigurationData = useReserveConfigurationData(UmeeProtocolDataProviderContract, LendingPoolContract, account, returnAssetData);
   const returnReserveData = useReserveData(UmeeProtocolDataProviderContract, LendingPoolContract, returnAssetData, priceData);
 
   // User Data Access
@@ -111,7 +115,8 @@ function useSystemData() {
   const data: Data = {
     Contracts: {
       dataProvider: UmeeProtocolDataProviderContract,
-      lendingPool: LendingPoolContract
+      lendingPool: LendingPoolContract,
+      gravity: GravityContract
     },
     Addresses: {
       reserve: returnAssetData,

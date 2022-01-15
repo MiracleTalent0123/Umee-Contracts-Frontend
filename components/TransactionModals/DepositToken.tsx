@@ -23,6 +23,7 @@ const DepositToken = ({
   maxLtv,
   initialBorrowLimit,
   myBorrowsTotal,
+  onClose,
 }: {
   address: string;
   myDepositsTotal: number;
@@ -30,6 +31,7 @@ const DepositToken = ({
   currentLtv: string;
   maxLtv: string;
   myBorrowsTotal: number;
+  onClose: () => void;
 }) => {
   const [isDeposit, setIsDeposit] = useState<boolean>(true);
   const [token, setToken] = useState<ITokenData>();
@@ -67,54 +69,71 @@ const DepositToken = ({
     priceData,
   } = useData();
 
-  const { contractCall: contractCallApprove, pending: pendingApprove } = useTransaction();
-  const { contractCall: contractCallDeposit, pending: pendingDeposit } = useTransaction();
-  const { contractCall: contractCallWithdrawal, pending: pendingWithdrawal } = useTransaction();
-  const { contractCall: contractCallMint, pending: pendingMint } = useTransaction();
+  const { contractCall: contractCallApprove } = useTransaction();
+  const { contractCall: contractCallDeposit } = useTransaction();
+  const { contractCall: contractCallWithdrawal } = useTransaction();
+  const { contractCall: contractCallMint } = useTransaction();
 
   const [ltv, setLtv] = useState<string>('');
-  const [borrowLimit, setBorrowLimit] = useState<string>('');
-
-  useEffect(() => {
-    if (ReserveData && lendingPool && ReserveConfigurationData && reserveCfgData && erc20Contract && availableAmount) {
-      setPageLoading(false);
-      setTokenDecimals(reserveCfgData?.decimals || BigNumber.from(0));
-    }
-  }, [ReserveConfigurationData, ReserveData, erc20Contract, lendingPool, reserveCfgData, availableAmount]);
-
-  useEffect(() => {
-    if (pendingApprove) {
-      setDepositStep(ETxnSteps.PendingApprove);
-    }
-  }, [pendingApprove]);
-
-  useEffect(() => {
-    if (pendingDeposit) {
-      setDepositStep(ETxnSteps.PendingSubmit);
-    }
-  }, [pendingDeposit]);
-
-  useEffect(() => {
-    if (pendingWithdrawal) {
-      setDepositStep(ETxnSteps.PendingSubmit);
-    }
-  }, [pendingWithdrawal]);
-
-  useEffect(() => {
-    if (pendingMint) {
-      setDepositStep(ETxnSteps.PendingSubmit);
-    }
-  }, [pendingMint]);
 
   const { account } = useWeb3();
   const allowance = useAllowanceData(erc20Contract, lendingPool ? lendingPool.address : '');
 
   const [txnAmount, setTxnAmount] = useState<string>('');
   const [txnAmountBN, setTxnAmountBN] = useState(BigNumber.from(0));
+  const [allowanceFlag, setAllowanceFlag] = useState<boolean>();
+
+  useEffect(() => {
+    if (tokenAddress) {
+      const reserve = ReserveData.find((r) => r.address === tokenAddress);
+      const reserveConfig = ReserveConfigurationData.find((r) => r.address === tokenAddress);
+      setReserveCfgData(reserveConfig);
+      setToken({
+        symbol: reserve?.symbol,
+        address: tokenAddress as string,
+        usdPrice: reserve?.usdPrice,
+        availableLiquidity: reserve?.availableLiquidity,
+        totalStableDebt: reserve?.totalStableDebt,
+        totalVariableDebt: reserve?.totalVariableDebt,
+        liquidityRate: reserve?.liquidityRate,
+        variableBorrowRate: reserve?.variableBorrowRate,
+        stableBorrowRate: reserve?.stableBorrowRate,
+        averageStableBorrowRate: reserve?.averageStableBorrowRate,
+        liquidityIndex: reserve?.liquidityIndex,
+        variableBorrowIndex: reserve?.variableBorrowIndex,
+      });
+    }
+  }, [tokenAddress, ReserveData, ReserveConfigurationData]);
+
+  useEffect(() => {
+    if (
+      token &&
+      ReserveData &&
+      lendingPool &&
+      ReserveConfigurationData &&
+      reserveCfgData &&
+      erc20Contract &&
+      availableAmount &&
+      allowance?.gt(BigNumber.from(0)) !== undefined
+    ) {
+      setPageLoading(false);
+      setTokenDecimals(reserveCfgData?.decimals || BigNumber.from(0));
+      setAllowanceFlag(allowance?.gt(BigNumber.from(0)));
+    }
+  }, [
+    token,
+    ReserveConfigurationData,
+    ReserveData,
+    erc20Contract,
+    lendingPool,
+    reserveCfgData,
+    availableAmount,
+    allowance?.gt(BigNumber.from(0)),
+  ]);
 
   useEffect(() => {
     setTxnAmount('');
-    if(isDeposit) setStep('deposit');
+    if (isDeposit) setStep('deposit');
     else setStep('withdraw');
   }, [isDeposit]);
 
@@ -153,40 +172,15 @@ const DepositToken = ({
           : myDepositsTotal - parseFloat(txnAmount) * priceData[token.symbol].usd;
         let borrowLimit = (depositUsdAmount * parseFloat(maxLtv)) / 10000;
         if (borrowLimit > 0) {
-          setBorrowLimit(borrowLimit.toFixed(2));
           setLtv(((myBorrowsTotal / borrowLimit) * 100).toFixed(2));
         } else {
           setLtv('0.00');
-          setBorrowLimit('0.00');
         }
       } else {
-        setBorrowLimit('');
         setLtv('');
       }
     }
   }, [txnAmount, myDepositsTotal, priceData, token, maxLtv, myBorrowsTotal, isDeposit]);
-
-  useEffect(() => {
-    if (tokenAddress) {
-      const reserve = ReserveData.find((r) => r.address === tokenAddress);
-      const reserveConfig = ReserveConfigurationData.find((r) => r.address === tokenAddress);
-      setReserveCfgData(reserveConfig);
-      setToken({
-        symbol: reserve?.symbol,
-        address: tokenAddress as string,
-        usdPrice: reserve?.usdPrice,
-        availableLiquidity: reserve?.availableLiquidity,
-        totalStableDebt: reserve?.totalStableDebt,
-        totalVariableDebt: reserve?.totalVariableDebt,
-        liquidityRate: reserve?.liquidityRate,
-        variableBorrowRate: reserve?.variableBorrowRate,
-        stableBorrowRate: reserve?.stableBorrowRate,
-        averageStableBorrowRate: reserve?.averageStableBorrowRate,
-        liquidityIndex: reserve?.liquidityIndex,
-        variableBorrowIndex: reserve?.variableBorrowIndex,
-      });
-    }
-  }, [tokenAddress, ReserveData, ReserveConfigurationData]);
 
   useEffect(() => {
     if (!tokenAddress) {
@@ -231,8 +225,10 @@ const DepositToken = ({
       'Approving allowance',
       'Approval failed',
       'Approval succeeded',
-      () => setDepositStep(ETxnSteps.Failure),
-      () => setDepositStep(ETxnSteps.Success)
+      () => {
+        setDepositStep(ETxnSteps.Input);
+        onClose();
+      }
     );
   };
 
@@ -248,8 +244,10 @@ const DepositToken = ({
       'Depositing',
       'Deposit failed',
       'Deposit succeeded',
-      () => setDepositStep(ETxnSteps.Failure),
-      () => setDepositStep(ETxnSteps.Success),
+      () => {
+        setDepositStep(ETxnSteps.Input);
+        onClose();
+      },
       undefined,
       (hash: string) => setTxnHash(hash)
     );
@@ -268,8 +266,10 @@ const DepositToken = ({
         'Withdrawing',
         'Withdraw failed',
         'Withdraw succeeded',
-        () => setWithdrawalStep(ETxnSteps.Failure),
-        () => setWithdrawalStep(ETxnSteps.Success),
+        () => {
+          setWithdrawalStep(ETxnSteps.Input);
+          onClose();
+        },
         undefined,
         (hash: string) => setTxnHash(hash)
       );
@@ -279,8 +279,10 @@ const DepositToken = ({
         'Withdrawing',
         'Withdraw failed',
         'Withdraw succeeded',
-        () => setWithdrawalStep(ETxnSteps.Failure),
-        () => setWithdrawalStep(ETxnSteps.Success),
+        () => {
+          setWithdrawalStep(ETxnSteps.Input);
+          onClose();
+        },
         undefined,
         (hash: string) => setTxnHash(hash)
       );
@@ -298,7 +300,7 @@ const DepositToken = ({
   };
 
   const handleFaucet = () => {
-    if(token?.symbol === 'DAI' || token?.symbol === 'USDC') {
+    if (token?.symbol === 'DAI' || token?.symbol === 'USDC') {
       setStep('faucet');
       setMintStep(ETxnSteps.Pending);
       if (!erc20MintContract || !lendingPool) {
@@ -311,15 +313,13 @@ const DepositToken = ({
         `Minting 1000 ${token?.symbol}`,
         'Mint failed',
         'Mint succeeded',
-        () => setMintStep(ETxnSteps.Failure),
-        () => setMintStep(ETxnSteps.Success)
+        () => {
+          setMintStep(ETxnSteps.Input);
+          onClose();
+        }
       );
     }
   };
-
-  if (pageLoading) {
-    return <PageLoading />;
-  }
 
   const pickOne = <V1, V2>(v1: V1, v2: V2, first: boolean): V1 | V2 => {
     return first ? v1 : v2;
@@ -331,8 +331,11 @@ const DepositToken = ({
 
   return (
     <>
-      {!!token &&
-        (allowance.gt(txnAmountBN) ? (
+      {pageLoading ? (
+        <PageLoading />
+      ) : (
+        token &&
+        (allowanceFlag ? (
           <DepositInputAmount
             txnAvailability={{
               availableAmount: pickOne(availableAmount, availableWithdrawalAmount, isDeposit),
@@ -348,14 +351,14 @@ const DepositToken = ({
             handleFaucet={handleFaucet}
             isDeposit={isDeposit}
             currentLtv={currentLtv}
-            initialborrowLimit={initialBorrowLimit}
+            initialborrowBalance={myBorrowsTotal}
             ltv={ltv}
-            borrowLimit={borrowLimit}
             txnType={pickDataOne(ETxnType.deposit, ETxnType.withdraw, ETxnType.mint, step)}
           />
         ) : (
           <EnableDeposit token={token} steps={depositStep} enabled={handleApprove} />
-        ))}
+        ))
+      )}
     </>
   );
 };

@@ -20,11 +20,13 @@ const BorrowToken = ({
   currentLtv,
   myBorrowsTotal,
   initialBorrowLimit,
+  onClose,
 }: {
   address: string;
   currentLtv: string;
   myBorrowsTotal: number;
   initialBorrowLimit: string;
+  onClose: () => void;
 }) => {
   const { ReserveData, ReserveConfigurationData, UserAccountData, priceData, UserReserveData } = useData();
   const {
@@ -32,8 +34,8 @@ const BorrowToken = ({
   } = useData();
   const { account } = useWeb3();
 
-  const { contractCall: contractCallBorrow, pending: pendingBorrow } = useTransaction();
-  const { contractCall: contractCallRepay, pending: pendingRepay } = useTransaction();
+  const { contractCall: contractCallBorrow } = useTransaction();
+  const { contractCall: contractCallRepay } = useTransaction();
 
   const [token, setToken] = useState<ITokenData>();
   const [isBorrow, setIsBorrow] = useState<boolean>(true);
@@ -56,18 +58,6 @@ const BorrowToken = ({
   useEffect(() => {
     setTxnAmount('');
   }, [isBorrow]);
-
-  useEffect(() => {
-    if (pendingRepay) {
-      setRepayStep(ETxnSteps.PendingSubmit);
-    }
-  }, [pendingRepay]);
-
-  useEffect(() => {
-    if (pendingBorrow) {
-      setRepayStep(ETxnSteps.PendingSubmit);
-    }
-  }, [pendingBorrow]);
 
   useEffect(() => {
     if (ReserveData && UserAccountData && ReserveConfigurationData && lendingPool && account && token) {
@@ -117,7 +107,7 @@ const BorrowToken = ({
           : myBorrowsTotal - parseFloat(txnAmount) * priceData[token.symbol].usd;
         setBorrowBalance(borrowUsdAmount.toFixed(2));
         setLtv(((borrowUsdAmount / parseFloat(initialBorrowLimit)) * 100).toFixed(2));
-        if(borrowUsdAmount < 0) {
+        if (borrowUsdAmount < 0) {
           setBorrowBalance('0.00');
           setLtv('0.00');
         }
@@ -176,8 +166,10 @@ const BorrowToken = ({
       'Borrowing',
       'Borrow failed',
       'Borrow succeeded',
-      () => setBorrowStep(ETxnSteps.Failure),
-      () => setBorrowStep(ETxnSteps.Success),
+      () => {
+        setBorrowStep(ETxnSteps.Input);
+        onClose();
+      },
       undefined,
       (hash: string) => setTxnHash(hash)
     );
@@ -197,8 +189,10 @@ const BorrowToken = ({
         'Repaying',
         'Repay failed',
         'Repay succeeded',
-        () => setRepayStep(ETxnSteps.Failure),
-        () => setRepayStep(ETxnSteps.Success),
+        () => {
+          setRepayStep(ETxnSteps.Input);
+          onClose();
+        },
         undefined,
         (hash: string) => setTxnHash(hash)
       );
@@ -208,8 +202,10 @@ const BorrowToken = ({
         'Repaying',
         'Repay failed',
         'Repay succeeded',
-        () => setRepayStep(ETxnSteps.Failure),
-        () => setRepayStep(ETxnSteps.Success),
+        () => {
+          setRepayStep(ETxnSteps.Input);
+          onClose();
+        },
         undefined,
         (hash: string) => setTxnHash(hash)
       );

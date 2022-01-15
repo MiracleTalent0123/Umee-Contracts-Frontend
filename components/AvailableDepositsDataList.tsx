@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, constants } from 'ethers';
@@ -10,6 +10,8 @@ import { useData } from '../api/data';
 import { useTransaction } from '../api/data/transactions';
 import { ETxnSteps } from 'lib/types';
 import { toast } from 'react-toastify';
+import { Box, Text } from 'grommet';
+import { useWeb3 } from 'api/web3';
 
 export interface IAvailableDepositsData {
   address: string;
@@ -23,33 +25,24 @@ export interface IAvailableDepositsData {
   usageAsCollateralEnabled?: boolean;
   isDepositEnabled?: boolean;
 }
-export interface IReserveData {
-  symbol: string,
-  address: string,
-  usdPrice: number;
-  availableLiquidity: BigNumber;
-  totalStableDebt: BigNumber;
-  totalVariableDebt: BigNumber;
-  liquidityRate: BigNumber;
-  variableBorrowRate: BigNumber;
-  stableBorrowRate: BigNumber;
-  averageStableBorrowRate: BigNumber;
-  liquidityIndex: BigNumber;
-  variableBorrowIndex: BigNumber;
-  lastUpdateTimestamp: number;
-}
 
 export interface AvailableDepositsDataListProps {
   columns: IDataListColumn[];
+  userAssetsColumns: IDataListColumn[];
   data: IAvailableDepositsData[];
   loggedIn: boolean;
-  reserveData?: IReserveData[];
-  enabledCollateral?: any;
-  enabledAsset?: any;
   selectedTokenAddress?: string;
+  userDeposits: IAvailableDepositsData[];
 }
 
-const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddress, reserveData, enabledCollateral, enabledAsset }: AvailableDepositsDataListProps) => {
+const AvailableDepositsDataList = ({
+  columns,
+  userAssetsColumns,
+  data,
+  loggedIn,
+  selectedTokenAddress,
+  userDeposits,
+}: AvailableDepositsDataListProps) => {
   const [token, setToken] = useState<any>('');
   const [tokenAddress, setTokenAddress] = useState<string>('');
   const [isModalShow, setIsModalShow] = useState<string>('');
@@ -57,11 +50,10 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
   const [collateralStep, setCollateralStep] = useState<ETxnSteps>(ETxnSteps.Input);
 
   useEffect(() => {
-    if(selectedTokenAddress) {
+    if (selectedTokenAddress) {
       setTokenAddress(selectedTokenAddress);
       setIsModalShow('deposit');
     }
-    
   }, [selectedTokenAddress]);
 
   const columnSizes = columns.map((col) => col.size);
@@ -69,10 +61,10 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
   const setAssetModal = (token: any) => {
     setToken(token);
     setTokenAddress(token.address);
-    setIsModalShow('deposit'); 
+    setIsModalShow('deposit');
   };
 
-  const setCollateralModal = (token: any, e:any) => {
+  const setCollateralModal = (token: any, e: any) => {
     setToken(token);
     setTokenAddress(token.address);
     setIsModalShow('collateral');
@@ -83,11 +75,11 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
   const {
     Contracts: { lendingPool },
   } = useData();
-  const { contractCall, pending } = useTransaction();
+  const { contractCall } = useTransaction();
 
   const toggleCollateral = async () => {
     let balance = token && bigNumberToNumber(token.tokenBalance, token.decimals);
-    if(isZero(balance)) {
+    if (isZero(balance)) {
       toast.error('Sorry, balance is not enough');
       setIsModalShow('');
       return;
@@ -103,8 +95,11 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
         `${collateralSwitchChecked ? 'Enabling' : 'Disabling'} use of reserve as collateral`,
         `${collateralSwitchChecked ? 'Enabling' : 'Disabling'} use of reserve as collateral failed`,
         `${collateralSwitchChecked ? 'Enabling' : 'Disabling'} use of reserve as collateral succeeded`,
-        () => setCollateralStep(ETxnSteps.Failure),
-        () => setCollateralStep(ETxnSteps.Success),
+        () => {
+          setCollateralStep(ETxnSteps.Input);
+          setTokenAddress('');
+          setIsModalShow('');
+        }
       );
     }
   };
@@ -113,11 +108,11 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
     toggleCollateral();
   };
 
-  if(loggedIn){
+  if (loggedIn) {
     return (
       <>
-        {tokenAddress && isModalShow == 'collateral' ? 
-          <CollateralModal 
+        {tokenAddress && isModalShow == 'collateral' ? (
+          <CollateralModal
             address={tokenAddress}
             token={token}
             steps={collateralStep}
@@ -128,45 +123,88 @@ const AvailableDepositsDataList = ({ columns, data, loggedIn, selectedTokenAddre
             onClose={() => {
               setTokenAddress('');
               setIsModalShow('');
-            }
-            }
-          /> : null
-        }
-        {tokenAddress && isModalShow == 'deposit' ? 
+            }}
+          />
+        ) : null}
+        {tokenAddress && isModalShow == 'deposit' ? (
           <DepositModal
             address={tokenAddress}
             onClose={() => {
               setTokenAddress('');
               setIsModalShow('');
             }}
-          /> : null
-        }
-        <DataList columns={columns}>
-          {data &&
-          data.map((row) => {
-            const { address, symbol, color, tokenBalance, usdBalance, apy, decimals, usageAsCollateralEnabled } = row;
-            return (
-              <DataListRow columnSizes={columnSizes} key={`row-${symbol}`} tokenAddress={address}>
-                <TokenItem handleClick={() => setAssetModal(row)} name={symbol} />
-                <TextItem handleClick={() => setAssetModal(row)}>
-                  <PrimaryText>{tokenBalance && bigNumberToString(tokenBalance, decimals)}</PrimaryText>
-                </TextItem>
-                <TextItem handleClick={() => setAssetModal(row)}>
-                  <PrimaryText>{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
-                </TextItem>
-                <ToggleSwitch handleClick={(event) => setCollateralModal(row, event)} enabled={usageAsCollateralEnabled} label={symbol} />
-              </DataListRow>
-            );
-          })}
-        </DataList>
+          />
+        ) : null}
+        {userDeposits.length > 0 ? (
+          <>
+            <Text size="small" margin={{ bottom: '10px' }}>
+              Your Positions
+            </Text>
+            <Box pad={{ bottom: 'medium' }}>
+              <DataList columns={userAssetsColumns}>
+                {userDeposits.map((row) => {
+                  const { address, symbol, color, tokenBalance, usdBalance, apy, decimals, usageAsCollateralEnabled } =
+                    row;
+                  return (
+                    <DataListRow columnSizes={columnSizes} key={`row-${symbol}`} tokenAddress={address}>
+                      <TokenItem handleClick={() => setAssetModal(row)} name={symbol} />
+                      <TextItem handleClick={() => setAssetModal(row)}>
+                        <PrimaryText>{tokenBalance && bigNumberToString(tokenBalance, decimals)}</PrimaryText>
+                      </TextItem>
+                      <TextItem handleClick={() => setAssetModal(row)}>
+                        <PrimaryText>{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                      </TextItem>
+                      <ToggleSwitch
+                        handleClick={(event) => setCollateralModal(row, event)}
+                        enabled={usageAsCollateralEnabled}
+                        label={symbol}
+                      />
+                    </DataListRow>
+                  );
+                })}
+              </DataList>
+            </Box>
+          </>
+        ) : null}
+        {data.length > 0 ? (
+          <>
+            <Text size="small" margin={{ bottom: '10px' }}>
+              Available Markets
+            </Text>
+            <Box>
+              <DataList columns={columns}>
+                {data.map((row) => {
+                  const { address, symbol, color, tokenBalance, usdBalance, apy, decimals, usageAsCollateralEnabled } =
+                    row;
+                  return (
+                    <DataListRow columnSizes={columnSizes} key={`row-${symbol}`} tokenAddress={address}>
+                      <TokenItem handleClick={() => setAssetModal(row)} name={symbol} />
+                      <TextItem handleClick={() => setAssetModal(row)}>
+                        <PrimaryText>{tokenBalance && bigNumberToString(tokenBalance, decimals)}</PrimaryText>
+                      </TextItem>
+                      <TextItem handleClick={() => setAssetModal(row)}>
+                        <PrimaryText>{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                      </TextItem>
+                      <ToggleSwitch
+                        handleClick={(event) => setCollateralModal(row, event)}
+                        enabled={usageAsCollateralEnabled}
+                        label={symbol}
+                      />
+                    </DataListRow>
+                  );
+                })}
+              </DataList>
+            </Box>
+          </>
+        ) : null}
       </>
     );
-  }else{
+  } else {
     return (
       <DataList columns={columns}>
         {data &&
           data.map((row) => {
-            const { symbol, apy} = row;
+            const { symbol, apy } = row;
             return (
               <DataListRow columnSizes={columnSizes} key={`row-${symbol}`}>
                 <TokenItem name={symbol} />

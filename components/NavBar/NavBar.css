@@ -13,7 +13,7 @@
   text-decoration: none;
   font-size: 25px;
   color: #818181;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   display: flex;
   justify-content: center;
 }
@@ -54,12 +54,11 @@
 
 .icon-img .sidenav-text {
   visibility: hidden;
-  width: 85px;
   background-color: #121a32;
   color: #fff;
   text-align: center;
   border-radius: 5px;
-  padding: 4px 0px;
+  padding: 4px 15px;
   position: absolute;
   font-size: initial;
   z-index: 1;

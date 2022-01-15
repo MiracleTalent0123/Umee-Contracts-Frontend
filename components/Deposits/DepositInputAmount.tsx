@@ -24,9 +24,8 @@ export interface DepositProps {
   txnStep: ETxnSteps;
   setIsDeposit(activeTab: boolean): void;
   currentLtv: string;
-  initialborrowLimit: string;
+  initialborrowBalance: number;
   ltv: string;
-  borrowLimit: string;
   txnType: ETxnType;
   isDeposit: boolean;
   txnAmount: string;
@@ -40,10 +39,9 @@ const DepositInputAmount = ({
   handleFaucet,
   txnStep,
   setIsDeposit,
-  initialborrowLimit,
+  initialborrowBalance,
   currentLtv,
   ltv,
-  borrowLimit,
   txnType,
   txnAmount,
   isDeposit,
@@ -94,7 +92,7 @@ const DepositInputAmount = ({
                 <Box margin="-40px 0 0" direction="row" justify="between">
                   <Box onClick={() => setIsDeposit(true)}>
                     <Text size="medium" className={isDeposit ? 'tab active-tab' : 'tab no-active-tab'}>
-                      Deposit
+                      Supply
                     </Text>
                   </Box>
                   <Box onClick={() => setIsDeposit(false)}>
@@ -117,6 +115,7 @@ const DepositInputAmount = ({
         <>
           <AvailableToTxnInformationRow
             txnType={txnType}
+            withdrawModal={false}
             symbol={token.symbol ? token.symbol : ''}
             availableAmount={balance}
             tokenDecimals={tokenDecimals}
@@ -130,51 +129,24 @@ const DepositInputAmount = ({
               <Box direction="row" justify="start" align="center">
                 {token?.symbol && <TokenLogo symbol={token?.symbol} width="40" height="40" />}
                 <Text margin="0 0 0 10px" size="small">
-                  Deposit APY
+                  Supply APY
                 </Text>
               </Box>
               <Text weight="bold" size="small">
                 {token?.liquidityRate && bigNumberToString(token?.liquidityRate, aprDecimals)}%
               </Text>
             </Box>
-            <Box
-              style={{ borderColor: '#E1F0FF' }}
-              border="top"
-              pad="10px 0 30px"
-              width="100%"
-              direction="row"
-              justify="between"
-              align="center"
-            >
-              <Box direction="row" justify="start" align="center">
-                <Image alt="icon" width="115" height="40" src={UmeeLogo} />
-                <Text margin="0 0 0 -66px" size="small">
-                  Umee APY
-                </Text>
-              </Box>
-              <Text weight="bold" size="small">
-                X.XX%
-              </Text>
-            </Box>
           </Box>
           <Box margin="5px 0 10px 0">
             <Text size="xsmall" weight="bold" color="black">
-              Borrow Limit
+              Borrow Info
             </Text>
             <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
-              <Text size="small" margin={{right: 'medium'}}>Borrow Limit</Text>
+              <Text size="small" margin={{right: 'medium'}}>Borrow Position</Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
-                  ${parseFloat(initialborrowLimit).toFixed(2)}
+                  ${initialborrowBalance.toFixed(2)}
                 </Text>
-                {borrowLimit && (
-                  <>
-                    <Image margin={{ horizontal: 'xsmall' }} src={Arrow} alt="arrow icon" />
-                    <Text weight="bold" size="small">
-                      ${borrowLimit}
-                    </Text>
-                  </>
-                )}
               </Box>
             </Box>
             <Box
@@ -203,15 +175,18 @@ const DepositInputAmount = ({
             </Box>
             {isDeposit && (
               <Box direction="row" justify="center">
-                <Text
-                  style={{ cursor: 'pointer' }}
-                  onClick={handleFaucet}
-                  size="large"
-                  weight="bold"
-                  className="gradient-text"
-                >
-                  Faucet
-                </Text>
+                {token.symbol == 'DAI' || token.symbol == 'USDC' ? 
+                  <Text
+                    style={{ cursor: 'pointer' }}
+                    onClick={handleFaucet}
+                    size="large"
+                    weight="bold"
+                    className="gradient-text"
+                  >
+                    Faucet
+                  </Text>
+                  : <></>
+                }
               </Box>
             )}
           </Box>

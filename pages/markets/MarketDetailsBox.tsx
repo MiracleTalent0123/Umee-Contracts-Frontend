@@ -1,27 +1,26 @@
 import React, { ReactNode } from 'react';
-import {  TextItem, PrimaryText, SubText } from 'components';
-import { Text, Box} from 'grommet';
+import { TextItem, PrimaryText, SubText } from 'components';
+import { Text, Box } from 'grommet';
 
 export const MarketDetailsBox = ({
   title,
-  value1,
-  value2,
-  subColor,
-  mainColor
+  children,
+  textSize,
+  bold,
+  background,
 }: {
   title: string;
-  value1: ReactNode;
-  value2?: ReactNode;
-  subColor?: string;
-  mainColor?: string;
+  children?: ReactNode;
+  textSize?: string;
+  bold?: boolean;
+  background?: string;
 }) => {
   return (
-    <Box border={{color: 'clrLozengeBorder'}} pad="small" fill="horizontal" width="xlarge">
-      <Text weight='bold'>{title}</Text>
-      <TextItem>
-        <PrimaryText color={mainColor} size="medium">{value1}</PrimaryText>
-        <SubText color={subColor}>{value2}</SubText>
-      </TextItem>
+    <Box background={background || 'white'} pad="small" round="5px" fill="horizontal" width="xlarge">
+      <Text size={textSize ? textSize : 'medium'} weight={bold ? 'bold' : 'normal'}>
+        {title}
+      </Text>
+      {children}
     </Box>
   );
 };

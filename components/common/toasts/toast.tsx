@@ -10,9 +10,9 @@ import './toast.css';
 
 const CloseButton: FunctionComponent<{ closeToast: () => void }> = ({ closeToast }) => (
   <Image
-    width="15px"
-    height="16px"
-    style={{ position: 'absolute', top: '15px', right: '15px' }}
+    width="13px"
+    height="14px"
+    style={{ position: 'absolute', top: '10px', right: '10px' }}
     onClick={() => closeToast()}
     alt="close"
     src={close}
@@ -99,7 +99,7 @@ const ToastTxBroadcasting: FunctionComponent<{ string: String }> = ({ string }) 
     direction="row"
     align="center"
   >
-    <Image className="toast-loading" style={{ display: 'flex' }} width="50px" alt="loading" src={loading} />
+    <Image className="toast-loading" style={{ display: 'flex' }} width="40px" alt="loading" src={loading} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
         {string}
@@ -120,7 +120,7 @@ const ToastTxFailed: FunctionComponent<{ string: String; message: string }> = ({
     direction="row"
     align="center"
   >
-    <Image style={{ display: 'flex' }} width="50px" alt="failed" src={failed} />
+    <Image style={{ display: 'flex' }} width="40px" alt="failed" src={failed} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
         {string}
@@ -141,7 +141,7 @@ const ToastTxSuccess: FunctionComponent<{ string: String; link: string }> = ({ l
     direction="row"
     align="center"
   >
-    <Image style={{ display: 'flex' }} width="50px" alt="success" src={success} />
+    <Image style={{ display: 'flex' }} width="40px" alt="success" src={success} />
     <Box margin={{ left: 'small' }}>
       <Text weight="bold" color="#000000">
         {string}

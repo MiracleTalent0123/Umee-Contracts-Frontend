@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useWeb3 } from '../web3';
-import { useDataProviderAddress, useLendingPoolAddress } from '../web3/chains';
+import { useDataProviderAddress, useLendingPoolAddress, useGravityAddress } from '../web3/chains';
 import {
   UmeeProtocolDataProvider,
   UmeeProtocolDataProviderFactory,
@@ -10,8 +10,7 @@ import {
   ERC20Factory,
   MockDAI,
   MockDAIFactory,
-  MockUSDC,
-  MockUSDCFactory
+  GravityFactory
 } from '../types';
 
 const useUmeeProtocolDataProviderContract = () => {
@@ -29,6 +28,25 @@ const useUmeeProtocolDataProviderContract = () => {
   }, [chainId, dataProviderAddress, signerOrProvider]);
 
   return UmeeProtocolDataProviderContract;
+};
+
+const useGravityContract = () => {
+  const { chainId, signerOrProvider } = useWeb3();
+
+  const gravityAddress = useGravityAddress(chainId);
+
+  const GravityContract = useMemo(
+    () => {
+      if (gravityAddress && signerOrProvider) {
+        return GravityFactory.connect(gravityAddress, signerOrProvider);
+      } else {
+        return undefined;
+      }
+    },
+    [gravityAddress, signerOrProvider]
+  );
+
+  return GravityContract;
 };
 
 const useLendingPoolContract = () => {
@@ -108,5 +126,6 @@ export {
   useLendingPoolContract,
   useErc20DetailedContract,
   useErc20DetailedContracts,
-  useErc20MintContract
+  useErc20MintContract,
+  useGravityContract
 };

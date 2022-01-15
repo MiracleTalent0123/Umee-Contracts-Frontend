@@ -19,7 +19,7 @@ export enum ETxnType {
   withdraw = 'Withdraw',
   repay = 'Repay',
   borrow = 'Borrow',
-  deposit = 'Deposit',
+  deposit = 'Supply',
   mint = 'Mint'
 }
 

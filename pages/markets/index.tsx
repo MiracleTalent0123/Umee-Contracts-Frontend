@@ -8,7 +8,7 @@ import { useData } from 'api/data';
 import { useState, useEffect } from 'react';
 import PageLoading from 'components/common/Loading/PageLoading';
 import './Markets.css';
-import { bigNumberToUSDString, bigNumberToString, bigNumberToNumber } from 'lib/number-utils';
+import { bigNumberToUSDString, bigNumberToString } from 'lib/number-utils';
 
 function Markets() {
   const [marketData, setMarketData] = useState<IMarketsData[]>([]);
@@ -19,13 +19,13 @@ function Markets() {
   const marketColumns: IDataListColumn[] = [
     { title: 'Assets', size: 'flex' },
     { title: 'Market size', size: 'flex' },
-    { title: 'Deposit APY', size: 'flex' },
+    { title: 'Supply APY', size: 'flex' },
     { title: 'Borrow APY', size: 'flex' },
     { title: 'Bridge', size: 'flex' },
     { title: 'IBC', size: 'flex' },
   ];
 
-  const { ReserveData, ReserveConfigurationData } = useData();
+  const { ReserveData, ReserveConfigurationData, UserReserveData } = useData();
   const [displayUsd, setDisplayUsd] = useState(false);
 
   useEffect(() => {
@@ -37,24 +37,22 @@ function Markets() {
   useEffect(() => {
     let localTotalMarketSizeUsd = 0;
     let marketsData = ReserveData.reduce((acc, reserveData, index) => {
-      let decimals =
-        ReserveConfigurationData.find((rc) => rc.address === reserveData.address)?.decimals || BigNumber.from(18);
+      let tokenConfig = ReserveConfigurationData.find((rc) => rc.address === reserveData.address);
+      let decimals = tokenConfig?.decimals || BigNumber.from(18);
       setUsdDecimals(decimals);
       let totalBorrowed = reserveData.totalStableDebt.add(reserveData.totalVariableDebt);
 
-      const marketSize = bigNumberToNumber(
-        reserveData.availableLiquidity.add(totalBorrowed),
-        decimals
-      ).toLocaleString();
+      const marketSize = bigNumberToString(reserveData.availableLiquidity.add(totalBorrowed), decimals);
       const totalBorrowedUsd = bigNumberToUSDString(totalBorrowed, decimals, reserveData.usdPrice);
-      const marketSizeUsd = parseFloat(
-        bigNumberToUSDString(reserveData.availableLiquidity.add(totalBorrowed), decimals, reserveData.usdPrice)
-      ).toLocaleString();
+      const marketSizeUsd = bigNumberToUSDString(
+        reserveData.availableLiquidity.add(totalBorrowed),
+        decimals,
+        reserveData.usdPrice
+      );
 
       const depositAPY = reserveData.liquidityRate;
       const variableBorrowAPR = reserveData.variableBorrowRate;
       const stableBorrowAPR = reserveData.stableBorrowRate;
-
       localTotalMarketSizeUsd += parseFloat(marketSizeUsd);
 
       if (reserveData.symbol !== 'WETH') {
@@ -76,7 +74,7 @@ function Markets() {
     }, Array<IMarketsData>());
     setMarketData(marketsData);
     setTotalMarketSizeUsd(localTotalMarketSizeUsd);
-  }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd]);
+  }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd, UserReserveData]);
 
   if (pageLoading) {
     return <PageLoading />;
@@ -85,7 +83,7 @@ function Markets() {
   return (
     <div>
       <div className="nav-title markets-container">
-        <h1>Umee Assets</h1>
+        <h1>Umee Markets</h1>
         <p>Markets available for cross-chain leverage</p>
       </div>
       <Box className="markets-container" direction="row" justify="center" gap="medium">

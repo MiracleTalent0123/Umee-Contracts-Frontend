@@ -11,9 +11,9 @@ interface ProviderRpcError extends Error {
 }
 
 const useTransaction = () => {
-  const [pending, setPending] = useState(false);
   const { chainId } = useWeb3();
-  const exploreUrl = chainId === 4 ? 'https://rinkeby.etherscan.io/tx/' : 'https://goerli.etherscan.io/tx/';
+  const exploreUrl =
+    chainId === 4 ? 'https://rinkeby.etherscan.io/tx/' : chainId === 5 ? 'https://goerli.etherscan.io/tx/' : '';
 
   const contractCall = useCallback(
     (
@@ -21,74 +21,80 @@ const useTransaction = () => {
       pendingMessage: string,
       failedMessage: string,
       successMessage: string,
-      failedCallback?: () => void,
-      successCallback?: () => void,
+      stopedCallback?: () => void,
       completedCallback?: () => void,
       txnHashCallback?: (hash: string) => void
     ) => {
-      setPending(true);
       let toastId: React.ReactText;
-      displayToast(pendingMessage, TToastType.TX_BROADCASTING, {
-        autoClose: false,
-        closeOnClick: false,
-        draggable: false,
-        closeButton: false,
-      });
       contractFn()
         .then((txResponse: ethers.ContractTransaction) => {
+          displayToast(pendingMessage, TToastType.TX_BROADCASTING, {
+            autoClose: false,
+            closeOnClick: false,
+            draggable: false,
+            closeButton: false,
+          });
+          if (stopedCallback) stopedCallback();
           return Promise.all([txResponse.wait(), toastId]);
         })
         .then(([txReceipt, toastId]) => {
-          setTimeout(() => {
-            setPending(false);
-          }, 5000);
           toast.dismiss(toastId);
           if (txReceipt.status === 0) {
             displayToast(failedMessage, TToastType.TX_FAILED);
-            if (failedCallback) failedCallback();
           } else if (txReceipt.status === 1) {
             displayToast(successMessage, TToastType.TX_SUCCESSFUL, {
               customLink: exploreUrl + txReceipt.transactionHash,
             });
-            if (successCallback) successCallback();
           } else {
-            toast.error('Not sure what happened with that transaction');
-            if (failedCallback) failedCallback();
+            displayToast(failedMessage, TToastType.TX_FAILED, {
+              message: 'Not sure what happened with that transaction',
+            });
           }
           if (completedCallback) completedCallback();
           if (txnHashCallback) txnHashCallback(txReceipt.transactionHash);
         })
         .catch((error: ProviderRpcError) => {
-          console.error(error);
-          setPending(false);
+          if (stopedCallback) stopedCallback();
           toast.dismiss(toastId);
+          console.error(error);
           if (error.code !== 4001) {
             switch (error.code) {
               case 4100:
-                toast.error('Processing has not been approved by the user.');
+                displayToast(failedMessage, TToastType.TX_FAILED, {
+                  message: 'Processing has not been approved by the user',
+                });
                 break;
               case 4200:
-                toast.error('The provider does not support this process.');
+                displayToast(failedMessage, TToastType.TX_FAILED, {
+                  message: 'The provider does not support this process',
+                });
                 break;
               case 4900:
-                toast.error('The provider is disconnected from all chains.');
+                displayToast(failedMessage, TToastType.TX_FAILED, {
+                  message: 'The provider is disconnected from all chains',
+                });
                 break;
               case 4901:
-                toast.error('The provider is not connected to the request chain.');
+                displayToast(failedMessage, TToastType.TX_FAILED, {
+                  message: 'The provider is not connected to the request chain',
+                });
                 break;
               default:
-                toast.error(`Unknown error code returned: ${error.code}; message: ${error.message}`);
+                displayToast(failedMessage, TToastType.TX_FAILED, {
+                  message: `Unknown error code returned: ${error.code}; message: ${error.message}`,
+                });
                 break;
             }
+          } else {
+            displayToast(failedMessage, TToastType.TX_FAILED, { message: 'Transaction rejected' });
           }
           if (completedCallback) completedCallback();
-          if (failedCallback) failedCallback();
         });
     },
-    []
+    [exploreUrl]
   );
 
-  return { contractCall, pending };
+  return { contractCall };
 };
 
 export { useTransaction };

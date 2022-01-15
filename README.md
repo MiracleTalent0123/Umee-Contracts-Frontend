@@ -17,8 +17,8 @@ You need a `.env.local` file with the contents shown in `.env.example`.
 ## How to run
 
 ### Development
-New DATA_PROVIDER_ADDRESS is the UmeeProtocolDataProvider
-New LENDING_POOL_ADDRESS is the LendingPool
+New DATA_PROVIDER_ADDRESS is the 
+New LENDING_POOL_ADDRESS is the 
 
 **Make sure you're connected to Rinkeby Testnet**
 

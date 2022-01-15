@@ -73,7 +73,12 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
   return reservesAddresses;
 };
 
-const useReserveConfigurationData = (umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined, lendingPool: LendingPool | undefined, user: string | undefined, assets: { symbol: string; tokenAddress: string; }[] | undefined) => {
+const useReserveConfigurationData = (
+  umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined,
+  lendingPool: LendingPool | undefined,
+  user: string | undefined,
+  assets: { symbol: string; tokenAddress: string; }[] | undefined
+) => {
   const [reserveConfiguration, setReserveConfiguration] = useState<IReserveConfigurationData[]>([]);
 
   useEffect(() => {

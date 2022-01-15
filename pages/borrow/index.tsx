@@ -39,12 +39,12 @@ const Borrow = () => {
 
   const [filteredData, setFilteredData] = useState<IAvailableBorrowsData[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [loggedIn, setLoggedIn] = useState<boolean>();
 
   useEffect(() => {
     if (web3.account) {
       setLoggedIn(true);
-    }
+    } else setLoggedIn(false);
   }, [web3.account]);
 
   useEffect(() => {
@@ -135,13 +135,13 @@ const Borrow = () => {
 
   const availableTokensColumns: IDataListColumn[] = [
     { title: 'Asset', size: 'flex' },
-    { title: 'Liquidity', size: 'flex' },
+    { title: 'Available', size: 'flex' },
     { title: 'APY', size: 'flex' },
   ];
 
-  const userAssetsColums: IDataListColumn[] = [
+  const userAssetsColumns: IDataListColumn[] = [
     { title: 'Asset', size: 'flex' },
-    { title: 'Balance', size: 'flex' },
+    { title: 'Borrowed', size: 'flex' },
     { title: 'APY', size: 'flex' },
   ];
 
@@ -155,36 +155,21 @@ const Borrow = () => {
         <h1>Borrow</h1>
         <p>Borrow assets for cross-chain leverage</p>
       </div>
-      {/**
-       * @todo: ADK: This section is nearly identical to the the on in deposit/index.tsx.
-       * Prime candidate for refactoring, but I'm too tired right now to do it. :)  */}
       <Box direction="row" justify="center" gap="medium" className="assets-container">
         <Box width="100%" style={{ maxWidth: '700px' }}>
           <DataListControls fullDataList={tokens} setFilteredData={setFilteredData} />
-          <Box pad={{ vertical: 'small' }} width="auto" direction="row" gap="medium">
-            {web3.account && myBorrowsData && myBorrowsData.length > 0 ? (
-              <AvailableBorrowsDataList columns={userAssetsColums} data={myBorrowsData} loggedIn={loggedIn} />
-            ) : (
-              <></>
+          <Box pad={{ vertical: 'small' }} width="auto">
+            {loggedIn !== undefined && (
+              <AvailableBorrowsDataList
+                columns={availableTokensColumns}
+                userAssetsColumns={userAssetsColumns}
+                data={filteredData}
+                myBorrowsData={myBorrowsData}
+                loggedIn={loggedIn}
+                selectedTokenAddress={state && state.tokenAddress}
+              />
             )}
           </Box>
-          {filteredData.length > 0 ? (
-            <Box pad={{ vertical: 'small' }} width="auto">
-              <Text size="small" margin={{ bottom: '10px' }}>
-                Available Markets
-              </Text>
-              {tokens && (
-                <Box direction="row" gap="medium">
-                  <AvailableBorrowsDataList
-                    columns={availableTokensColumns}
-                    data={filteredData}
-                    loggedIn={loggedIn}
-                    selectedTokenAddress={state && state.tokenAddress}
-                  />
-                </Box>
-              )}
-            </Box>
-          ) : null}
         </Box>
       </Box>
     </>

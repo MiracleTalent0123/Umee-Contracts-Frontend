@@ -1,9 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const supportedChains = () => {
   const dev = process.env.NODE_ENV !== 'production' ? [parseInt(process.env.LOCAL_CHAIN_ID || '0', 10)] : [];
   const supported = [...dev, ...(process.env.SUPPORTED_CHAIN_IDS || '').split(',').map(i => parseInt(i, 10))];
   return supported;
+};
+
+const useGravityAddress = (chainId: number | undefined) => {
+  const address = useMemo(() => {
+    if (!chainId || !process.env.GRAVITY_ADDRESSES) {
+      return null;
+    }
+
+    const addresses = JSON.parse(process.env.GRAVITY_ADDRESSES);
+    const addr: string = addresses[chainId];
+    if (!addr) {
+      console.error(`Peggy address for network ${chainId} is not set. Check settings or wallet network.`);
+      return null;
+    }
+
+    return addr;
+  }, [chainId]);
+
+  return address;
 };
 
 const useDataProviderAddress = (chainId: number | undefined) => {
@@ -85,6 +104,7 @@ const useLendingPoolAddress = (chainId: number | undefined) => {
 
 export {
   supportedChains,
+  useGravityAddress,
   useDataProviderAddress,
   useLendingPoolAddress,
 };

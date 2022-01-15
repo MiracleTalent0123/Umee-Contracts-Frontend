@@ -1,8 +1,12 @@
 import React, { createContext, useContext } from 'react';
 import { Web3Custom, useProvider, defaultWeb3 } from './providers';
 
+interface Web3RootProps {
+  children: React.ReactNode
+}
+
 const createWeb3Root = (context: React.Context<Web3Custom>) => {
-  const Web3Root = ({ children }: { children: React.ReactNode }) => {
+  const Web3Root: React.FC<Web3RootProps> = ({ children }) => {
     const web3Provider = useProvider();
 
     return (

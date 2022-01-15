@@ -17,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { SideNav } from 'components/NavBar/SideNav';
 
 import Borrow from 'pages/borrow';
-
+import Dashboard from 'pages/dashboard';
 import Deposit from 'pages/deposit';
 import Markets from 'pages/markets';
 import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
@@ -30,17 +30,33 @@ function Body() {
   return (
     <>
       <AccountConnectionProvider>
-        <Box style={{position: 'absolute', right: '0'}} direction="column" margin={{ left: 'small', vertical: '25px', right: '25px' }} gap="small">
+        <Box
+          style={{ position: 'absolute', right: '0' }}
+          direction="column"
+          margin={{ left: 'small', vertical: '25px', right: '25px' }}
+          gap="small"
+        >
           <ConnectWalletButton />
         </Box>
         <Router>
           <SideNav />
-          <Box margin={{top: 'xlarge'}} pad={{bottom: 'xlarge'}}>
+          <Box margin={{ top: 'xlarge' }} pad={{ bottom: 'xlarge' }}>
             <Switch>
-              <Route path="/borrow"><Borrow /></Route>
-              <Route path="/deposit"><Deposit /></Route>
-              <Route path="/markets"><Markets /></Route>
-              <Route path="/"><Markets /> </Route>
+              <Route path="/dashboard">
+                <Dashboard />
+              </Route>
+              <Route path="/borrow">
+                <Borrow />
+              </Route>
+              <Route path="/deposit">
+                <Deposit />
+              </Route>
+              <Route path="/markets">
+                <Markets />
+              </Route>
+              <Route path="/">
+                <Markets />
+              </Route>
             </Switch>
           </Box>
         </Router>
@@ -51,7 +67,7 @@ function Body() {
 
 function Auth() {
   const [success, setSuccess] = useState<boolean>(false);
-  
+
   const valid = (password: string) => {
     setSuccess(true);
     localStorage.setItem('password', password);
@@ -77,9 +93,7 @@ function Auth() {
     return <BetaAuthModal valid={valid} passwordHash={process.env.BETA_TESTING_PASSWORD_HASH} />;
   }
 
-  return (
-    <Body />
-  );
+  return <Body />;
 }
 
 const queryClient = new QueryClient();

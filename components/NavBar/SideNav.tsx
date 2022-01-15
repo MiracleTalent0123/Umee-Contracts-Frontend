@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Text, Image } from 'grommet';
 import UmeeLogo from '/public/images/Logo.svg';
+import dashBoardIcon from '../../public/images/dashboard-icon.svg';
+import activeDashboardIcon from '../../public/images/dashboard-selected.svg';
 import borrowIcon from '../../public/images/borrow-icon.svg';
 import depositIcon from '../../public/images/deposit-icon.svg';
 import marketsIcon from '../../public/images/markets-icon.svg';
@@ -25,10 +27,11 @@ export interface INavItem {
 export const SideNav = () => {
   const navItems: INavItem[] = [
     { id: 1, title: 'Markets', url: '/markets', icon: marketsIcon, activeIcon: activeMarketsIcon },
-    { id: 2, title: 'Deposit', url: '/deposit', icon: depositIcon, activeIcon: activeDepositIcon },
-    { id: 3, title: 'Borrow', url: '/borrow', icon: borrowIcon, activeIcon: activeBorrowIcon },
-    { id: 4, title: 'Stake', icon: stakeIcon, activeIcon: activeStakeIcon },
-    { id: 5, title: 'Vote', icon: voteIcon, activeIcon: activeVoteIcon },
+    { id: 2, title: 'Dashboard', url: '/dashboard', icon: dashBoardIcon, activeIcon: activeDashboardIcon },
+    { id: 3, title: 'Supply', url: '/deposit', icon: depositIcon, activeIcon: activeDepositIcon },
+    { id: 4, title: 'Borrow', url: '/borrow', icon: borrowIcon, activeIcon: activeBorrowIcon },
+    { id: 5, title: 'Stake', icon: stakeIcon, activeIcon: activeStakeIcon },
+    { id: 6, title: 'Vote', icon: voteIcon, activeIcon: activeVoteIcon },
   ];
 
   const location = useLocation();

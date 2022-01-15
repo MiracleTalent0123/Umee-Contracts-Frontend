@@ -5,22 +5,23 @@ import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { supportedChains } from './chains';
 import { useListeners } from './listeners';
+
 export interface Web3Custom {
-  connected: boolean,
-  provided: boolean,
-  providerName: string,
-  networkName?: string,
-  account?: string,
-  chainId?: number,
-  provider?: ethers.providers.Provider,
-  signerOrProvider?: ethers.providers.Provider | ethers.Signer,
-};
+  connected: boolean;
+  provided: boolean;
+  providerName: string;
+  networkName?: string;
+  account?: string;
+  chainId?: number;
+  provider?: ethers.providers.Provider;
+  signerOrProvider?: ethers.providers.Provider | ethers.Signer;
+}
 
 interface ProviderApiKeys {
-  infura?: string,
-  alchemy?: string,
-  etherscan?: string,
-};
+  infura?: string;
+  alchemy?: string;
+  etherscan?: string;
+}
 
 let web3Modal: Web3Modal;
 
@@ -46,7 +47,7 @@ export const defaultWeb3: Web3Custom = {
 };
 
 const makeInjectedProvider = async (web3Provider: ethers.providers.Web3Provider) => {
-  const local = 
+  const local =
     process.env.LOCAL_CHAIN_ID &&
     (await web3Provider.getNetwork()).chainId === parseInt(process.env.LOCAL_CHAIN_ID, 10);
 
@@ -66,8 +67,9 @@ const makeInjectedProvider = async (web3Provider: ethers.providers.Web3Provider)
 
 const getInjectedProvider = (web3Modal: Web3Modal) => {
   return new Promise<Web3Custom>((resolve, reject) => {
-    web3Modal.connect()
-      .then(userSuppliedProvider => makeInjectedProvider(new ethers.providers.Web3Provider(userSuppliedProvider)))
+    web3Modal
+      .connect()
+      .then((userSuppliedProvider) => makeInjectedProvider(new ethers.providers.Web3Provider(userSuppliedProvider)))
       .then(resolve)
       .catch(reject);
   });
@@ -76,18 +78,21 @@ const getInjectedProvider = (web3Modal: Web3Modal) => {
 const getLocalProvider = () => {
   const localProvider = new ethers.providers.JsonRpcProvider(process.env.LOCAL_PROVIDER_URL);
   return new Promise<Web3Custom>((resolve, reject) => {
-    localProvider.detectNetwork().then(network => {
-      resolve({
-        connected: true,
-        provided: true,
-        providerName: 'local provider',
-        networkName: 'localhost',
-        account: '',
-        chainId: network.chainId,
-        provider: localProvider,
-        signerOrProvider: localProvider,
-      });
-    }).catch(reject);
+    localProvider
+      .detectNetwork()
+      .then((network) => {
+        resolve({
+          connected: true,
+          provided: true,
+          providerName: 'local provider',
+          networkName: 'localhost',
+          account: '',
+          chainId: network.chainId,
+          provider: localProvider,
+          signerOrProvider: localProvider,
+        });
+      })
+      .catch(reject);
   });
 };
 
@@ -118,13 +123,12 @@ const useProvider = () => {
   const [web3Provider, setWeb3Provider] = useState(defaultWeb3);
 
   const reloadedProvider = useListeners(web3Provider.provider, web3Modal);
+
   useEffect(() => {
     if (!reloadedProvider) {
       setWeb3Provider(defaultWeb3);
     } else {
-      makeInjectedProvider(reloadedProvider)
-        .then(setWeb3Provider)
-        .catch(console.error);
+      makeInjectedProvider(reloadedProvider).then(setWeb3Provider).catch(console.error);
     }
   }, [reloadedProvider]);
 
@@ -132,20 +136,17 @@ const useProvider = () => {
     if (web3Provider.connected) return;
 
     if (web3Modal.cachedProvider && !web3Provider.provider) {
-      getInjectedProvider(web3Modal)
-        .then(setWeb3Provider)
-        .catch(console.error);
+      getInjectedProvider(web3Modal).then(setWeb3Provider).catch(console.error);
 
       return;
     }
 
     if (web3Provider.provider) {
-      web3Provider.provider.getNetwork()
-        .then(network => {
+      web3Provider.provider
+        .getNetwork()
+        .then((network) => {
           if (supportedChains().includes(network.chainId)) {
-            getInjectedProvider(web3Modal)
-              .then(setWeb3Provider)
-              .catch(console.error);
+            getInjectedProvider(web3Modal).then(setWeb3Provider).catch(console.error);
 
             return;
           }

@@ -6,6 +6,7 @@
     "lib": "./lib",
     "pages": "./pages",
     "components": "./components",
+    "dialogs": "./dialogs",
     "api": "./api"
   },
   "scripts": {
@@ -51,7 +52,9 @@
     "@walletconnect/web3-provider": "^1.4.1",
     "bcryptjs": "^2.4.3",
     "bech32": "^2.0.0",
+    "clsx": "^1.1.1",
     "ethers": "^5.3.1",
+    "google-protobuf": "^3.19.1",
     "grommet": "^2.17.3",
     "grommet-icons": "^4.6.0",
     "lodash": "^4.17.21",

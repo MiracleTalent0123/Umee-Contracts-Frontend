@@ -1,29 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { BaseModal } from 'components/common/BaseModal';
-import BridgeDeposit from './bridgeDeposit';
-import BridgeWithdraw from './bridgeWithdraw';
+import React from 'react';
 import { Box } from 'grommet';
+import { BaseModal } from 'components/common/BaseModal';
+import BridgeDialog from 'dialogs/Bridge';
 
-const BridgeModal = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void}) => {
-  const [activeTab, setActiveTab] = useState('Deposit');
+interface BridgeModalProps {
+  address: string
+  tokenName: string
+  onClose: (show: boolean) => void
+}
 
-  return (
-    <BaseModal onClose={onClose}>
-      <Box className="modal-width">
-        {activeTab === 'Deposit' ? (
-          <BridgeDeposit 
-            address={tokenAddress}
-            setActiveTab={setActiveTab}
-          />
-        ) : (
-          <BridgeWithdraw
-            address={tokenAddress}
-            setActiveTab={setActiveTab}
-          />
-        )}
-      </Box>
-    </BaseModal>
-  );
-};
+const BridgeModal: React.FC<BridgeModalProps> = ({
+  address: tokenAddress,
+  tokenName,
+  onClose
+}) => (
+  <BaseModal onClose={onClose}>
+    <Box className="modal-width">
+      <BridgeDialog address={tokenAddress} tokenName={tokenName} />
+    </Box>
+  </BaseModal>
+);
 
 export default BridgeModal;

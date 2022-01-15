@@ -21,7 +21,6 @@
   --status-warn: #e67e22;
   --status-error: #c0392b;
 }
-
 * { 
   box-sizing:border-box;
   margin : 0;
@@ -85,4 +84,5 @@ input[type=number] {
 
 .modal-width {
   min-width: 320px !important;
+  min-height: 250px !important;
 }

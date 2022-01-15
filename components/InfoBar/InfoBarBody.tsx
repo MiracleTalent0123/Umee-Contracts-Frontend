@@ -7,15 +7,10 @@ export interface InfoBarBodyProps {
   color?: string;
 }
 
-const InfoBarBody = ({ children, margin, color='clrDefaultBg' }: InfoBarBodyProps) => {
+const InfoBarBody = ({ children, margin, color='white' }: InfoBarBodyProps) => {
   return (
-    <Box margin={margin} background={color} flex>
-      <Stack guidingChild={1}>
-        <Box background="brand" height="xxsmall" />
-        <Box margin={{ horizontal: 'large' }} gap="medium" direction="row">
-          {children}
-        </Box>
-      </Stack>
+    <Box gap="medium" direction="row" flex>
+      {children}
     </Box>
   );
 };

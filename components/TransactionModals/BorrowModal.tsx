@@ -7,7 +7,7 @@ import { BigNumber, utils } from 'ethers';
 import { bigNumberToUSDNumber, BN } from 'lib/number-utils';
 import './modals.css';
 
-const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void }) => {
+const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onClose: () => void }) => {
   const { priceData, UserReserveData, UserAccountData, ReserveConfigurationData } = useData();
   const [myDepositsTotal, setMyDepositsTotal] = useState<number>(0);
   const [myBorrowsUSDTotal, setMyBorrowsUSDTotal] = useState<number>(0);
@@ -27,20 +27,11 @@ const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onCl
     );
     setMyBorrowsUSDTotal(
       UserReserveData.reduce((acc, reserve) => {
-        const reserveConfig = ReserveConfigurationData.find((r) => r.address === reserve.address);
-        const totalDebt = reserve.currentStableDebt.add(reserve.currentVariableDebt);
-
-        const price = priceData[reserve.symbol] ? String(priceData[reserve.symbol].usd) : '0.00';
-        const priceDecimals = price.indexOf('.') > 0 ? price.length - price.indexOf('.') - 1 : 0;
-        const bigPrice = priceData ? utils.parseUnits(price, priceDecimals) : BigNumber.from(0);
-
-        const bigDebt = totalDebt.mul(bigPrice);
-        const debt = bigNumberToUSDNumber(
-          bigDebt,
-          reserveConfig?.decimals.add(priceDecimals) || BN(18),
-          Number(price)
+        const assetPrice = priceData[reserve.symbol].usd;
+        const tempReserve = parseFloat(
+          utils.formatUnits(reserve.currentVariableDebt.add(reserve.currentStableDebt), reserve.decimals)
         );
-        acc += debt;
+        acc += tempReserve * assetPrice;
         return acc;
       }, 0)
     );
@@ -71,6 +62,7 @@ const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onCl
           myBorrowsTotal={myBorrowsUSDTotal}
           currentLtv={currentltv}
           initialBorrowLimit={initialBorrowLimit}
+          onClose={onClose}
         />
       </Box>
     </BaseModal>

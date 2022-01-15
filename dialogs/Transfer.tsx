@@ -158,20 +158,14 @@ export const TransferDialog = observer(
                     style={{ borderStyle: 'none', textAlign: 'right', padding: '0 5px' }}
                     onChange={(e) => {
                       e.preventDefault();
-                      let value = e.currentTarget.value;
-                      amountConfig.setAmount(value);
-                      let max = pickOne(
-                        bal.hideDenom(true).trim(true).maxDecimals(6).toString().replaceAll(',', ''),
-                        counterpartyBal.hideDenom(true).trim(true).maxDecimals(6).toString().replaceAll(',', ''),
+                      const value = parseFloat(e.currentTarget.value);
+                      const max = pickOne(
+                        parseFloat(bal.hideDenom(true).trim(true).maxDecimals(6).toString().replaceAll(',', '')),
+                        parseFloat(counterpartyBal.hideDenom(true).trim(true).maxDecimals(6).toString().replaceAll(',', '')),
                         isWithdraw
                       );
-                      setPercentage(
-                        parseFloat(value) > parseFloat(max)
-                          ? 100
-                          : parseFloat(max) > 0
-                            ? parseFloat(((parseFloat(value ? value : '0') / parseFloat(max)) * 100).toFixed(0))
-                            : 0
-                      );
+                      amountConfig.setAmount(Math.max(Math.min(value, max), 0).toString());
+                      setPercentage(Math.max(Math.min(value * 100 / max, 100), 0));
                     }}
                     value={amountConfig.amount}
                     placeholder="0.00"

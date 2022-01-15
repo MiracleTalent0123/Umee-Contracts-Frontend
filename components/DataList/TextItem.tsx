@@ -4,19 +4,34 @@ import * as React from 'react';
 export type TextValueType = 'decimal' | 'currency' | 'percent' | 'text';
 
 export interface TextItemProps {
-  children?: any | any[];
+  children?: React.ReactNode;
   direction?: BoxProps['direction'];
   justify?: BoxProps['justify'];
   align?: BoxProps['align'];
   handleClick?: React.Dispatch<any>;
 }
 
-const TextItem = ({ children, direction, justify, align, handleClick }: TextItemProps) => {
-  return (
-    <Box onClick={handleClick} direction={direction || 'column'} justify={justify || 'center'} align={align || 'center'}>
-      {children}
-    </Box>
-  );
+const TextItem: React.FC<TextItemProps> = ({
+  children,
+  direction,
+  justify,
+  align,
+  handleClick
+}) => (
+  <Box
+    onClick={handleClick}
+    direction={direction}
+    justify={justify}
+    align={align}
+  >
+    {children}
+  </Box>
+);
+
+TextItem.defaultProps = {
+  direction: 'column',
+  justify: 'center',
+  align: 'center'
 };
 
 export default TextItem;

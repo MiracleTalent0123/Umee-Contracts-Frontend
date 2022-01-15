@@ -106,7 +106,7 @@ const BridgeWithdrawInputAmount = ({
           <AvailableToTxnInformationRow
             txnType={txnType}
             symbol={token.symbol ? token.symbol : ''}
-            availableAmount={depositBalance}
+            availableAmount={availableAmount}
             tokenDecimals={tokenDecimals}
           />
           <TxnAmountInputRow txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />

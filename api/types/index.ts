@@ -101,3 +101,5 @@ export { MockDAIFactory } from "./MockDAIFactory";
 export type { MockDAI } from "./MockDAI";
 export { MockUSDCFactory } from "./MockUSDCFactory";
 export type { MockUSDC } from "./MockUSDC";
+export { GravityFactory } from "./GravityFactory";
+export type { Gravity } from "./Gravity";
