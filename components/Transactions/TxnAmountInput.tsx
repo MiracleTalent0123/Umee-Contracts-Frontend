@@ -12,16 +12,11 @@ interface TTxnAmountInput {
   txnAvailability: TTxnAvailability;
   disabled?: boolean;
   txnAmount: string;
-};
+}
 
 const scales = [0, 1, 2, 3, 4];
 
-export const TxnAmountInput: React.FC<TTxnAmountInput> = ({
-  setTxnAmount,
-  disabled,
-  txnAvailability,
-  txnAmount
-}) => {
+export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabled, txnAvailability, txnAmount }) => {
   const { availableAmount, token, tokenDecimals } = txnAvailability;
   const maxAmount = utils.formatUnits(availableAmount, tokenDecimals);
   const { priceData } = useData();
@@ -87,10 +82,10 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({
         </Box>
       </Box>
       <TxnAmountRangeInput
-        value={Math.min(Math.round(Number(txnAmount) * 100 / Number(maxAmount)), 100)}
+        value={Number(maxAmount) > 0 ? Math.min(Math.round((Number(txnAmount) * 100) / Number(maxAmount)), 100) : 0}
         min={0}
         max={100}
-        setValue={(value: any) => setTxnAmount(Number(value * Number(maxAmount) / 100).toFixed(2))}
+        setValue={(value: any) => setTxnAmount(((value * Number(maxAmount)) / 100).toString())}
         scales={scales}
         maxAmount={maxAmount}
       />
@@ -99,5 +94,5 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({
 };
 
 TxnAmountInput.defaultProps = {
-  disabled: false
+  disabled: false,
 };

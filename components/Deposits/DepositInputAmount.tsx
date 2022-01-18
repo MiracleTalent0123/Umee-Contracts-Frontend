@@ -1,14 +1,14 @@
 import React from 'react';
 import { Box, Text, Image } from 'grommet';
 import Loading from 'components/common/Loading/Loading';
-import { TxnAmountContainer, ITxnAmount } from 'components/Transactions';
+import { TxnAmountContainer } from 'components/Transactions';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
-import { bigNumberToString, isZero, safeBigNumberToStringAllDecimals, BN } from 'lib/number-utils';
-import { BigNumber, constants, utils } from 'ethers';
+import { bigNumberToString, BN } from 'lib/number-utils';
+import { BigNumber } from 'ethers';
 import ModalHeader from 'components/ModalHeader';
-import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
+// import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
 import Arrow from '/public/images/arrow.png';
 import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
@@ -52,7 +52,7 @@ const DepositInputAmount = ({
   const [isFinal, setIsFinal] = React.useState(false);
   const [newTxnAvail, setNewTxnAvail] = React.useState(txnAvailability);
 
-  /** 
+  /**
    * Convert to max maxMantissa decimals to deal with possible overrun issues causing unpredictable gas errors.
    */
   React.useEffect(() => {
@@ -65,8 +65,7 @@ const DepositInputAmount = ({
     const tmpDecimals = tokenDecimals as BigNumber;
     const decimalAdjust = tmpDecimals.toNumber() - maxMantissa;
     const adjustedDecimals = tmpDecimals.sub(decimalAdjust);
-    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals});
-
+    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals });
   }, [availableAmount, tokenDecimals, txnAvailability, txnType]);
 
   React.useEffect(() => {
@@ -83,6 +82,7 @@ const DepositInputAmount = ({
       txnType={txnType}
       isPending={isPending}
       isFinal={isFinal}
+      buttonDisabled={Number(txnAmount) === 0}
       header={
         token.symbol && (
           <>
@@ -142,7 +142,9 @@ const DepositInputAmount = ({
               Borrow Info
             </Text>
             <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
-              <Text size="small" margin={{right: 'medium'}}>Borrow Position</Text>
+              <Text size="small" margin={{ right: 'medium' }}>
+                Borrow Position
+              </Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   ${initialborrowBalance.toFixed(2)}
@@ -158,7 +160,9 @@ const DepositInputAmount = ({
               border="top"
               style={{ borderColor: '#E1F0FF' }}
             >
-              <Text margin={{right: 'medium'}} size="small">Borrow Limit Used</Text>
+              <Text margin={{ right: 'medium' }} size="small">
+                Borrow Limit Used
+              </Text>
               <Box direction="row" align="center">
                 <Text weight="bold" size="small">
                   {currentLtv}%
@@ -175,7 +179,7 @@ const DepositInputAmount = ({
             </Box>
             {isDeposit && (
               <Box direction="row" justify="center">
-                {token.symbol == 'DAI' || token.symbol == 'USDC' ? 
+                {token.symbol == 'DAI' || token.symbol == 'USDC' ? (
                   <Text
                     style={{ cursor: 'pointer' }}
                     onClick={handleFaucet}
@@ -185,8 +189,9 @@ const DepositInputAmount = ({
                   >
                     Faucet
                   </Text>
-                  : <></>
-                }
+                ) : (
+                  <></>
+                )}
               </Box>
             )}
           </Box>

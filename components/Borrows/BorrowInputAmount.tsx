@@ -79,6 +79,7 @@ const BorrowInputAmount = ({
       txnType={txnType}
       isPending={isPending}
       isFinal={isFinal}
+      buttonDisabled={Number(txnAmount) === 0}
       header={
         token.symbol && (
           <>

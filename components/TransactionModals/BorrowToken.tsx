@@ -8,9 +8,6 @@ import { useTransaction } from 'api/data/transactions';
 import { useWeb3 } from 'api/web3';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { getMaxBorrows } from 'lib/health-utils';
-import { toast } from 'react-toastify';
-import { GREATER_THAN_ZERO_MESSAGE } from 'lib/constants';
-import { isZero } from 'lib/number-utils';
 import { useUserBalance } from 'api/data/allowanceData';
 
 const { useEffect, useState } = React;
@@ -145,14 +142,6 @@ const BorrowToken = ({
     }
   }, [ReserveConfigurationData, ReserveData, UserAccountData, tokenAddress, token, priceData, tokenDecimals]);
 
-  const handleContinue = () => {
-    if (txnAmount === '' || isZero(txnAmount)) {
-      toast.error(GREATER_THAN_ZERO_MESSAGE);
-      return;
-    }
-    isBorrow ? handleBorrow() : handleRepay();
-  };
-
   const handleBorrow = () => {
     setBorrowStep(ETxnSteps.Pending);
 
@@ -230,7 +219,7 @@ const BorrowToken = ({
             tokenDecimals,
           }}
           setTxnAmount={setTxnAmount}
-          handleContinue={handleContinue}
+          handleContinue={isBorrow ? handleBorrow : handleRepay}
           txnStep={pickOne(borrowStep, repayStep, isBorrow)}
           setIsBorrow={setIsBorrow}
           isBorrow={isBorrow}

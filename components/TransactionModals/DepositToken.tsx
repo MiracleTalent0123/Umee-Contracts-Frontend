@@ -9,10 +9,7 @@ import { useAllowanceData, useUserBalance } from 'api/data/allowanceData';
 import { useErc20DetailedContract, useErc20MintContract } from 'api/data/contracts';
 import { ETxnType, ITokenData } from 'lib/types';
 import PageLoading from 'components/common/Loading/PageLoading';
-import { isZero } from 'lib/number-utils';
 import { ETxnSteps } from 'lib/types';
-import { toast } from 'react-toastify';
-import { GREATER_THAN_ZERO_MESSAGE } from 'lib/constants';
 import { getMaxWithdraws } from 'lib/health-utils';
 import EnableDeposit from 'components/TransactionModals/AssetModal';
 
@@ -21,13 +18,11 @@ const DepositToken = ({
   myDepositsTotal,
   currentLtv,
   maxLtv,
-  initialBorrowLimit,
   myBorrowsTotal,
   onClose,
 }: {
   address: string;
   myDepositsTotal: number;
-  initialBorrowLimit: string;
   currentLtv: string;
   maxLtv: string;
   myBorrowsTotal: number;
@@ -241,9 +236,9 @@ const DepositToken = ({
     // Must approve transaction first
     contractCallDeposit(
       () => lendingPool.deposit(token.address || '', txnAmountBN, account, 0),
-      'Depositing',
-      'Deposit failed',
-      'Deposit succeeded',
+      'Supplying',
+      'Supply failed',
+      'Supply succeeded',
       () => {
         setDepositStep(ETxnSteps.Input);
         onClose();
@@ -287,16 +282,6 @@ const DepositToken = ({
         (hash: string) => setTxnHash(hash)
       );
     }
-  };
-
-  const handleContinue = () => {
-    if (txnAmount === '' || isZero(txnAmount)) {
-      toast.error(GREATER_THAN_ZERO_MESSAGE);
-      return;
-    }
-
-    if (isDeposit) handleDeposit();
-    else handleWithdrawal();
   };
 
   const handleFaucet = () => {
@@ -345,7 +330,7 @@ const DepositToken = ({
             balance={pickOne(availableAmount, depositBalance, isDeposit)}
             setTxnAmount={setTxnAmount}
             txnAmount={txnAmount}
-            handleContinue={handleContinue}
+            handleContinue={isDeposit ? handleDeposit : handleWithdrawal}
             txnStep={pickDataOne(depositStep, withdrawalStep, mintStep, step)}
             setIsDeposit={setIsDeposit}
             handleFaucet={handleFaucet}

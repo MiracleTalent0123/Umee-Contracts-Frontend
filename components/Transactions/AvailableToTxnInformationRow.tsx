@@ -6,6 +6,7 @@ import { safeBigNumberToStringAllDecimals } from 'lib/number-utils';
 
 interface AvailableToTxnInformationRowProps {
   txnType: ETxnType;
+  withdrawModal?: boolean;
   userBalance?: BigNumber;
   availableAmount: BigNumber;
   symbol: string;
@@ -15,13 +16,20 @@ interface AvailableToTxnInformationRowProps {
 export const AvailableToTxnInformationRow: React.FC<AvailableToTxnInformationRowProps> = ({
   txnType,
   userBalance,
+  withdrawModal,
   availableAmount,
   symbol,
   tokenDecimals
 }) => (
   <Box direction="row" justify="between">      
     <Text size="small" weight="bold" textAlign="end" margin={{ left: 'auto' }}>
-      Balance
+      {txnType == ETxnType.deposit
+        ? 'Wallet:'
+        : withdrawModal
+          ? txnType == ETxnType.repay
+            ? 'Wallet:'
+            : 'Borrowed:'
+          : 'Supplied:'}
     </Text>
     <Text
       size="small"

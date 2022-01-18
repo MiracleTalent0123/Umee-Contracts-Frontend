@@ -10,14 +10,7 @@ interface RangeInputProps {
   value: number;
 }
 
-const TxnAmountRangeInput: React.FC<RangeInputProps> = ({
-  value,
-  setValue,
-  scales,
-  maxAmount,
-  min,
-  max
-}) => (
+const TxnAmountRangeInput: React.FC<RangeInputProps> = ({ value, setValue, scales, maxAmount, min, max }) => (
   <Box className="percentage-step">
     <input
       className="steps"
@@ -30,7 +23,9 @@ const TxnAmountRangeInput: React.FC<RangeInputProps> = ({
       }}
     />
     <Box className="bubble-container">
-      <Text style={{ left: `${value}%` }} size="small" className="bubble">{value}</Text>
+      <Text style={{ left: `${value}%` }} size="small" className="bubble">
+        {value}%
+      </Text>
     </Box>
     <div className="slider-rail"></div>
     <div className="slider-track" style={{ width: `${value}%` }}></div>
@@ -40,9 +35,7 @@ const TxnAmountRangeInput: React.FC<RangeInputProps> = ({
         {scales.map((scale, index) => (
           <Box
             key={index}
-            className={
-              index * (100 / (scales.length - 1)) < value ? 'amount-percentage selected' : 'amount-percentage'
-            }
+            className={index * (100 / (scales.length - 1)) < value ? 'amount-percentage selected' : 'amount-percentage'}
           >
             <div className="price-percentage"></div>
           </Box>
