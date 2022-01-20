@@ -105,13 +105,20 @@ function useSystemData() {
 
   // Asset Data Access
   const returnAssetData = useAllReserveTokens(UmeeProtocolDataProviderContract);
-  const returnReserveConfigurationData = useReserveConfigurationData(UmeeProtocolDataProviderContract, LendingPoolContract, account, returnAssetData);
+  let returnReserveConfigurationData = useReserveConfigurationData(UmeeProtocolDataProviderContract, LendingPoolContract, account, returnAssetData);
   const returnReserveData = useReserveData(UmeeProtocolDataProviderContract, LendingPoolContract, returnAssetData, priceData);
 
   // User Data Access
   const returnUserAccountData = useUserAccountData(LendingPoolContract, account);
   const returnUserReserveData = useUserReserveData(UmeeProtocolDataProviderContract, returnAssetData, returnReserveConfigurationData, account, LendingPoolContract);
-  
+  returnReserveConfigurationData = returnReserveConfigurationData.reduce((acc, token) => {
+    if(token.symbol === 'ATOM'){
+      token.decimals = BigNumber.from(6);
+    }
+    acc.push(token);
+    return acc;
+  },Array());
+
   const data: Data = {
     Contracts: {
       dataProvider: UmeeProtocolDataProviderContract,
