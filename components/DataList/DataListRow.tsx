@@ -1,5 +1,5 @@
 import { Box, BoxProps, Card, Grid, GridSizeType } from 'grommet';
-import React  from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './DataListRow.css';
 
@@ -9,7 +9,7 @@ export interface DataListRowProps {
   linkUrl?: string;
   rowColor?: string;
   tokenAddress?: string;
-  setTokenAddress?(tokenAddress: string):void;
+  setTokenAddress?(tokenAddress: string): void;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface DataListRowProps {
  * @param param0
  * @returns
  */
-const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress, tokenAddress}: DataListRowProps) => {
+const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress, tokenAddress }: DataListRowProps) => {
   const history = useHistory();
   const handleClick = (e: any) => {
     e.preventDefault();
@@ -30,11 +30,11 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
 
   const props: BoxProps = {
     direction: 'row',
-    pad: { vertical: '8px', horizontal: 'small' },
+    pad: { vertical: 'small' },
     align: 'center',
     justify: 'start',
     fill: 'horizontal',
-    round: '0px'
+    round: '0px',
   };
 
   if (!!linkUrl || !!setTokenAddress) {
@@ -43,9 +43,9 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
 
   return (
     <div className="row-container">
-      <Box border={{side: 'top', color: '#DFEFFF', size: '2px'}} {...props}>
+      <Box border={{ side: 'bottom', color: '#E2E3ED', size: '1px' }} {...props}>
         {rowColor && <Box border={{ color: rowColor, side: 'left', size: '3px' }} height="2rem" />}
-        <Grid columns={columnSizes} pad={{ horizontal: 'small' }} gap="small" fill="horizontal">
+        <Grid className="row-content" columns={columnSizes} gap="small" fill="horizontal" align="center">
           {children}
         </Grid>
       </Box>

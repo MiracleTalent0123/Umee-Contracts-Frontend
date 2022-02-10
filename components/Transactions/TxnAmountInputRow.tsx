@@ -15,7 +15,7 @@ export const TxnAmountInputRow = ({
   txnAmount: string;
 }) => {
   return (
-    <Box margin={{bottom: '20px'}}>
+    <Box margin={{bottom: 'medium'}}>
       <TxnAmountInput
         txnAvailability={txnAvailability}
         disabled={disabled}

@@ -1,10 +1,15 @@
 .row-container {
-  border-left: 2px solid transparent;
+  transition: 0.3s;
 }
 
 .row-container:hover {
-  border-left: double 2px transparent;
-  background-image: linear-gradient(white,white), linear-gradient(180deg, #E6B5FA 0%, #43E0FD 99.12%);
-  background-clip: padding-box, border-box;
-  background-origin: border-box;
+  background-color: var(--umee-full-grey3);
+}
+
+.row-content > div:first-child {
+  padding-left: 5px;
+}
+
+.row-content > div:last-child {
+  padding-right: 5px;
 }

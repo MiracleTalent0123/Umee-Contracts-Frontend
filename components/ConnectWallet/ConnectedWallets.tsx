@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Cosmos from '../../public/images/cosmos-hub-logo.svg';
 import Metamask from '../../public/images/metamask.png';
 import Keplr from '../../public/images/keplr-icon.png';
 import Eth from '../../public/images/eth-logo.svg';
-import UmeeLogo from '../../public/images/Umee_logo_icon_only.png';
+import UmeeLogo from '../../public/images/Logo.svg';
 import { Box, Image, Text } from 'grommet';
 import './ConnectWallet.css';
 import truncate from 'lib/truncate';
@@ -11,10 +11,10 @@ import { useStore } from '../../api/cosmosStores';
 import { useAccountConnection } from '../../lib/hooks/account/useAccountConnection';
 import { connect } from 'api/web3/providers';
 
-const ConnectedWallets = ({ account }: { account?: string; }) => {
+const ConnectedWallets = ({ account }: { account?: string }) => {
   const { isAccountConnected, isCosmosAccountConnected } = useAccountConnection();
   const { accountStore, chainStore } = useStore();
-  const cosmosAccount = accountStore.getAccount('gaia-internal-testnet-1');
+  const cosmosAccount = accountStore.getAccount('gaia-umeeverse-party-1');
   const address = accountStore.getAccount(chainStore.current.chainId).bech32Address;
   const KeyConnectingWalletType = 'connecting_wallet_type';
 
@@ -29,7 +29,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
       >
         <Box width="45%" direction="row" align="center">
           <Box width="30px" direction="row" justify="center">
-            <Image width="20px" src={Eth} alt="Eth logo" />
+            <Image width="30px" src={Eth} alt="Eth logo" />
           </Box>
           <Box margin={{ left: 'small' }}>
             <Text weight="bold" size="small">
@@ -40,7 +40,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
             </Text>
           </Box>
         </Box>
-        <Box width="60%" margin={{ left: '38px' }} direction="row" align="center" justify="between">
+        <Box width="60%" margin={{ left: '26px' }} direction="row" align="center" justify="between">
           <Box width={{ min: 'unset' }} direction="row" justify="center">
             <Image width="30px" src={Metamask} alt="Metamask logo" />
           </Box>
@@ -60,11 +60,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
         </Box>
       </Box>
       <Box
-        className={
-          isCosmosAccountConnected && cosmosAccount.bech32Address
-            ? 'connected-wallet'
-            : ''
-        }
+        className={isCosmosAccountConnected && cosmosAccount.bech32Address ? 'connected-wallet' : ''}
         justify="between"
         align="center"
         direction="row"
@@ -84,7 +80,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
             </Text>
           </Box>
         </Box>
-        <Box width="55%" margin={{ left: '34px' }} direction="row" align="center" justify="start">
+        <Box width="55%" margin={{ left: '23px' }} direction="row" align="center" justify="start">
           <Box direction="row" justify="start" width={{ min: 'unset' }}>
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>
@@ -128,7 +124,7 @@ const ConnectedWallets = ({ account }: { account?: string; }) => {
             </Text>
           </Box>
         </Box>
-        <Box width="55%" margin={{ left: '34px' }} direction="row" align="center" justify="start">
+        <Box width="55%" margin={{ left: '23px' }} direction="row" align="center" justify="start">
           <Box direction="row" justify="start" width={{ min: 'unset' }}>
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>

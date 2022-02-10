@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button, Text } from 'grommet';
 import { InfoWindow, InfoWindowBody } from 'components/InfoWindow';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
+import { PrimaryBtn } from 'components/common';
 
 export interface ITxnAmount {
   txnAvailability: TTxnAvailability;
@@ -23,6 +24,7 @@ export type TxnAmountContainerProps = {
   buttonDisabled?: boolean;
   isPending?: boolean;
   isFinal?: boolean;
+  bridge?: boolean;
 };
 
 export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
@@ -33,6 +35,7 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
   buttonDisabled,
   isPending,
   isFinal,
+  bridge,
 }) => {
   return (
     <Box direction="row">
@@ -40,24 +43,20 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
         <InfoWindowBody>
           <Box width="100%" align="center" alignSelf="center">
             <Box width="100%">{header}</Box>
-            <Box width="100%" pad="10px 0">
+            <Box width="100%" margin={{top: 'xxsmall'}}>
               {children}
             </Box>
             {!isPending && !isFinal && handleContinue && (
-              <Button
-                onClick={handleContinue}
-                style={{ borderRadius: '10px', backgroundColor: '#131A33', width: '100%' }}
-                size="large"
-                color="black"
+              <PrimaryBtn
+                fullWidth
+                text={bridge ? 'Transfer' : txnType}
+                pad={{vertical: 'small'}}
+                textSize='medium'
+                round="large"
                 disabled={buttonDisabled}
-                primary
-              >
-                <Box pad="15px 0" justify="center">
-                  <Text textAlign="center" size="large">
-                    {txnType}
-                  </Text>
-                </Box>
-              </Button>
+                onClick={handleContinue}
+                margin={{top: 'medium', horizontal: 'medium'}}
+              />
             )}
           </Box>
         </InfoWindowBody>

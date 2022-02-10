@@ -20,7 +20,7 @@ export const IBCAssetInfos: {
   coinMinimalDenom: string;
 }[] = [
   {
-    counterpartyChainId: 'gaia-internal-testnet-1',
+    counterpartyChainId: 'gaia-umeeverse-party-1',
     sourceChannelId: 'channel-0',
     destChannelId: 'channel-0',
     counterpartyCoinMinimalDenom: 'uatom',
@@ -30,9 +30,9 @@ export const IBCAssetInfos: {
 
 export const EmbedChainInfos: ChainInfoWithExplorer[] = [
   {
-    rpc: 'https://internal-umee-rpc.umee.cc',
-    rest: 'https://internal-umee-api.umee.cc',
-    chainId: 'umee-internal-gravity-1',
+    rpc: 'https://rpc.biplosion.umeeverse-party-1.network.umee.cc',
+    rest: 'https://api.biplosion.umeeverse-party-1.network.umee.cc',
+    chainId: 'umeeverse-party-1',
     chainName: 'Umee',
     stakeCurrency: {
       coinDenom: 'UMEE',
@@ -65,12 +65,12 @@ export const EmbedChainInfos: ChainInfoWithExplorer[] = [
     ],
     coinType: 118,
     features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx'],
-    explorerUrlToTx: 'https://www.mintscan.io/cosmos/txs/{txHash}',
+    explorerUrlToTx: 'https://explorer-umee.vercel.app/umeetest-beta/tx/{txHash}',
   },
   {
-    rpc: 'https://internal-gaia-rpc.umee.cc',
-    rest: 'https://internal-gaia-api.umee.cc',
-    chainId: 'gaia-internal-testnet-1',
+    rpc: 'https://rpc.sphaeralcea.gaia-umeeverse-party-1.network.umee.cc',
+    rest: 'https://api.sphaeralcea.gaia-umeeverse-party-1.network.umee.cc',
+    chainId: 'gaia-umeeverse-party-1',
     chainName: 'Atom',
     stakeCurrency: {
       coinDenom: 'ATOM',
@@ -100,6 +100,6 @@ export const EmbedChainInfos: ChainInfoWithExplorer[] = [
     ],
     coinType: 118,
     features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx'],
-    explorerUrlToTx: 'https://www.mintscan.io/cosmos/txs/{txHash}',
+    explorerUrlToTx: 'https://explorer-umee.vercel.app/umeetest-beta/tx/{txHash}',
   },
 ];

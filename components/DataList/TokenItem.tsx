@@ -13,11 +13,11 @@ export interface TokenItemProps {
 
 const TokenItem = ({ gap, iconHeight, iconWidth, name, textSize, handleClick }: TokenItemProps) => {
   return (
-    <Box onClick={handleClick} direction="row" align="center" gap={gap || 'small'} margin={{left: '-2px'}}>
-      <Box height={iconHeight || '2.5rem'} width={iconWidth || '2.5rem'}>
-        <TokenLogo width="40" height="40" symbol={name} />
-      </Box>
+    <Box onClick={handleClick} direction="row" align="center">
       <Box>
+        <TokenLogo width="36" height="36" symbol={name} />
+      </Box>
+      <Box margin={{left: 'small'}}>
         <Text size={textSize || 'small'}>{name}</Text>
       </Box>
     </Box>

@@ -32,21 +32,19 @@ export const ConnectWalletButton = () => {
   };
 
   return (
-    <>
-      <Box className="con-wal" alignSelf="end">
-        <ConnectWalletBase
-          account={web3.account ? truncate(web3.account, 7, 4) : null}
-          walletConnected={walletConnected}
-          align="center"
-          isShowWallets={isShowWallets}
-          onClick={
-            web3.account || (isAccountConnected && accountStore.getAccount(chainStore.current.chainId).bech32Address)
-              ? showConnectedWallets
-              : connectWallet
-          }
-          setIsShowWallets={(isShow: boolean) => setIsShowWallets(isShow)}
-        />
-      </Box>
-    </>
+    <Box className="con-wal" pad={{top: 'small'}} alignSelf="end">
+      <ConnectWalletBase
+        account={web3.account ? truncate(web3.account, 6, 4) : null}
+        walletConnected={walletConnected}
+        align="center"
+        isShowWallets={isShowWallets}
+        onClick={
+          web3.account || (isAccountConnected && accountStore.getAccount(chainStore.current.chainId).bech32Address)
+            ? showConnectedWallets
+            : connectWallet
+        }
+        setIsShowWallets={(isShow: boolean) => setIsShowWallets(isShow)}
+      />
+    </Box>
   );
 };

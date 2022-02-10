@@ -1,7 +1,5 @@
-export * from './AlertBar';
 export * from './DataList';
 export * from './InfoBar';
-export * from './NavBar';
 export * from './Switches';
 export { default as AvailableBorrowsDataList } from './AvailableBorrowsDataList';
 export { default as AvailableDepositsDataList } from './AvailableDepositsDataList';

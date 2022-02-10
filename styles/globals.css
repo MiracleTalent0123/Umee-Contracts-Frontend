@@ -1,30 +1,25 @@
 @import './fonts.css';
+@import './modals.css';
 
 /** These are from the new Umee Style guide*/
 :root {
-  --lg-grey-tone: linear-gradient(90deg, rgba(74,78,87,1) 0%, rgba(158,160,164,1) 25%, rgba(241,243,242,1) 50%, rgba(255,255,255,1) 100%);
-  --lg-tri-tone: linear-gradient(90deg, rgba(149,64,152,1) 25%, rgba(45,117,255,1) 50%, rgba(2,245,191,1) 75%);
-  --lg-tri-tone-light: linear-gradient(90deg, rgba(239,212,231,1) 25%, rgba(208,222,242,1) 50%, rgba(180,224,218,1) 75%);
-  --umee-full-purple: #954098;   
-  --umee-full-blue: #2D75FF;   
-  --umee-full-green: #02f5bf;   
-  --umee-light-purple: linear-gradient(90deg, #FDA9FF 0%, #C9B8FF 50%, #4DFFE5 100%);   
-  --umee-light-blue: #d0def2;   
-  --umee-light-green: #b4e0da;   
-  --umee-header-dark: #212934;
-  --umee-header-light: #ced3d3;
-  --umee-body-dark: #4a4e57;
-  --umee-body-medium: #9ea0a4;
-  --umee-body-light: #f1f3f2;
-  --umee-body-white: #ffffff;
-  --status-ok: #27ae60;
-  --status-warn: #e67e22;
-  --status-error: #c0392b;
+  --umee-color-primary: #16183c;
+  --umee-color-disabled: #A0A1BA;
+  --umee-full-grey1: #EBECF3;
+  --umee-full-grey2: #62637B;
+  --umee-full-grey3: #E2E3ED;
+  --umee-full-purple: #C9B8FF;
+  --umee-full-green: #4DFFE5;
+  --umee-full-pink: #FDA9FF;
+  --umee-gradient: linear-gradient(83.37deg, #FDA9FF -9.48%, #C9B8FF 18.96%, #4DFFE5 82.13%);
+  --umee-full-white: #fff;
+  --umee-overlay: rgba(22, 24, 60, 0.95);
 }
-* { 
-  box-sizing:border-box;
-  margin : 0;
-  padding : 0;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 button,
@@ -32,19 +27,28 @@ input,
 optgroup,
 select,
 textarea {
-   font-family : inherit;
-   font-size : 100%;
-   line-height : 1.15;
-   margin : 0;
+  font-family: Helvetica;
 }
 html {
   height: 100%;
 }
 html,
 body {
-  font-family: Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans,
+  font-family: Helvetica, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans,
     Droid Sans, Helvetica Neue, sans-serif;
-    background-image: url('../public/images/background.png');
+}
+
+a,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  color: #16183c;
+  line-height: normal !important;
 }
 
 a {
@@ -56,11 +60,7 @@ a {
   box-sizing: border-box;
 }
 
-input:focus {
-  box-shadow: none !important;
-}
-
-div:focus {
+*:focus {
   box-shadow: none !important;
 }
 
@@ -72,17 +72,55 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
 .gradient-text {
-  background: linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%);
+  background: linear-gradient(98.2deg, #fda9ff -6.64%, #4dffe5 106.64%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
 }
 
-.modal-width {
-  min-width: 320px !important;
-  min-height: 250px !important;
+.border-gradient-bottom {
+  border-style: solid;
+  border-width: 2px;
+  border-image: linear-gradient(90deg, #FDA9FF 0%, #C9B8FF 27.26%, #4DFFE5 100%) 1;
+  border-left: none;
+  border-right: none;
+  border-top: none;
 }
+
+.markets-container {
+  margin-left: 106px;
+  min-height: 100vh !important;
+}
+
+.content {
+  max-width: 1440px !important;
+  width: 100%;
+}
+
+.letter-spacing {
+  letter-spacing: 0.1em;
+}
+
+.upper-case {
+  text-transform: uppercase;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+

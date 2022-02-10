@@ -1,0 +1,10 @@
+.secondary-btn:hover {
+  border: double 2px transparent;
+  background-image: linear-gradient(white,white), var(--umee-gradient);
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
+
+.secondary-btn {
+  min-width: 95px !important;
+}

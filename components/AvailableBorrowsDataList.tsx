@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
-import { BigNumber, utils } from 'ethers';
-import { bigNumberToString, bigNumberToUSDString } from 'lib/number-utils';
+import { BigNumber } from 'ethers';
+import { bigNumberToString } from 'lib/number-utils';
 import TableItem from './TableItem';
-import BorrowModal from './TransactionModals/BorrowModal';
+import BorrowModal from './Borrows/BorrowModal';
 import { Box, Text } from 'grommet';
 
 export interface IAvailableBorrowsData {
@@ -60,9 +60,6 @@ const AvailableBorrowsDataList = ({
         )}
         {myBorrowsData && myBorrowsData.length > 0 ? (
           <>
-            <Text size="small" margin={{ bottom: '10px' }}>
-              Your Positions
-            </Text>
             <Box pad={{ bottom: 'medium' }}>
               <DataList columns={userAssetsColumns}>
                 {myBorrowsData.map((row) => {
@@ -74,11 +71,9 @@ const AvailableBorrowsDataList = ({
                       tokenAddress={address}
                       setTokenAddress={setTokenAddress}
                     >
-                      <TokenItem name={symbol} />
-                      <TextItem>
-                        <PrimaryText>
-                          {balance && balance.toFixed(2)}
-                        </PrimaryText>
+                      <TokenItem textSize="small" name={symbol} />
+                      <TextItem justify="start">
+                        <PrimaryText size="small">{balance && balance.toFixed(2)}</PrimaryText>
                       </TextItem>
                       <TableItem
                         borrowingEnabled={borrowingEnabled}
@@ -94,10 +89,7 @@ const AvailableBorrowsDataList = ({
         ) : null}
         {data && data.length > 0 ? (
           <>
-            <Text size="small" margin={{ bottom: '10px' }}>
-              Available Markets
-            </Text>
-            <Box>
+            <Box margin={{ top: myBorrowsData && myBorrowsData.length > 0 ? 'medium' : '' }}>
               <DataList columns={columns}>
                 {data.map((row) => {
                   const { balance, address, symbol, tokensAvailable, variableAPR, decimals, borrowingEnabled } = row;
@@ -108,9 +100,9 @@ const AvailableBorrowsDataList = ({
                       tokenAddress={address}
                       setTokenAddress={setTokenAddress}
                     >
-                      <TokenItem name={symbol} />
-                      <TextItem>
-                        <PrimaryText>
+                      <TokenItem textSize="small" name={symbol} />
+                      <TextItem justify="start">
+                        <PrimaryText size="small">
                           {tokensAvailable && bigNumberToString(tokensAvailable, decimals)}
                         </PrimaryText>
                       </TextItem>
@@ -131,21 +123,18 @@ const AvailableBorrowsDataList = ({
   } else {
     return (
       <>
-        <Text size="small" margin={{ bottom: '10px' }}>
-          Available Markets
-        </Text>
         <DataList columns={columns}>
           {data &&
             data.map((row) => {
               const { address, symbol, color, borrowingEnabled, variableAPR } = row;
               return (
                 <DataListRow columnSizes={columnSizes} key={`row-${symbol}`}>
-                  <TokenItem name={symbol} />
-                  <TextItem>
-                    <PrimaryText>0 {symbol}</PrimaryText>
+                  <TokenItem textSize="small" name={symbol} />
+                  <TextItem justify="start">
+                    <PrimaryText size="small">–</PrimaryText>
                   </TextItem>
-                  <TextItem>
-                    <PrimaryText>0.00%</PrimaryText>
+                  <TextItem justify="start">
+                    <PrimaryText size="small">0.00%</PrimaryText>
                   </TextItem>
                 </DataListRow>
               );

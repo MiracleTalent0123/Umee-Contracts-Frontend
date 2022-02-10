@@ -6,6 +6,12 @@ export const isZero = (number: string | number) => {
   return parseFloat(number as string) === 0;
 
 };
+
+export const truncateAfterDecimals = (number: string | number, decimals: number): number => {
+  const dotPos = number.toString().indexOf('.');
+  return Number(dotPos < 0 ? number : number.toString().slice(0, dotPos + decimals + 1));
+};
+
 export const BN = (value: BigNumberish) => BigNumber.from(value);
 
 export const bigNumberToString = (value: BigNumberish, decimals: BigNumberish, toFixed = 2): string =>

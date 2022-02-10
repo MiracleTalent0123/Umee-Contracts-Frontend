@@ -10,7 +10,7 @@ export interface PrimaryTextProps {
 
 const PrimaryText = ({ children, color, size, weight }: PrimaryTextProps) => {
   return (
-    <Text color={color} size={size || 'small'} weight={weight || 'bold'}>
+    <Text color={color} size={size || 'small'} weight={weight || 'normal'}>
       {children}
     </Text>
   );

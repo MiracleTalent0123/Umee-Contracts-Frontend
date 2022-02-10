@@ -1,7 +1,8 @@
-import React, {useRef, useEffect} from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Text, Box, BoxProps } from 'grommet';
 import ConnectedWallets from './ConnectedWallets';
 import './ConnectWallet.css';
+import { PrimaryBtn } from 'components/common';
 
 export const ConnectWalletBase = ({
   walletConnected,
@@ -10,13 +11,13 @@ export const ConnectWalletBase = ({
   align = 'end',
   isShowWallets,
   onClick,
-  setIsShowWallets
+  setIsShowWallets,
 }: {
   walletConnected: boolean;
   account?: string;
   justify?: BoxProps['justify'];
   align?: BoxProps['align'];
-  isShowWallets?: Boolean,
+  isShowWallets?: Boolean;
   onClick: () => void;
   setIsShowWallets: (isShow: boolean) => void;
 }) => {
@@ -38,33 +39,27 @@ export const ConnectWalletBase = ({
   return (
     <>
       {!walletConnected ? (
-        <Box
-          align={align}
-          justify={justify}
-          className="connect-wallet-btn"
+        <PrimaryBtn
+          pad={{ vertical: 'small', horizontal: 'medium' }}
+          textSize="medium"
+          round="large"
+          text="Connect Wallet"
+          className="connect-wallet"
           onClick={onClick}
-        > 
-          <Text className='net-text' size="normal">
-            Connect Wallet
-          </Text>
-        </Box>
+        />
+      ) : isShowWallets ? (
+        <div ref={ref}>
+          <ConnectedWallets account={account} />
+        </div>
       ) : (
-        isShowWallets ? (
-          <div ref={ref}>
-            <ConnectedWallets 
-              account={account}
-            />
-          </div>
-        ) : (
-          <Box
-            align={align}
-            justify={justify}
-            className="connect-wallet-btn"
-            onClick={onClick}
-          > 
-            <Text className="net-text" size='normal'>Connected Wallets</Text>
-          </Box>
-        )
+        <PrimaryBtn
+          pad={{ vertical: 'small', horizontal: 'medium' }}
+          textSize="medium"
+          round="large"
+          text="Connected Wallets"
+          className="connect-wallet"
+          onClick={() => setIsShowWallets(true)}
+        />
       )}
     </>
   );

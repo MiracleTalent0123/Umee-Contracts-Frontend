@@ -1,14 +1,13 @@
 import React from 'react';
-import { Box } from 'grommet';
 import { BigNumber } from 'ethers';
-import { ToggleSwitch, MarketsDataList } from 'components';
+import { MarketsDataList } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
 import { IMarketsData } from 'components/MarketsDataList';
 import { useData } from 'api/data';
 import { useState, useEffect } from 'react';
 import PageLoading from 'components/common/Loading/PageLoading';
-import './Markets.css';
 import { bigNumberToUSDString, bigNumberToString } from 'lib/number-utils';
+import Layout from 'pages/Layout';
 
 function Markets() {
   const [marketData, setMarketData] = useState<IMarketsData[]>([]);
@@ -17,16 +16,14 @@ function Markets() {
   const [usdDecimals, setUsdDecimals] = useState<BigNumber>(BigNumber.from(18));
 
   const marketColumns: IDataListColumn[] = [
-    { title: 'Assets', size: 'flex' },
-    { title: 'Market size', size: 'flex' },
-    { title: 'Supply APY', size: 'flex' },
-    { title: 'Borrow APY', size: 'flex' },
-    { title: 'Bridge', size: 'flex' },
-    { title: 'IBC', size: 'flex' },
+    { title: 'ASSETS', size: 'flex' },
+    { title: 'MARKET SIZE', size: 'flex' },
+    { title: 'SUPPLY APY', size: 'flex' },
+    { title: 'BORROW APY', size: 'flex' },
+    { title: '', size: 'flex' },
   ];
 
   const { ReserveData, ReserveConfigurationData, UserReserveData } = useData();
-  const [displayUsd, setDisplayUsd] = useState(false);
 
   useEffect(() => {
     if (ReserveData && ReserveConfigurationData && marketData.length > 0) {
@@ -72,6 +69,20 @@ function Markets() {
 
       return acc;
     }, Array<IMarketsData>());
+    let umee = {
+      name: 'UMEE',
+      address: '0x850b72fce82e0bccfbe6aaed2db792be5c9e9973',
+      color: 'clrReserveIndicatorSecondary',
+      marketSize: '0',
+      totalBorrowed: BigNumber.from(0),
+      marketSizeUsd: '0.00',
+      totalBorrowedUsd: '0',
+      depositAPY: BigNumber.from(0),
+      variableBorrowAPR: BigNumber.from(0),
+      stableBorrowAPR: BigNumber.from(0),
+    } as unknown as IMarketsData;
+
+    marketsData.push(umee);
     setMarketData(marketsData);
     setTotalMarketSizeUsd(localTotalMarketSizeUsd);
   }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd, UserReserveData]);
@@ -81,27 +92,9 @@ function Markets() {
   }
 
   return (
-    <div>
-      <div className="nav-title markets-container">
-        <h1>Umee Markets</h1>
-        <p>Markets available for cross-chain leverage</p>
-      </div>
-      <Box className="markets-container" direction="row" justify="center" gap="medium">
-        <Box width="100%" style={{ maxWidth: '1027px' }}>
-          <Box direction="row" fill="horizontal" justify="center">
-            <ToggleSwitch
-              choiceA="USD"
-              choiceB="Native"
-              defaultSelected="Native"
-              handler={(choice) => setDisplayUsd(choice === 'USD')}
-            />
-          </Box>
-          <Box width="auto" pad={{ vertical: 'small' }} direction="row" gap="medium">
-            <MarketsDataList columns={marketColumns} data={marketData} showUsd={displayUsd} decimals={usdDecimals} />
-          </Box>
-        </Box>
-      </Box>
-    </div>
+    <Layout title='Umee Markets' subtitle='Markets available for cross-chain leverage'>
+      <MarketsDataList columns={marketColumns} data={marketData} decimals={usdDecimals} />
+    </Layout>
   );
 }
 

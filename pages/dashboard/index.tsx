@@ -9,6 +9,7 @@ import { IDataListColumn } from 'components/DataList/DataList';
 import { DepositsDataList, BorrowsDataList } from 'components';
 import NoWalletConnectedBox from 'components/NoWalletConnectedBox';
 import NoDepositsBox from 'components/NoDepositsBox';
+import Layout from 'pages/Layout';
 import DashboardOverview from 'components/Dashboard/DashboardOverview';
 
 const Dashboard = () => {
@@ -129,16 +130,16 @@ const Dashboard = () => {
   }, [myBorrowsTotal, UserAccountData, myDepositsTotal]);
 
   const depositsColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Supplied', size: 'flex' },
-    { title: 'APY', size: 'flex' },
+    { title: 'ASSETS', size: 'flex' },
+    { title: 'SUPPLIED', size: 'flex' },
+    { title: 'APY', size: 'xsmall' },
     { title: '', size: 'flex' },
   ];
 
   const borrowsColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Borrowed', size: 'flex' },
-    { title: 'APY', size: 'flex' },
+    { title: 'ASSETS', size: 'flex' },
+    { title: 'BORROWED', size: 'flex' },
+    { title: 'APY', size: 'xsmall' },
     { title: '', size: 'flex' },
   ];
 
@@ -147,51 +148,38 @@ const Dashboard = () => {
   }
 
   return (
-    <>
-      <div className="nav-title markets-container">
-        <h1>Dashboard</h1>
-      </div>
-      <Box
-        direction="row"
-        pad={{ top: 'small' }}
-        margin={{ top: 'large' }}
-        justify="center"
-        className="markets-container"
-      >
-        <Box width="100%" style={{ maxWidth: '1027px' }}>
-          {!web3.account && <NoWalletConnectedBox />}
-          {web3.account && UserAccountData && (
-            <DashboardOverview
-              myDepositsTotal={myDepositsTotal}
-              myBorrowsTotal={myBorrowsTotal}
-              userData={UserAccountData}
-              ethPrice={ethPrice}
-              borrowLimit={borrowLimit}
-              borrowLimitUsed={parseFloat(borrowLimitUsed)}
-            />
-          )}
-          {web3.account && (
-            <Box
-              pad={{ vertical: 'medium' }}
-              align={Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? 'center' : undefined}
-            >
-              {Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? (
-                <NoDepositsBox />
-              ) : (
-                <Box width="auto" direction="row" gap="medium" flex>
-                  <DepositsDataList columns={depositsColumns} data={depositData} total={myDepositsTotal} />
-                  <BorrowsDataList
-                    columns={borrowsColumns}
-                    data={borrowData}
-                    total={Number(UserAccountData?.totalDebtETH) || 0}
-                  />
-                </Box>
-              )}
+    <Layout title="Dashboard">
+      {!web3.account && <NoWalletConnectedBox />}
+      {web3.account && UserAccountData && (
+        <DashboardOverview
+          myDepositsTotal={myDepositsTotal}
+          myBorrowsTotal={myBorrowsTotal}
+          userData={UserAccountData}
+          ethPrice={ethPrice}
+          borrowLimit={borrowLimit}
+          borrowLimitUsed={parseFloat(borrowLimitUsed)}
+        />
+      )}
+      {web3.account && (
+        <Box
+          margin={{top: 'large'}}
+          align={Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? 'center' : undefined}
+        >
+          {Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? (
+            <NoDepositsBox />
+          ) : (
+            <Box width="auto" direction="row" gap="medium" flex>
+              <DepositsDataList columns={depositsColumns} data={depositData} total={myDepositsTotal} />
+              <BorrowsDataList
+                columns={borrowsColumns}
+                data={borrowData}
+                total={Number(UserAccountData?.totalDebtETH) || 0}
+              />
             </Box>
           )}
         </Box>
-      </Box>
-    </>
+      )}
+    </Layout>
   );
 };
 

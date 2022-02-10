@@ -3,6 +3,7 @@ import { mainnet } from 'lib/tokenaddresses';
 import * as React from 'react';
 import cosmosLogo from '../public/images/cosmos-hub-logo.svg';
 import TetherLogo from '../public/images/tether-logo.svg';
+import UmeeLogo from '../public/images/Logo.svg';
 
 interface ITokenLogo {
   symbol?: string;
@@ -28,6 +29,8 @@ const TokenLogo = ({ symbol, width, height, src }: ITokenLogo) => {
         <Image alt={symbol} src={cosmosLogo} width={width} height={height} />
       ) : symbol == 'USDT' ? (
         <Image alt={symbol} src={TetherLogo} width={width} height={height} />
+      ) : symbol == 'UMEE' ? (
+        <Image alt={symbol} src={UmeeLogo} width={width} height={height} />
       ) : (
         <Image alt={symbol} src={src ? src : iconUrl} width={width} height={height} />
       )}

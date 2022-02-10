@@ -11,6 +11,7 @@ interface AvailableToTxnInformationRowProps {
   availableAmount: BigNumber;
   symbol: string;
   tokenDecimals: BigNumberish;
+  bridge?: boolean;
 }
 
 export const AvailableToTxnInformationRow: React.FC<AvailableToTxnInformationRowProps> = ({
@@ -19,28 +20,23 @@ export const AvailableToTxnInformationRow: React.FC<AvailableToTxnInformationRow
   withdrawModal,
   availableAmount,
   symbol,
-  tokenDecimals
+  tokenDecimals,
+  bridge,
 }) => (
-  <Box direction="row" justify="between">      
-    <Text size="small" weight="bold" textAlign="end" margin={{ left: 'auto' }}>
-      {txnType == ETxnType.deposit
-        ? 'Wallet:'
-        : withdrawModal
-          ? txnType == ETxnType.repay
-            ? 'Wallet:'
-            : 'Borrowed:'
-          : 'Supplied:'}
+  <Box direction="row" style={{letterSpacing: '0.1em'}}>
+    <Text size="xsmall" className="upper-case">
+      {bridge
+        ? 'Wallet'
+        : txnType == ETxnType.deposit
+          ? 'Wallet'
+          : withdrawModal
+            ? txnType == ETxnType.repay
+              ? 'Wallet'
+              : 'Borrowed'
+            : 'Supplied'}
+      {':'}
     </Text>
-    <Text
-      size="small"
-      weight="bold"
-      margin={{ left: 'small' }}
-      style={{
-        background: 'linear-gradient(98.2deg, #FDA9FF -6.64%, #4DFFE5 106.64%)',
-        WebkitTextFillColor: 'transparent',
-        WebkitBackgroundClip: 'text',
-      }}
-    >
+    <Text size="xsmall" margin={{ left: 'xsmall' }}>
       {(userBalance || availableAmount) &&
         (Number(safeBigNumberToStringAllDecimals(availableAmount, tokenDecimals)) < 0
           ? '0'

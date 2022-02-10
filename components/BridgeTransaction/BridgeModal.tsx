@@ -6,17 +6,13 @@ import BridgeDialog from 'dialogs/Bridge';
 interface BridgeModalProps {
   address: string
   tokenName: string
-  onClose: (show: boolean) => void
+  onClose: () => void
 }
 
-const BridgeModal: React.FC<BridgeModalProps> = ({
-  address: tokenAddress,
-  tokenName,
-  onClose
-}) => (
+const BridgeModal: React.FC<BridgeModalProps> = ({ address: tokenAddress, tokenName, onClose }) => (
   <BaseModal onClose={onClose}>
     <Box className="modal-width">
-      <BridgeDialog address={tokenAddress} tokenName={tokenName} />
+      <BridgeDialog address={tokenAddress} tokenName={tokenName} onClose={onClose} />
     </Box>
   </BaseModal>
 );

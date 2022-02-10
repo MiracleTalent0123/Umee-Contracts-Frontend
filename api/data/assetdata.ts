@@ -21,18 +21,34 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
     
     umeeProtocolDataProvider.getAllReservesTokens()
       .then(function(result){
+        let atomCount = 0;
         let assets = [];
         //for Goerli
         if(chainId === 5){
-          for(let i = 0; i<result.length; i++){
-            if(result[i].symbol == 'uatom'){
-              let build = ['ATOM', '0xad3fd5a0faf3818df880c6f18af4971d2f7f3bb2'];
-              build.symbol = 'ATOM';
-              build.tokenAddress = '0xad3fd5a0faf3818df880c6f18af4971d2f7f3bb2';
-              assets.push(build);
-            }else{
-              assets.push(result[i]);
+          for (let i = 0; i < result.length; i++) {
+            if (
+              result[i].tokenAddress == '0xad3Fd5A0fAf3818DF880c6f18AF4971d2F7F3bB2' || //uatom
+              result[i].tokenAddress == '0x0747376a18185921fceafeab0d643067ce3ed505' || //uatom
+              result[i].tokenAddress == '0x4884E2a214DC5040f52A41c3f21c765283170B6e' || //usdt
+              result[i].tokenAddress == '0x4A55a3a00D3AfD19062dCad21B24c09d935f895A' || //dai
+              result[i].tokenAddress == '0x3fC84A29104Cef50F360064BEF5Ed0175C2bb80f' //usdc
+            ) {
+              atomCount++;
+              // Do nothing. Need this separate check otherwise get USD undefined error, until we remove this old atom from contract
+            } else {
+              if (result[i].symbol == 'uatom' && atomCount == 0) {
+                atomCount++;
+                let build = ['ATOM', '0x8e29d12b3df274c2df416b423ccc466a56bebfe2'];
+                build.symbol = 'ATOM';
+                build.tokenAddress = '0x8e29d12b3df274c2df416b423ccc466a56bebfe2';
+                assets.push(build);
+              } else {
+                if (result[i].symbol != 'uatom') {
+                  assets.push(result[i]);
+                }
+              }
             }
+            assets.sort(); // Puts Atom at top of asset list for all pages
           }
         //for Rinkeby
         }else if (chainId === 4){

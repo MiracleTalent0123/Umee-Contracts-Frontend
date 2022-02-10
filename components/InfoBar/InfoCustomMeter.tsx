@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
 const InfoCustomMeter = ({ value }: { value?: number }) => {
-  const [strokeDasharray, setStrokeDasharray] = useState<string>('0, 376.8');
+  const [strokeDasharray1, setStrokeDasharray1] = useState<string>('0, 376.8');
+  const [strokeDasharray2, setStrokeDasharray2] = useState<string>('376.8, 376.8');
+
   useEffect(() => {
     if (value) {
-      const length = 376.8 * value;
-      setStrokeDasharray(length + ', 376.8');
+      const length1 = 376.8 * value;
+      const length2 = 376.8 - length1;
+      setStrokeDasharray1(length1 + ', 376.8');
+      setStrokeDasharray2(length2 + ', 376.8');
     }
   }, [value]);
 
@@ -17,13 +21,26 @@ const InfoCustomMeter = ({ value }: { value?: number }) => {
           <stop offset="100%" stopColor="#43E0FD" />
         </linearGradient>
       </defs>
-      <circle cx="75" cy="75" r="60" stroke="#131A33" strokeWidth="10" fill="none" />
+      <circle
+        style={{
+          transform: 'rotateY(180deg) rotateZ(-90deg)',
+          transformOrigin: 'center',
+          transition: 'ease-in-out 1.2s',
+        }}
+        cx="75"
+        cy="75"
+        r="60"
+        stroke="#131A33"
+        strokeWidth="10"
+        fill="none"
+        strokeDasharray={strokeDasharray2}
+      />
       <path
         d="M 75,15 A 60 60 0 1 1 75 135 A 60 60 0 1 1 75 15"
         stroke="url(#linear)"
         strokeWidth="10"
         fill="none"
-        strokeDasharray={strokeDasharray}
+        strokeDasharray={strokeDasharray1}
         style={{ transition: 'ease-in-out 1.2s' }}
       />
     </svg>

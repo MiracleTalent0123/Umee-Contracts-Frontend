@@ -5,11 +5,9 @@ import React from 'react';
 const NoWalletConnectedBox = () => {
   return (
     <>
-      <Box direction="column" alignContent="center" alignSelf="center" pad="large" width="large">
+      <Box direction="column" alignContent="center" alignSelf="center" margin={{ top: 'xlarge' }} pad="small">
         <Box justify="center" alignContent="center" alignSelf="center" pad="small">
-          <Text color="clrMessageTitle" weight="bold">
-            Please connect your wallet
-          </Text>
+          <Text weight="bold">Please connect your wallet</Text>
         </Box>
         <Box justify="center" alignContent="center" alignSelf="center">
           To see your deposited / borrowed assets, you need to connect your wallet.

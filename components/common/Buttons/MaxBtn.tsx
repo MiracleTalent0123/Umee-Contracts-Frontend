@@ -17,8 +17,8 @@ export const MaxBtn = ({
     _availableAmount && _tokenDecimals && onClickCb(utils.formatUnits(_availableAmount, _tokenDecimals));
   };
   return (
-    <Box align="center" justify="center" pad={{ horizontal: 'small' }} onClick={handleOnClick}>
-      <Text size="xsmall" weight="bold" color="clrStdBtnBg">
+    <Box align="center" onClick={handleOnClick}>
+      <Text color="clrDisabled" size="xsmall" className="letter-spacing">
         MAX
       </Text>
     </Box>

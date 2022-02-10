@@ -1,9 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Text } from 'grommet';
 import { AvailableDepositsDataList } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
-import { DataListControls } from 'components/DataListControls/DataListControls';
 import { IAvailableDepositsData } from 'components/AvailableDepositsDataList';
 import { useData } from 'api/data';
 import { useEffect, useState } from 'react';
@@ -11,6 +9,7 @@ import { BigNumber, utils } from 'ethers';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserBalances } from 'api/data/allowanceData';
 import { useWeb3 } from 'api/web3';
+import Layout from 'pages/Layout';
 
 export interface IMyDepositsData {
   name: string;
@@ -27,8 +26,6 @@ const Deposit = () => {
   const [depositsData, setDepositsData] = useState<IAvailableDepositsData[]>([]);
   const [userDeposits, setUserDeposits] = useState<IAvailableDepositsData[]>([]);
   const [tokenAddresses, setTokenAddresses] = useState<string[]>([]);
-
-  const [filteredData, setFilteredData] = useState<IAvailableDepositsData[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [loggedIn, setLoggedIn] = useState<boolean>();
 
@@ -38,17 +35,17 @@ const Deposit = () => {
   const web3 = useWeb3();
 
   const availableTokensColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Available', size: 'flex' },
-    { title: 'APY', size: 'flex' },
-    { title: 'Collateral', size: 'flex' },
+    { title: 'AVAILABLE ASSETS', size: 'flex' },
+    { title: 'AVAILABLE', size: 'flex' },
+    { title: 'SUPPLY APY', size: 'flex' },
+    { title: 'COLLATERAL', size: 'flex' },
   ];
 
   const userAssetsColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Supplied', size: 'flex' },
-    { title: 'APY', size: 'flex' },
-    { title: 'Collateral', size: 'flex' },
+    { title: 'YOUR POSITIONS', size: 'flex' },
+    { title: 'SUPPLIED', size: 'flex' },
+    { title: 'SUPPLY APY', size: 'flex' },
+    { title: 'COLLATERAL', size: 'flex' },
   ];
 
   useEffect(() => {
@@ -154,27 +151,18 @@ const Deposit = () => {
 
   return (
     <>
-      <div className="nav-title assets-container">
-        <h1>Supply</h1>
-        <p>Supply assets and set collateral for borrowing.</p>
-      </div>
-      <Box direction="row" justify="center" gap="medium" className="assets-container">
-        <Box width="100%" style={{ maxWidth: '700px' }}>
-          <DataListControls fullDataList={depositsData} setFilteredData={setFilteredData} />
-          <Box pad={{ vertical: 'small' }}>
-            {loggedIn !== undefined && 
-              <AvailableDepositsDataList
-                columns={availableTokensColumns}
-                userAssetsColumns={userAssetsColumns}
-                data={filteredData}
-                userDeposits={userDeposits}
-                loggedIn={loggedIn}
-                selectedTokenAddress={state && state.tokenAddress}
-              />
-            }
-          </Box>
-        </Box>
-      </Box>
+      <Layout title='Supply' subtitle='Supply assets and set collateral for borrowing'>
+        {loggedIn !== undefined && 
+          <AvailableDepositsDataList
+            columns={availableTokensColumns}
+            userAssetsColumns={userAssetsColumns}
+            data={depositsData}
+            userDeposits={userDeposits}
+            loggedIn={loggedIn}
+            selectedTokenAddress={state && state.tokenAddress}
+          />
+        }
+      </Layout>
     </>
   );
 };

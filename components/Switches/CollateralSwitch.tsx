@@ -29,7 +29,7 @@ const CollateralSwitch = ({ checked, handler, enabled }: CollateralSwitchProps) 
         </Box>
         <Box>
           <Stack anchor={checked ? 'right' : 'left'}>
-            <Box background={checked ? 'status-ok' : 'accent-1'} round="medium" pad="small" width="xxsmall" />
+            <Box background={checked ? 'status-ok' : 'accent-1'} round="large" pad="small" width="xxsmall" />
             <Box
               background={checked ? 'white' : 'neutral-1'}
               round="100%"

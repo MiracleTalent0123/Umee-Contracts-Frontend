@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonItem, DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
+import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, utils } from 'ethers';
 import { Box, GridSizeType, Text } from 'grommet';
 import { IUserTxnDeposit } from 'lib/types';
-import { safeBigNumberToStringTruncate } from 'lib/number-utils';
+import { bigNumberToString } from 'lib/number-utils';
+import { SecondaryBtn } from './common';
 
 export interface DepositsDataListProps {
   columns: IDataListColumn[];
@@ -18,9 +19,9 @@ const DepositsDataList = ({ columns, data, total }: DepositsDataListProps) => {
     <Box flex>
       {data?.length ? (
         <>
-          <Text margin={{ bottom: 'small' }} size="small">
-            Supply
-          </Text>
+          <Box pad={{ vertical: 'small' }} className="border-gradient-bottom">
+            <Text size="medium">Supply</Text>
+          </Box>
           <DataList background="neutral-1" columns={columns}>
             {data.map((row) => (
               <Row key={row.address} columnSizes={columns.map((col) => col.size)} row={row} />
@@ -34,32 +35,33 @@ const DepositsDataList = ({ columns, data, total }: DepositsDataListProps) => {
 
 const Row = ({ columnSizes, row }: { columnSizes: GridSizeType[]; row: IUserTxnDeposit }) => {
   const { symbol, currentUTokenBalance, liquidityRate, address, decimals } = row;
-
   return (
     <DataListRow columnSizes={columnSizes} key={`row-${symbol}-3`}>
-      {symbol && <TokenItem name={symbol} />}
-      <TextItem>
-        <PrimaryText>
-          {currentUTokenBalance &&
-            Number(safeBigNumberToStringTruncate(currentUTokenBalance, decimals)).toLocaleString()}
+      {symbol && <TokenItem textSize="small" name={symbol} />}
+      <TextItem justify="start">
+        <PrimaryText size="small">
+          {currentUTokenBalance && Number(bigNumberToString(currentUTokenBalance, decimals)).toLocaleString()}
         </PrimaryText>
       </TextItem>
-      <TextItem>
-        <PrimaryText>
+      <TextItem justify="start">
+        <PrimaryText size="small">
           {liquidityRate && parseFloat(utils.formatUnits(liquidityRate, BigNumber.from(25))).toFixed(2)}%
         </PrimaryText>
       </TextItem>
       {address && (
-        <TextItem>
+        <TextItem justify="end">
           <Link
             to={{
-              pathname: '/deposit',
+              pathname: '/supply',
               state: { tokenAddress: address },
             }}
           >
-            <ButtonItem textColor="white" background="#131A33" textSize="small" round="5px">
-              Supply
-            </ButtonItem>
+            <SecondaryBtn
+              textSize="xsmall"
+              round="large"
+              text="SUPPLY"
+              pad={{ vertical: 'small', horizontal: 'medium' }}
+            />
           </Link>
         </TextItem>
       )}

@@ -42,7 +42,7 @@ const InfoPanelItem = ({
     <Box justify={justify ? justify : 'center'} pad={{ vertical: 'xsmall' }} align={align ? align : 'end'} flex>
       {titleBg ? (
         <Box align="center" direction={titleDirection}>
-          <Box margin={{ top: '2px', horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
+          <Box margin={{ horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
           <Text size={textSize || 'medium'}>{title}</Text>
         </Box>
       ) : (
@@ -66,19 +66,20 @@ const InfoPanelItem = ({
   );
 
   const HorizontalItem = () => (
-    <Box direction="row" align="center" flex justify={justify ? justify : 'between'}>
+    <Box pad={{ vertical: 'xxsmall' }} direction="row" align="center" flex justify={justify ? justify : 'between'}>
       <Box justify="start">
         <Text size={textSize || 'medium'}>{title}</Text>
         {!!subTitle && <Text size="xsmall">{subTitle}</Text>}
       </Box>
       <Box direction="row" align="end" margin={{ left: 'xsmall' }}>
         {data &&
-          data.map((datum) => (
+          data.map((datum, index) => (
             <Text
               key={`${title}-${datum.value}`}
               size={datum.textSize || 'medium'}
               weight={datum.bold ? 'bold' : 'normal'}
               color={datum.color}
+              style={{ marginLeft: index > 0 ? '3px' : '' }}
             >
               {datum.value}
             </Text>

@@ -5,7 +5,7 @@ import { TTxnAvailability } from 'lib/types';
 import { MaxBtn } from 'components/common';
 import TxnAmountRangeInput from './TxnAmountRangeInput';
 import { useData } from 'api/data';
-import '../TransactionModals/modals.css';
+import { truncateAfterDecimals } from 'lib/number-utils';
 
 interface TTxnAmountInput {
   setTxnAmount: (amount: string) => void;
@@ -19,6 +19,7 @@ const scales = [0, 1, 2, 3, 4];
 export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabled, txnAvailability, txnAmount }) => {
   const { availableAmount, token, tokenDecimals } = txnAvailability;
   const maxAmount = utils.formatUnits(availableAmount, tokenDecimals);
+  const truncatedValue = truncateAfterDecimals(txnAmount, 6);
   const { priceData } = useData();
 
   const usdPrice = useMemo(() => {
@@ -33,51 +34,54 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabl
     <>
       <Box
         direction="row"
-        margin={{ top: '3px', bottom: '18px' }}
-        justify="end"
-        align="center"
-        background="#E1F0FF"
-        round="5px"
+        margin={{ top: 'xsmall', bottom: 'small' }}
+        align="end"
         focusIndicator={true}
-        pad={{ vertical: '17px' }}
+        justify="between"
       >
-        <Box width="80%">
-          <Box direction="row">
+        <Box>
+          <Box direction="row" justify="start" align="center" pad={{ top: 'xsmall' }}>
             <TextInput
-              style={{ borderStyle: 'none', textAlign: 'right', padding: '0 5px' }}
-              onChange={function (e: any) {
-                const value = e.target.value === '' ? '0' : e.target.value;
-                const conversionTarget = utils.parseUnits(value, tokenDecimals).toString();
-
-                if (availableAmount.lt(conversionTarget)) {
-                  const val = utils.formatUnits(availableAmount, tokenDecimals).toString();
-                  setTxnAmount(val);
-                } else if (value < 0) {
-                  setTxnAmount('0');
-                } else {
-                  setTxnAmount(value);
-                }
+              style={{
+                borderStyle: 'none',
+                width: `${truncatedValue.toString().length}ch`,
+                fontSize: '20px',
+                minWidth: '40px',
+                padding: 0,
+                fontWeight: 'normal',
+                maxWidth: '200px',
               }}
-              value={txnAmount}
+              onChange={function (e: any) {
+                e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '');
+                setTxnAmount(
+                  Math.max(
+                    Math.min(truncateAfterDecimals(e.currentTarget.value, Number(tokenDecimals)), Number(maxAmount)),
+                    0
+                  ).toString()
+                );
+              }}
+              value={txnAmount && truncatedValue}
               placeholder="0.00"
               type="number"
               min="0"
               disabled={disabled}
             />
-            <Text alignSelf="center" weight="bold" size="medium" color="#131A33">
+            <Text alignSelf="center" margin={{ left: 'xxsmall' }} size="medium">
               {token?.symbol}
             </Text>
           </Box>
-          <Box margin={{ top: '-5px' }}>
-            <Text alignSelf="end" size="small">
-              ~${usdPrice.toFixed(2)}
-            </Text>
+          <Box>
+            {token.symbol != 'UMEE' && 
+              <Text style={{ letterSpacing: '0.1em' }} color={usdPrice > 0 ? 'clrPrimary' : 'clrDisabled'} size="xsmall">
+                ~${usdPrice.toFixed(2)}
+              </Text>
+            }
           </Box>
         </Box>
-        <Box width="20%">
+        <Box>
           <MaxBtn
             txnAvailability={txnAvailability}
-            onClickCb={(amount: string) => setTxnAmount(Math.max(Number(amount), 0).toString())}
+            onClickCb={(amount: string) => setTxnAmount(Number(amount) > 0 ? amount : '0')}
           />
         </Box>
       </Box>
@@ -85,7 +89,11 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabl
         value={Number(maxAmount) > 0 ? Math.min(Math.round((Number(txnAmount) * 100) / Number(maxAmount)), 100) : 0}
         min={0}
         max={100}
-        setValue={(value: any) => setTxnAmount(((value * Number(maxAmount)) / 100).toString())}
+        setValue={(value: any) =>
+          setTxnAmount(
+            value === '100' ? maxAmount : utils.formatUnits(availableAmount.mul(value).div(100), tokenDecimals)
+          )
+        }
         scales={scales}
         maxAmount={maxAmount}
       />

@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Currency } from '@keplr-wallet/types';
 import { BigNumber, constants } from 'ethers';
-import { bech32 } from 'bech32';
 import { useData } from 'api/data';
 import { useStore } from 'api/cosmosStores';
 import { useWeb3 } from 'api/web3';
@@ -11,28 +10,27 @@ import { useErc20DetailedContract } from 'api/data/contracts';
 import PageLoading from 'components/common/Loading/PageLoading';
 import BridgeInputAmount from 'components/Markets/BridgeInputAmount';
 import { ETxnType, ETxnSteps } from 'lib/types';
-import { mainnet } from 'lib/tokenaddresses';
 import { IBCAssetInfos } from '../config';
-import umeeLogo from '../public/images/Umee_logo_icon_only.png';
-import 'components/TransactionModals/modals.css';
-
-const chain = 'ethereum';
-
-const mainnetAddress = mainnet['WETH'];
-
-const ethereumLogo = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${chain}/assets/${mainnetAddress}/logo.png`;
-
+import umeeLogo from '../public/images/Logo.svg';
+import ethereumLogo from '../public/images/eth-logo.svg';
+import { parseUnits } from 'ethers/lib/utils';
+import { displayToast, TToastType } from 'components/common/toasts';
 
 interface BridgeDialogProps {
-  address: string
-  tokenName: string
+  address: string;
+  tokenName: string;
+  onClose: () => void;
 }
 
-const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, tokenName }) => {
+const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, tokenName, onClose }) => {
   const [activeTab, setActiveTab] = useState<ETxnType>(ETxnType.deposit);
   const balanceOnEthereum = useUserBalance(tokenAddress) || BigNumber.from(0);
   const [step, setStep] = useState<ETxnSteps>(ETxnSteps.Input);
-  const { ReserveData, ReserveConfigurationData, Contracts: { gravity } } = useData();
+  const {
+    ReserveData,
+    ReserveConfigurationData,
+    Contracts: { gravity },
+  } = useData();
   const { chainStore, accountStore, queriesStore } = useStore();
   const { contractCall } = useTransaction();
   const tokenContract = useErc20DetailedContract(tokenAddress);
@@ -40,141 +38,162 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
 
   // reserveCfgData is token data on Ethereum
   const reserveCfgData = useMemo(
-    () => ReserveConfigurationData.find(
-      (r) => r.address === tokenAddress
-    ),
+    () => ReserveConfigurationData.find((r) => r.address === tokenAddress),
     [ReserveConfigurationData, tokenAddress]
   );
 
   // 1M uatom on Ethereum is 1 ATOM
   // todo: use reserveCfgData.decimals instead of hardcoded value once atom decimals on Ethereum is updated to 6
-  const decimalsOnEthereum = 6; // reserveCfgData?.decimals
+  let decimalsOnEthereum = reserveCfgData?.decimals || BigNumber.from(6);
 
-  const token = useMemo(
-    () => {
-      const reserve = ReserveData.find((r) => r.address === tokenAddress);
-      return {
-        symbol: reserve?.symbol,
-        address: tokenAddress as string,
-        usdPrice: reserve?.usdPrice,
-        availableLiquidity: reserve?.availableLiquidity,
-        totalStableDebt: reserve?.totalStableDebt,
-        totalVariableDebt: reserve?.totalVariableDebt,
-        liquidityRate: reserve?.liquidityRate,
-        variableBorrowRate: reserve?.variableBorrowRate,
-        stableBorrowRate: reserve?.stableBorrowRate,
-        averageStableBorrowRate: reserve?.averageStableBorrowRate,
-        liquidityIndex: reserve?.liquidityIndex,
-        variableBorrowIndex: reserve?.variableBorrowIndex,
-      };
-    },
-    [ReserveData, tokenAddress]
-  );
+    const token = useMemo(() => {
+      if(tokenName == 'UMEE') {
+        return {
+          symbol: 'UMEE',
+          address: tokenAddress as string,
+          usdPrice: 0,
+          availableLiquidity: BigNumber.from(0),
+          totalStableDebt: BigNumber.from(0),
+          totalVariableDebt: BigNumber.from(0),
+          liquidityRate: BigNumber.from(0),
+          variableBorrowRate: BigNumber.from(0),
+          stableBorrowRate: BigNumber.from(0),
+          averageStableBorrowRate: BigNumber.from(0),
+          liquidityIndex: BigNumber.from(0),
+          variableBorrowIndex: BigNumber.from(0),
+        };
+      }
+      else {
+        const reserve = ReserveData.find((r) => r.address === tokenAddress);
+        return {
+          symbol: reserve?.symbol,
+          address: tokenAddress as string,
+          usdPrice: reserve?.usdPrice,
+          availableLiquidity: reserve?.availableLiquidity,
+          totalStableDebt: reserve?.totalStableDebt,
+          totalVariableDebt: reserve?.totalVariableDebt,
+          liquidityRate: reserve?.liquidityRate,
+          variableBorrowRate: reserve?.variableBorrowRate,
+          stableBorrowRate: reserve?.stableBorrowRate,
+          averageStableBorrowRate: reserve?.averageStableBorrowRate,
+          liquidityIndex: reserve?.liquidityIndex,
+          variableBorrowIndex: reserve?.variableBorrowIndex,
+        };
+      }
+    }, [ReserveData, tokenAddress]);
 
   const web3 = useWeb3();
+  let originCurrency = tokenName == 'UMEE'
+    ? (chainStore.current.currencies.find((cur) => cur.coinMinimalDenom === 'uumee') as Currency)
+    : (chainStore.current.currencies.find(
+        (cur) => cur.coinMinimalDenom === IBCAssetInfos[0].coinMinimalDenom
+      ) as Currency);
 
-  const originCurrency = chainStore.current.currencies.find(
-    cur => cur.coinMinimalDenom === IBCAssetInfos[0].coinMinimalDenom
-  ) as Currency;
-
-  const account = useMemo(
-    () => accountStore.getAccount(chainStore.current.chainId),
-    [chainStore, accountStore]
-  );
+  const account = useMemo(() => accountStore.getAccount(chainStore.current.chainId), [chainStore, accountStore]);
 
   const sendToEthereum = useCallback(
     (amount: number) => () => {
-      const token = chainStore.current.currencies.find(c => c.coinDenom === tokenName);
-      const denom = token?.coinMinimalDenom;
-      const ethereumAddress = web3.account?.toLowerCase(); //'0x0bBe502CaC194c3c0F1ca8cC30fa3Df4397e9226'.toUpperCase();
-
+      const token = chainStore.current.currencies.find((c) => c.coinDenom === tokenName);
+      let denom = tokenName == 'UMEE' ? 'uumee' : token?.coinMinimalDenom;
+      const ethereumAddress = web3.account?.toLowerCase();
       if (ethereumAddress && denom) {
         setStep(ETxnSteps.Pending);
-        account.umee.sendToEthereum(
-          ethereumAddress,
-          denom,
-          BigNumber.from(amount * 10 ** originCurrency.coinDecimals).toString(),
-          '100'
-        )
-          .catch(e => console.log(e))
-          .finally(() => setStep(ETxnSteps.Input));
+        account.umee
+          .sendToEthereum(
+            ethereumAddress,
+            denom,
+            parseUnits(amount.toString(), originCurrency.coinDecimals).toString(),
+            '100'
+          )
+          .catch((e) => console.log(e))
+          .finally(() => onClose());
       }
     },
-    [account.umee, chainStore, originCurrency.coinDecimals, tokenName, web3.account]
+    [account.umee, chainStore, originCurrency.coinDecimals, tokenName, web3.account, onClose]
   );
 
   const sendToUmee = useCallback(
     (amount: number) => () => {
-      if (gravity && tokenContract && reserveCfgData && web3.account) {
-        const roundedAmount =  Math.round(amount * 10 ** decimalsOnEthereum);
+      if (gravity && tokenContract && decimalsOnEthereum && web3.account) {
+        const roundedAmount = Math.round(amount * 10 ** decimalsOnEthereum.toNumber());
         const tx = async () => {
-          const addr = bech32.decode(account.bech32Address)
-            .words
-            .map(i => BigNumber.from(i).toHexString().slice(2))
-            .join('');
           if (allowance?.lt(roundedAmount)) {
             await tokenContract.approve(gravity.address, constants.MaxUint256);
           }
-          return await gravity.sendToCosmos(tokenAddress, '0x' + addr, roundedAmount);
+          return await gravity.sendToCosmos(tokenAddress, account.bech32Address, roundedAmount);
         };
 
         setStep(ETxnSteps.Pending);
 
         contractCall(
+          '',
           tx,
-          'Withdrawing',
-          'Withdraw failed',
-          'Withdraw succeeded',
-          () => setStep(ETxnSteps.Input)
+          'Transferring',
+          'Transfer failed',
+          'Transaction included in the block',
+          () => {
+            setStep(ETxnSteps.Input);
+            onClose();
+          },
+          () => {
+            displayToast(
+              'Bridging in Progress',
+              TToastType.TX_BROADCASTING,
+              {
+                message: 'This process may take a minute',
+              },
+              { delay: 3000 }
+            );
+          }
         );
       }
     },
     [
       gravity,
+      decimalsOnEthereum,
       tokenContract,
-      reserveCfgData,
       contractCall,
       web3.account,
       account.bech32Address,
       allowance,
-      tokenAddress
+      tokenAddress,
+      onClose,
     ]
   );
 
   const balance = useMemo(
-    () => BigNumber.from(
-      queriesStore
-        .get(chainStore.current.chainId)
-        .queryBalances
-        .getQueryBech32Address(account.bech32Address)
-        .getBalanceFromCurrency(originCurrency)
-        .toCoin()
-        .amount
-    ),
+    () =>
+      BigNumber.from(
+        queriesStore
+          .get(chainStore.current.chainId)
+          .queryBalances.getQueryBech32Address(account.bech32Address)
+          .getBalanceFromCurrency(originCurrency)
+          .toCoin().amount
+      ),
     [account.bech32Address, chainStore, originCurrency, queriesStore]
   );
 
-  if (!(reserveCfgData && token && balanceOnEthereum)) {
+  if (!(token && balanceOnEthereum)) {
     return <PageLoading />;
   }
 
   return (
     <BridgeInputAmount
       txnAvailability={{
-        availableAmount: activeTab === ETxnType.deposit ?  balance : balanceOnEthereum,
+        availableAmount: activeTab === ETxnType.deposit ? balance : balanceOnEthereum,
         token,
-        tokenDecimals: activeTab === ETxnType.deposit ? originCurrency.coinDecimals : decimalsOnEthereum
+        tokenDecimals: activeTab === ETxnType.deposit ? originCurrency.coinDecimals : decimalsOnEthereum,
       }}
       layers={[
         { address: account.bech32Address, logo: umeeLogo },
-        { address: web3.account ?? '', logo: ethereumLogo }
+        { address: web3.account ?? '', logo: ethereumLogo },
       ]}
       txnStep={step}
       handleContinue={activeTab === ETxnType.deposit ? sendToEthereum : sendToUmee}
       txnType={activeTab}
       onTabChange={setActiveTab}
-      depositTab='Ethereum'
-      withdrawTab='Umee'
+      depositTab="Ethereum"
+      withdrawTab="Umee"
     />
   );
 };

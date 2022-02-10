@@ -2,31 +2,31 @@ import React from 'react';
 import { BigNumber } from 'ethers';
 import { TextItem, PrimaryText } from './DataList';
 import { bigNumberToString } from 'lib/number-utils';
+import { TextProps } from 'grommet';
 
 interface ITableItems {
   borrowingEnabled: boolean;
   variableAPR: BigNumber;
   aprDecimals: BigNumber;
+  textSize?: TextProps['size'];
 }
 
-const TableItem = ({borrowingEnabled, variableAPR, aprDecimals}: ITableItems) => {
-  if(!borrowingEnabled){
-    return(
+const TableItem = ({ borrowingEnabled, variableAPR, aprDecimals, textSize }: ITableItems) => {
+  if (!borrowingEnabled) {
+    return (
       <>
-        <TextItem>
-          <PrimaryText>-</PrimaryText>
-        </TextItem>
-        <TextItem>
+        <TextItem justify='start'>
           <PrimaryText>-</PrimaryText>
         </TextItem>
       </>
     );
-  }
-  else{
-    return(
+  } else {
+    return (
       <>
-        <TextItem>
-          <PrimaryText>{variableAPR && bigNumberToString(variableAPR, aprDecimals)}%</PrimaryText>
+        <TextItem justify='start'>
+          <PrimaryText size={'small'}>
+            {variableAPR && bigNumberToString(variableAPR, aprDecimals)}%
+          </PrimaryText>
         </TextItem>
       </>
     );

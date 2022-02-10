@@ -15,7 +15,10 @@ import { DeepReadonly } from 'utility-types';
 import deepmerge from 'deepmerge';
 import { HasUmeeQueries } from '../query';
 import { gravity } from './bundle.js';
-
+import { displayToast, TToastType } from 'components/common/toasts';
+import { prettifyTxError } from 'api/cosmosStores/prettify-tx-error';
+import { EmbedChainInfos } from '../../../../config';
+import { ChainStore } from '../../chain';
 
 export interface UmeeMsgOpts {
   readonly sendToEth: MsgOpt;
@@ -27,7 +30,8 @@ export interface HasUmeeAccount {
 
 export class Account
   extends AccountSetBase<CosmosMsgOpts & UmeeMsgOpts, HasCosmosQueries & HasUmeeQueries>
-  implements HasCosmosAccount, HasUmeeAccount {
+  implements HasCosmosAccount, HasUmeeAccount
+{
   public readonly cosmos: DeepReadonly<CosmosAccount>;
   public readonly umee: DeepReadonly<UmeeAccount>;
 
@@ -88,7 +92,10 @@ export class UmeeAccount {
         },
       },
     };
-      
+
+    const chainStore = new ChainStore(EmbedChainInfos, EmbedChainInfos[0].chainId);
+    const chainInfo = chainStore.getChain(this.chainId);
+
     await this.base.sendMsgs(
       this.base.msgOpts.sendToEth.type,
       {
@@ -111,8 +118,22 @@ export class UmeeAccount {
         gas: this.base.msgOpts.sendToEth.gas.toString(),
       },
       undefined,
-      tx => {
-        console.log(tx);
+      {
+        onFulfill: (tx: any) => {
+          if (!tx.code) {
+            displayToast('Transaction Included in the Block', TToastType.TX_SUCCESSFUL, {
+              customLink: chainInfo.raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
+            });
+            displayToast(
+              'Bridging in Progress',
+              TToastType.TX_BROADCASTING,
+              {
+                message: 'This process may take a minute',
+              },
+              { delay: 3000 }
+            );
+          }
+        },
       }
     );
   }
@@ -122,9 +143,6 @@ export class UmeeAccount {
   }
   protected hasNoLegacyStdFeature(): boolean {
     const chainInfo = this.chainGetter.getChain(this.chainId);
-    return (
-      chainInfo.features != null &&
-      chainInfo.features.includes('no-legacy-stdTx')
-    );
+    return chainInfo.features != null && chainInfo.features.includes('no-legacy-stdTx');
   }
 }

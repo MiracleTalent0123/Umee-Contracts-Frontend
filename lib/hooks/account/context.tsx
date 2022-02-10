@@ -18,7 +18,7 @@ export const AccountConnectionProvider: FunctionComponent = observer(({ children
   const [isOpenDialog, setIsOpenDialog] = useState(false);
 
   const account = accountStore.getAccount(chainStore.current.chainId);
-  const counterPartyAccount = accountStore.getAccount('gaia-internal-testnet-1');
+  const counterPartyAccount = accountStore.getAccount('gaia-umeeverse-party-1');
 
   // Even though the wallet is not loaded, if `shouldAutoConnectAccount` is true, set the `isAccountConnected` as true.
   // Because the initing the wallet is asyncronous, when users enter the site the wallet is seen as not loaded.

@@ -1,9 +1,7 @@
-import { Box, Text } from 'grommet';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { AvailableBorrowsDataList } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
-import { DataListControls } from 'components/DataListControls/DataListControls';
 import { IAvailableBorrowsData } from 'components/AvailableBorrowsDataList';
 import { useData } from 'api/data';
 import { useParams } from 'react-router-dom';
@@ -11,7 +9,7 @@ import { BigNumber, utils } from 'ethers';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { useWeb3 } from 'api/web3';
 import { getMaxBorrows } from 'lib/health-utils';
-import './borrow.css';
+import Layout from 'pages/Layout';
 
 const { useEffect, useState } = React;
 
@@ -33,11 +31,8 @@ const Borrow = () => {
   const { ReserveData, ReserveConfigurationData, UserReserveData, priceData, UserAccountData } = useData();
   const web3 = useWeb3();
   const { tokenAddress } = useParams<{ tokenAddress: string }>();
-
   const [tokens, setTokens] = useState<IAvailableBorrowsData[]>([]);
   const [myBorrowsData, setMyBorrowsData] = useState<IAvailableBorrowsData[]>();
-
-  const [filteredData, setFilteredData] = useState<IAvailableBorrowsData[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [loggedIn, setLoggedIn] = useState<boolean>();
 
@@ -134,15 +129,15 @@ const Borrow = () => {
   }, [ReserveData, tokenAddress, ReserveConfigurationData, UserReserveData, priceData, UserAccountData]);
 
   const availableTokensColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Available', size: 'flex' },
-    { title: 'APY', size: 'flex' },
+    { title: 'AVAILABLE ASSETS', size: 'flex' },
+    { title: 'AVAILABLE', size: 'flex' },
+    { title: 'BORROW APY', size: 'flex' },
   ];
 
   const userAssetsColumns: IDataListColumn[] = [
-    { title: 'Asset', size: 'flex' },
-    { title: 'Borrowed', size: 'flex' },
-    { title: 'APY', size: 'flex' },
+    { title: 'YOUR POSITIONS', size: 'flex' },
+    { title: 'BORROWED', size: 'flex' },
+    { title: 'BORROW APY', size: 'flex' },
   ];
 
   if (pageLoading) {
@@ -150,29 +145,18 @@ const Borrow = () => {
   }
 
   return (
-    <>
-      <div className="nav-title assets-container">
-        <h1>Borrow</h1>
-        <p>Borrow assets for cross-chain leverage</p>
-      </div>
-      <Box direction="row" justify="center" gap="medium" className="assets-container">
-        <Box width="100%" style={{ maxWidth: '700px' }}>
-          <DataListControls fullDataList={tokens} setFilteredData={setFilteredData} />
-          <Box pad={{ vertical: 'small' }} width="auto">
-            {loggedIn !== undefined && (
-              <AvailableBorrowsDataList
-                columns={availableTokensColumns}
-                userAssetsColumns={userAssetsColumns}
-                data={filteredData}
-                myBorrowsData={myBorrowsData}
-                loggedIn={loggedIn}
-                selectedTokenAddress={state && state.tokenAddress}
-              />
-            )}
-          </Box>
-        </Box>
-      </Box>
-    </>
+    <Layout title='Borrow' subtitle='Borrow assets for cross-chain leverage'>
+      {loggedIn !== undefined && (
+        <AvailableBorrowsDataList
+          columns={availableTokensColumns}
+          userAssetsColumns={userAssetsColumns}
+          data={tokens}
+          myBorrowsData={myBorrowsData}
+          loggedIn={loggedIn}
+          selectedTokenAddress={state && state.tokenAddress}
+        />
+      )}
+    </Layout>
   );
 };
 

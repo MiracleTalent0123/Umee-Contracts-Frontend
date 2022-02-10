@@ -118,10 +118,6 @@ export class RootStore {
 	              }
 
 	              displayToast('Transfer Failed', TToastType.TX_FAILED, { message });
-	            } else {
-	              displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
-	                customLink: chainInfo.raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
-	              });
 	            }
 	          },
 	        },

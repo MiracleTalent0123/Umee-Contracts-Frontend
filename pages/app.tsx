@@ -1,9 +1,8 @@
 import 'regenerator-runtime/runtime';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import Routes from './routes';
 import { Box, Grommet } from 'grommet';
-import { HashRouter as Router, Switch, Route } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 
 import theme from 'lib/theme';
@@ -20,44 +19,45 @@ import Borrow from 'pages/borrow';
 import Dashboard from 'pages/dashboard';
 import Deposit from 'pages/deposit';
 import Markets from 'pages/markets';
-import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
 import { BetaAuthModal } from 'components/BetaAuth';
 import { StoreProvider } from '../api/cosmosStores';
 import { AccountConnectionProvider } from '../lib/hooks/account/context';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
 
 function Body() {
   return (
     <>
       <AccountConnectionProvider>
-        <Box
-          style={{ position: 'absolute', right: '0' }}
-          direction="column"
-          margin={{ left: 'small', vertical: '25px', right: '25px' }}
-          gap="small"
-        >
-          <ConnectWalletButton />
-        </Box>
         <Router>
           <SideNav />
-          <Box margin={{ top: 'xlarge' }} pad={{ bottom: 'xlarge' }}>
-            <Switch>
-              <Route path="/dashboard">
-                <Dashboard />
-              </Route>
-              <Route path="/borrow">
-                <Borrow />
-              </Route>
-              <Route path="/deposit">
-                <Deposit />
-              </Route>
-              <Route path="/markets">
-                <Markets />
-              </Route>
-              <Route path="/">
-                <Markets />
-              </Route>
-            </Switch>
+          <Box
+            className="markets-container"
+            direction="row"
+            justify="center"
+            pad={{ top: 'small', horizontal: 'large' }}
+            overflow="hidden"
+          >
+            <Box className="content" style={{ position: 'relative' }}>
+              <Box style={{ position: 'absolute', right: 0, zIndex: 10 }}>
+                <ConnectWalletButton />
+              </Box>
+              <Switch>
+                <Route path="/dashboard">
+                  <Dashboard />
+                </Route>
+                <Route path="/borrow">
+                  <Borrow />
+                </Route>
+                <Route path="/supply">
+                  <Deposit />
+                </Route>
+                <Route path="/markets">
+                  <Markets />
+                </Route>
+                <Redirect from="/" to="/markets" />
+              </Switch>
+            </Box>
           </Box>
         </Router>
       </AccountConnectionProvider>

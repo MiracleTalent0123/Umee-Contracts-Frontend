@@ -1,17 +1,16 @@
 import React from 'react';
 import { Box, Text, Image } from 'grommet';
-import Loading from 'components/common/Loading/Loading';
 import { TxnAmountContainer } from 'components/Transactions';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
 import { bigNumberToString, BN } from 'lib/number-utils';
 import { BigNumber } from 'ethers';
-import ModalHeader from 'components/ModalHeader';
-// import UmeeLogo from '/public/images/Umee_logo_name_Icon_only.png';
 import Arrow from '/public/images/arrow.png';
-import { TxnStatusBar } from 'components/Transactions/TxnStatusBar';
 import _ from 'lodash';
+import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
+import { BaseTab } from 'components/Transactions/TxnTabs';
+import { TxnConfirm } from 'components/Transactions';
 
 const aprDecimals = BigNumber.from(25);
 const maxMantissa = 6;
@@ -22,12 +21,11 @@ export interface DepositProps {
   handleContinue(e: React.MouseEvent): void;
   handleFaucet(e: React.MouseEvent): void;
   txnStep: ETxnSteps;
-  setIsDeposit(activeTab: boolean): void;
+  setActiveTab(activeTab: string): void;
   currentLtv: string;
   initialborrowBalance: number;
   ltv: string;
   txnType: ETxnType;
-  isDeposit: boolean;
   txnAmount: string;
   balance: BigNumber;
 }
@@ -38,35 +36,17 @@ const DepositInputAmount = ({
   handleContinue,
   handleFaucet,
   txnStep,
-  setIsDeposit,
+  setActiveTab,
   initialborrowBalance,
   currentLtv,
   ltv,
   txnType,
   txnAmount,
-  isDeposit,
   balance,
 }: DepositProps) => {
-  const { availableAmount, tokenDecimals, token } = txnAvailability;
+  const { tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
-  const [newTxnAvail, setNewTxnAvail] = React.useState(txnAvailability);
-
-  /**
-   * Convert to max maxMantissa decimals to deal with possible overrun issues causing unpredictable gas errors.
-   */
-  React.useEffect(() => {
-    // this function will generate a string with the proper length; then will need to convert back to a BN.
-    const wrkNum: string = bigNumberToString(availableAmount, tokenDecimals, maxMantissa);
-    const theMantissa: string = wrkNum.split('.')[1];
-
-    // recombine without the decimal place in order to create the BigNumber.
-    const adjustedAvailAmt: BigNumber = BN(wrkNum.split('.')[0] + theMantissa);
-    const tmpDecimals = tokenDecimals as BigNumber;
-    const decimalAdjust = tmpDecimals.toNumber() - maxMantissa;
-    const adjustedDecimals = tmpDecimals.sub(decimalAdjust);
-    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals });
-  }, [availableAmount, tokenDecimals, txnAvailability, txnType]);
 
   React.useEffect(() => {
     txnStep === ETxnSteps.Pending || txnStep === ETxnSteps.PendingApprove || txnStep === ETxnSteps.PendingSubmit
@@ -86,26 +66,15 @@ const DepositInputAmount = ({
       header={
         token.symbol && (
           <>
-            <ModalHeader symbol={token.symbol} />
+            <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />
             {!isPending && !isFinal && (
-              <>
-                <Box margin="-40px 0 0" direction="row" justify="between">
-                  <Box onClick={() => setIsDeposit(true)}>
-                    <Text size="medium" className={isDeposit ? 'tab active-tab' : 'tab no-active-tab'}>
-                      Supply
-                    </Text>
-                  </Box>
-                  <Box onClick={() => setIsDeposit(false)}>
-                    <Text size="medium" className={!isDeposit ? 'tab active-tab' : 'tab no-active-tab'}>
-                      Withdraw
-                    </Text>
-                  </Box>
-                </Box>
-                <Box direction="row" margin="10px 0 10px 0">
-                  <Box className={isDeposit ? 'modal-tab modal-tab1 active' : 'modal-tab modal-tab1'}></Box>
-                  <Box className={!isDeposit ? 'modal-tab modal-tab2 active' : 'modal-tab modal-tab2'}></Box>
-                </Box>
-              </>
+              <BaseTab
+                choiceA={ETxnType.deposit}
+                choiceB={ETxnType.withdraw}
+                defaultSelected={txnType === ETxnType.deposit}
+                handler={setActiveTab}
+                margin={{ top: 'medium' }}
+              />
             )}
           </>
         )
@@ -113,101 +82,70 @@ const DepositInputAmount = ({
     >
       {!isPending && !isFinal && (
         <>
-          <AvailableToTxnInformationRow
-            txnType={txnType}
-            withdrawModal={false}
-            symbol={token.symbol ? token.symbol : ''}
-            availableAmount={balance}
-            tokenDecimals={tokenDecimals}
-          />
-          <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={newTxnAvail} setTxnAmount={setTxnAmount} />
-          <Box>
-            <Text size="xsmall" weight="bold" color="black">
+          <Box pad={{ horizontal: 'medium' }}>
+            <AvailableToTxnInformationRow
+              txnType={txnType}
+              withdrawModal={false}
+              symbol={token.symbol ? token.symbol : ''}
+              availableAmount={balance}
+              tokenDecimals={tokenDecimals}
+            />
+            <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
+          </Box>
+          <Box
+            border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+            pad={{ top: 'medium', horizontal: 'medium' }}
+          >
+            <Text size="xsmall" className="upper-case letter-spacing">
               {ETxnType.deposit} Rates
             </Text>
-            <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
+            <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Box direction="row" justify="start" align="center">
-                {token?.symbol && <TokenLogo symbol={token?.symbol} width="40" height="40" />}
-                <Text margin="0 0 0 10px" size="small">
+                {token?.symbol && <TokenLogo symbol={token?.symbol} width="36" height="36" />}
+                <Text margin={{ left: 'small' }} size="small">
                   Supply APY
                 </Text>
               </Box>
-              <Text weight="bold" size="small">
-                {token?.liquidityRate && bigNumberToString(token?.liquidityRate, aprDecimals)}%
-              </Text>
+              <Text size="small">{token?.liquidityRate && bigNumberToString(token?.liquidityRate, aprDecimals)}%</Text>
             </Box>
           </Box>
-          <Box margin="5px 0 10px 0">
-            <Text size="xsmall" weight="bold" color="black">
-              Borrow Info
+          <Box margin={{ top: 'small' }} pad={{ horizontal: 'medium' }}>
+            <Text size="xsmall" className="upper-case letter-spacing">
+              Borrow Information
             </Text>
-            <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
+            <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Text size="small" margin={{ right: 'medium' }}>
                 Borrow Position
               </Text>
               <Box direction="row" align="center">
-                <Text weight="bold" size="small">
-                  ${initialborrowBalance.toFixed(2)}
-                </Text>
+                <Text size="small">${initialborrowBalance.toFixed(2)}</Text>
               </Box>
             </Box>
-            <Box
-              pad="10px 0"
-              width="100%"
-              direction="row"
-              justify="between"
-              align="center"
-              border="top"
-              style={{ borderColor: '#E1F0FF' }}
-            >
+            <Box direction="row" justify="between" align="center">
               <Text margin={{ right: 'medium' }} size="small">
                 Borrow Limit Used
               </Text>
               <Box direction="row" align="center">
-                <Text weight="bold" size="small">
-                  {currentLtv}%
-                </Text>
+                <Text size="small">{currentLtv}%</Text>
                 {ltv && (
                   <>
                     <Image margin={{ horizontal: 'xsmall' }} src={Arrow} alt="arrow icon" />
-                    <Text weight="bold" size="small">
-                      {ltv}%
-                    </Text>
+                    <Text size="small">{ltv}%</Text>
                   </>
                 )}
               </Box>
             </Box>
-            {isDeposit && (
-              <Box direction="row" justify="center">
-                {token.symbol == 'DAI' || token.symbol == 'USDC' ? (
-                  <Text
-                    style={{ cursor: 'pointer' }}
-                    onClick={handleFaucet}
-                    size="large"
-                    weight="bold"
-                    className="gradient-text"
-                  >
-                    Faucet
-                  </Text>
-                ) : (
-                  <></>
-                )}
-              </Box>
-            )}
+            <Box direction="row" justify="center">
+              {(token.symbol == 'DAI' || token.symbol == 'USDC' || token.symbol == 'USDT') && (
+                <Text style={{ cursor: 'pointer' }} margin={{ top: 'small' }} onClick={handleFaucet} size="medium">
+                  Faucet
+                </Text>
+              )}
+            </Box>
           </Box>
         </>
       )}
-      {isPending && (
-        <>
-          <Box pad="20px 0" width="100%" direction="row" justify="center">
-            <Loading />
-          </Box>
-          <Box margin="0 0 30px" width="100%" direction="row" justify="center">
-            <Text size="small">Confirm transaction in Metamask wallet</Text>
-          </Box>
-        </>
-      )}
-      {isFinal && <TxnStatusBar text={_.capitalize(txnType)} status={txnStep} />}
+      {isPending && <TxnConfirm wallet="Metamask" />}
     </TxnAmountContainer>
   );
 };

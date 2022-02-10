@@ -46,3 +46,8 @@
   -webkit-text-fill-color: unset;
   color: white;
 }
+
+.connect-wallet {
+  width: 228px;
+  height: 53px;
+}

@@ -26,7 +26,7 @@ const ToggleSwitch = ({ label, choiceA, choiceB, defaultSelected, handler, handl
   const getToggleColor = (currency: string) => (selected === currency ? 'clrToggleOffText' : 'clrToggleOnText');
 
   return (
-    <Box className="container" direction="row" align="center" justify="center">
+    <Box className="container" direction="row" align="center" justify="start">
       <div className="toggle-switch">
         <input checked={enabled} onChange={handleClick} type="checkbox" className="checkbox" 
           name={label} id={label} />

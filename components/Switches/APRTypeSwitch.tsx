@@ -32,7 +32,7 @@ const APRTypeSwitch = ({ checked, handler }: APRTypeSwitchProps) => {
         </Box>
         <Box>
           <Stack anchor={isVariable ? 'right' : 'left'}>
-            <Box background={isVariable ? 'accent-1' : 'accent-1'} round="medium" pad="small" width="xxsmall" />
+            <Box background={isVariable ? 'accent-1' : 'accent-1'} round="large" pad="small" width="xxsmall" />
             <Box
               background={isVariable ? 'white' : 'neutral-1'}
               round="100%"

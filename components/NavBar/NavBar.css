@@ -1,25 +1,32 @@
 .sidenav {
   height: 100%;
-  width: 90px;
+  width: 106px;
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #fff;
+  background: #16183c;
   padding-top: 20px;
   position: fixed;
+  overflow: auto;
 }
 
-.sidenav a {
+.sidenav-menus a {
+  position: relative;
   text-decoration: none;
   font-size: 25px;
-  color: #818181;
-  margin-bottom: 40px;
   display: flex;
   justify-content: center;
+  padding: 15px 0;
 }
 
-.sidenav a:hover {
-  color: #f1f1f1;
+.sidenav-menus a.active::before {
+  position: absolute;
+  content: '';
+  top: 0;
+  left: 0;
+  background: linear-gradient(180.14deg, #fda9ff 0.12%, #c9b8ff 27.33%, #4dffe5 99.92%);
+  width: 5px;
+  height: 100%;
 }
 
 .main {
@@ -28,64 +35,25 @@
   padding: 0px 10px;
 }
 
-@media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
-}
-
-.icons:hover {
-  border-radius: 0px;
-}
 .icon-img {
   position: relative;
-  background: #E1F0FF;
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  margin: 0px 0px 0px 0px;
   transition: 0.3s linear;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.icon-img:hover {
-  border-radius: 5px;
-}
 
-.icon-img .sidenav-text {
-  visibility: hidden;
-  background-color: #121a32;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 4px 15px;
+.icon-hover {
+  opacity: 0;
   position: absolute;
-  font-size: initial;
-  z-index: 1;
-  font-weight: 700;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 114%;
 }
 
-.icon-img .sidenav-text::after {
-  content: '';
+.sidenav-menus a:not(.active):hover .icon-img .icon-hover {
+  opacity: 1;
+  position: initial;
+}
+
+.sidenav-menus a:not(.active):hover .icon-img .icon-default {
+  opacity: 0;
   position: absolute;
-  display: block;    
-  width: 0px; 
-  right: 100%;       
-  border: 5px solid transparent;
-  border-left: 0;
-  border-right: 9px solid #121a32;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.icon-img:hover .sidenav-text {
-  visibility: visible;
-}
-
-.stake-vote-icons {
-  margin-bottom: 50px;
-  display: flex;
-  justify-content: center;
 }

@@ -7,15 +7,16 @@ import { useData } from 'api/data';
 import { bigNumberToString, bigNumberToUSDString, bigNumberToNumber } from 'lib/number-utils';
 import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserBalances } from 'api/data/allowanceData';
-import { ButtonItem, InfoPanelItem } from 'components';
+import { InfoPanelItem } from 'components';
 import Modal from 'components/common/Modal';
 import { MarketDetailsBox } from './MarketDetailsBox';
 import { TTokenConfig } from 'lib/types';
 import { useUsageAsCollateral } from 'lib/hooks/useUsageAsCollateral';
 import InfoCustomMeter from 'components/InfoBar/InfoCustomMeter';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { InfoPanelItemStyles } from 'components/InfoBar/InfoPanelItem';
 import { getMaxBorrows } from 'lib/health-utils';
+import TokenLogo from 'components/TokenLogo';
+import { PrimaryBtn } from 'components/common';
 
 const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void }) => {
   const { ReserveData, ReserveConfigurationData, UserReserveData, UserAccountData, priceData } = useData();
@@ -157,20 +158,19 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
           <Box direction="row" fill="horizontal" alignContent="center" alignSelf="center" align="center">
             <Box direction="column">
               <InfoWindow flex round="5px">
-                <InfoWindowBody round="5px" pad="small" background="white">
-                  <Box round="5px" direction="row" align="center" justify="center" gap="small">
-                    <Box margin={{ top: '-20px' }} width={{ min: '150px' }}>
+                <InfoWindowBody round="5px" pad="xsmall" background="white">
+                  <Box round="5px" direction="row" align="center" justify="center">
+                    <Box margin={{ top: '-10px' }} width={{ min: '190px' }}>
                       <InfoPanelItem
-                        title="Total Borrowed"
-                        titleBg="linear-gradient(135deg, #F386FF 0%, #43E0FD 100%)"
+                        title="TOTAL BORROWED"
+                        titleBg="clrBoxGradient"
                         titleDirection="row"
                         textSize="xsmall"
                         data={[
-                          { value: '$', textSize: 'medium', bold: true },
+                          { value: '$', textSize: 'medium' },
                           {
                             value: Number(reserveStats?.totalBorrowedUsd).toLocaleString(),
                             textSize: 'medium',
-                            bold: true,
                           },
                         ]}
                       />
@@ -180,21 +180,20 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                       <Box
                         style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
                       >
-                        <TokenLogoWithSymbol width="75" height="75" symbol={token.symbol} />
+                        <TokenLogo width="74" height="74" symbol={token.symbol} />
                       </Box>
                     </Box>
-                    <Box margin={{ top: '-20px' }} width={{ min: '150px' }}>
+                    <Box margin={{ top: '-10px' }} width={{ min: '190px' }}>
                       <InfoPanelItem
-                        title="Available Liquidity"
+                        title="AVAILABLE LIQUIDITY"
                         titleBg="#131A33"
                         titleDirection="row-reverse"
                         textSize="xsmall"
                         data={[
-                          { value: '$', textSize: 'medium', bold: true },
+                          { value: '$', textSize: 'medium' },
                           {
                             value: Number(reserveStats?.availableLiquidityUsd).toLocaleString(),
                             textSize: 'medium',
-                            bold: true,
                           },
                         ]}
                         align="start"
@@ -205,50 +204,52 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                     <InfoPanelItem
                       align="center"
                       textSize="xsmall"
-                      title="Maximum LTV"
+                      title="MAXIMUM LTV"
                       data={[
                         {
                           value: tokenConfig?.ltv && bigNumberToString(tokenConfig.ltv, 2),
-                          textSize: 'xsmall',
-                          bold: true,
+                          textSize: 'small',
                         },
-                        { value: '%', textSize: 'xsmall', bold: true },
+                        { value: '%', textSize: 'small' },
                       ]}
                     />
+                    <Box margin={{ right: 'small' }}>
+                      <InfoPanelItem
+                        align="center"
+                        textSize="xsmall"
+                        title="LIQUIDATION THRESHOLD"
+                        data={[
+                          {
+                            value:
+                              tokenConfig?.liquidationThreshold &&
+                              bigNumberToString(tokenConfig.liquidationThreshold, 2),
+                            textSize: 'small',
+                          },
+                          { value: '%', textSize: 'small' },
+                        ]}
+                      />
+                    </Box>
+                    <Box margin={{ left: 'small' }}>
+                      <InfoPanelItem
+                        align="center"
+                        textSize="xsmall"
+                        title="LIQUIDATION PENALTY"
+                        data={[
+                          {
+                            value:
+                              tokenConfig?.liquidationBonus &&
+                              (parseFloat(bigNumberToString(tokenConfig.liquidationBonus, 2)) - 100).toFixed(2),
+                            textSize: 'small',
+                          },
+                          { value: '%', textSize: 'small' },
+                        ]}
+                      />
+                    </Box>
                     <InfoPanelItem
                       align="center"
                       textSize="xsmall"
-                      title="Liquidation Threshold"
-                      data={[
-                        {
-                          value:
-                            tokenConfig?.liquidationThreshold && bigNumberToString(tokenConfig.liquidationThreshold, 2),
-                          textSize: 'xsmall',
-                          bold: true,
-                        },
-                        { value: '%', textSize: 'xsmall', bold: true },
-                      ]}
-                    />
-                    <InfoPanelItem
-                      align="center"
-                      textSize="xsmall"
-                      title="Liquidation Penalty"
-                      data={[
-                        {
-                          value:
-                            tokenConfig?.liquidationBonus &&
-                            (parseFloat(bigNumberToString(tokenConfig.liquidationBonus, 2)) - 100).toFixed(2),
-                          textSize: 'xsmall',
-                          bold: true,
-                        },
-                        { value: '%', textSize: 'xsmall', bold: true },
-                      ]}
-                    />
-                    <InfoPanelItem
-                      align="center"
-                      textSize="xsmall"
-                      title="Collateral"
-                      data={[{ value: canUseAsCollateral ? 'Yes' : 'No', textSize: 'xsmall', bold: true }]}
+                      title="COLLATERAL"
+                      data={[{ value: canUseAsCollateral ? 'Yes' : 'No', textSize: 'small' }]}
                     />
                   </Box>
                 </InfoWindowBody>
@@ -256,72 +257,68 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
               <InfoWindow>
                 <InfoWindowBody background="transparent">
                   <Box margin={{ top: 'small' }} direction="row" gap="small" flex>
-                    <MarketDetailsBox title="Supply" textSize="small" bold={true}>
+                    <MarketDetailsBox borderColor="clrDetailBoxBorderTop1" title="SUPPLY INFORMATION" textSize="xsmall">
                       <InfoPanelItem
                         title="Supply Position"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
                           {
                             value: userReserve && bigNumberToString(userReserve.currentUTokenBalance, decimals),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: token.symbol, textSize: 'xsmall' },
+                          { value: token.symbol, textSize: 'small' },
                         ]}
                       />
                       <InfoPanelItem
                         title="Wallet Balance"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
                           {
                             value: bigNumberToString(walletBalances[0], decimals),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: token.symbol, textSize: 'xsmall' },
+                          { value: token.symbol, textSize: 'small' },
                         ]}
                       />
                       <InfoPanelItem
                         title="Supply APY"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
                           {
                             value: bigNumberToString(token.liquidityRate, BigNumber.from(25)),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: '%', textSize: 'xsmall' },
+                          { value: '%', textSize: 'small' },
                         ]}
                       />
                       <Box margin={{ top: 'medium' }} direction="row" justify="center">
                         <Link
                           to={{
-                            pathname: '/deposit',
+                            pathname: '/supply',
                             state: { tokenAddress: tokenAddress },
                           }}
+                          style={{ width: '100%' }}
                         >
-                          <ButtonItem
-                            textColor="white"
-                            background="#131A33"
+                          <PrimaryBtn
+                            fullWidth
+                            text="Supply"
+                            pad={{ vertical: 'xsmall' }}
                             textSize="medium"
-                            round="5px"
-                            pad={{ horizontal: 'large', vertical: 'xsmall' }}
-                          >
-                            Supply
-                          </ButtonItem>
+                            round="medium"
+                          />
                         </Link>
                       </Box>
                     </MarketDetailsBox>
-                    <MarketDetailsBox title="Borrow" textSize="small" bold={true}>
+                    <MarketDetailsBox borderColor="clrDetailBoxBorderTop3" title="BORROW INFORMATION" textSize="xsmall">
                       <InfoPanelItem
                         title="Borrow Position"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
@@ -332,38 +329,35 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                                 userReserve.currentVariableDebt.add(userReserve.currentStableDebt),
                                 decimals
                               ),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: token.symbol, textSize: 'xsmall' },
+                          { value: token.symbol, textSize: 'small' },
                         ]}
                       />
                       <InfoPanelItem
                         title="Available"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
                           {
                             value: bigNumberToString(availableBorrowAmount, decimals),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: token.symbol, textSize: 'xsmall' },
+                          { value: token.symbol, textSize: 'small' },
                         ]}
                       />
                       <InfoPanelItem
                         title="Borrow APY"
-                        textSize="xsmall"
+                        textSize="small"
                         justify="between"
                         style={InfoPanelItemStyles.Horizontal}
                         data={[
                           {
                             value: bigNumberToString(token.variableBorrowRate, BigNumber.from(25)),
-                            textSize: 'xsmall',
-                            bold: true,
+                            textSize: 'small',
                           },
-                          { value: '%', textSize: 'xsmall' },
+                          { value: '%', textSize: 'small' },
                         ]}
                       />
                       <Box margin={{ top: 'medium' }} direction="row" justify="center">
@@ -372,16 +366,15 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                             pathname: '/borrow',
                             state: { tokenAddress: tokenAddress },
                           }}
+                          style={{ width: '100%' }}
                         >
-                          <ButtonItem
-                            textColor="white"
-                            background="#131A33"
+                          <PrimaryBtn
+                            fullWidth
+                            text="Borrow"
+                            pad={{ vertical: 'xsmall' }}
                             textSize="medium"
-                            round="5px"
-                            pad={{ horizontal: 'large', vertical: 'xsmall' }}
-                          >
-                            Borrow
-                          </ButtonItem>
+                            round="medium"
+                          />
                         </Link>
                       </Box>
                     </MarketDetailsBox>

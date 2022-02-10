@@ -47,6 +47,7 @@ interface IToastExtra {
 export type DisplayToastFn = ((
   string: String,
   type: TToastType.TX_BROADCASTING,
+  extraData?: Partial<Pick<IToastExtra, 'message'>>,
   options?: Partial<ToastOptions>
 ) => void) &
   ((
@@ -72,7 +73,7 @@ export const displayToast: DisplayToastFn = (
   extraData?: Partial<IToastExtra> | Partial<ToastOptions>,
   options?: Partial<ToastOptions>
 ) => {
-  const refinedOptions = type === TToastType.TX_BROADCASTING ? extraData ?? {} : options ?? {};
+  const refinedOptions = options;
   const refinedExtraData = extraData ? extraData : {};
   const inputExtraData = { ...defaultExtraData, ...refinedExtraData } as IToastExtra;
   const inputOptions = {
@@ -80,7 +81,7 @@ export const displayToast: DisplayToastFn = (
     ...refinedOptions,
   } as ToastOptions;
   if (type === TToastType.TX_BROADCASTING) {
-    toast(<ToastTxBroadcasting string={string} />, inputOptions);
+    toast(<ToastTxBroadcasting message={inputExtraData.message} string={string} />, inputOptions);
   } else if (type === TToastType.TX_SUCCESSFUL) {
     toast(<ToastTxSuccess string={string} link={inputExtraData.customLink} />, inputOptions);
   } else if (type === TToastType.TX_FAILED) {
@@ -90,22 +91,20 @@ export const displayToast: DisplayToastFn = (
   }
 };
 
-const ToastTxBroadcasting: FunctionComponent<{ string: String }> = ({ string }) => (
+const ToastTxBroadcasting: FunctionComponent<{ string: String; message: string }> = ({ string, message }) => (
   <Box
     style={{
-      fontFamily:
-        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+      fontFamily: 'Helvetica',
+      color: 'var(--umee-color-primary)',
     }}
     direction="row"
     align="center"
   >
     <Image className="toast-loading" style={{ display: 'flex' }} width="40px" alt="loading" src={loading} />
     <Box margin={{ left: 'small' }}>
-      <Text weight="bold" color="#000000">
-        {string}
-      </Text>
-      <Text size="small" style={{ lineHeight: '16px' }} color="#131A33">
-        Waiting for transaction to be included in the block
+      <Text size="18px">{string}</Text>
+      <Text size="small" style={{ lineHeight: '16px' }}>
+        {message ? message : 'Waiting for transaction to be included in the block'}
       </Text>
     </Box>
   </Box>
@@ -114,20 +113,16 @@ const ToastTxBroadcasting: FunctionComponent<{ string: String }> = ({ string }) 
 const ToastTxFailed: FunctionComponent<{ string: String; message: string }> = ({ string, message }) => (
   <Box
     style={{
-      fontFamily:
-        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+      fontFamily: 'Helvetica',
+      color: 'var(--umee-color-primary)',
     }}
     direction="row"
     align="center"
   >
     <Image style={{ display: 'flex' }} width="40px" alt="failed" src={failed} />
     <Box margin={{ left: 'small' }}>
-      <Text weight="bold" color="#000000">
-        {string}
-      </Text>
-      <Text size="small" color="#131A33">
-        {message}
-      </Text>
+      <Text size="18px">{string}</Text>
+      <Text size="small">{message}</Text>
     </Box>
   </Box>
 );
@@ -135,22 +130,18 @@ const ToastTxFailed: FunctionComponent<{ string: String; message: string }> = ({
 const ToastTxSuccess: FunctionComponent<{ string: String; link: string }> = ({ link, string }) => (
   <Box
     style={{
-      fontFamily:
-        'Sofia Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+      fontFamily: 'Helvetica',
+      color: 'var(--umee-color-primary)',
     }}
     direction="row"
     align="center"
   >
     <Image style={{ display: 'flex' }} width="40px" alt="success" src={success} />
     <Box margin={{ left: 'small' }}>
-      <Text weight="bold" color="#000000">
-        {string}
-      </Text>
+      <Text size="18px">{string}</Text>
       <a target="__blank" href={link}>
         <Box direction="row" align="center">
-          <Text size="small" color="#131A33">
-            View in explorer
-          </Text>{' '}
+          <Text size="small">View in explorer</Text>{' '}
           <Image style={{ display: 'flex' }} alt="external link" src={view} />
         </Box>
       </a>

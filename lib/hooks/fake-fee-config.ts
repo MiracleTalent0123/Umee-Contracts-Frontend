@@ -4,7 +4,7 @@ import { CoinPretty, Dec, Int } from '@keplr-wallet/unit';
 import { StdFee } from '@cosmjs/launchpad';
 import { Currency } from '@keplr-wallet/types';
 import { action, computed, makeObservable, observable } from 'mobx';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { computedFn } from 'mobx-utils';
 
 /**
@@ -15,82 +15,86 @@ import { computedFn } from 'mobx-utils';
  * To mitigate this problem, just set the max amount minus high fee setting.
  */
 export class FakeFeeConfig extends TxChainSetter implements IFeeConfig {
-	@observable
-	protected _gas: number;
+  @observable
+  protected _gas: number;
 
-	constructor(chainGetter: ChainGetter, initialChainId: string, gas: number) {
-		super(chainGetter, initialChainId);
+  constructor(chainGetter: ChainGetter, initialChainId: string, gas: number) {
+    super(chainGetter, initialChainId);
 
-		this._gas = gas;
+    this._gas = gas;
 
-		makeObservable(this);
-	}
+    makeObservable(this);
+  }
 
-	get gas(): number {
-		return this._gas;
-	}
+  get gas(): number {
+    return this._gas;
+  }
 
-	@action
-	setGas(gas: number): void {
-		this._gas = gas;
-	}
+  @action
+  setGas(gas: number): void {
+    this._gas = gas;
+  }
 
-	@computed
-	get fee(): CoinPretty | undefined {
-		return new CoinPretty(this.feeCurrency!, new Int(this.getFeePrimitive()!.amount));
-	}
+  @computed
+  get fee(): CoinPretty {
+    return new CoinPretty(this.feeCurrency!, new Int(this.getFeePrimitive()!.amount));
+  }
 
-	get feeCurrencies(): Currency[] {
-		return [this.feeCurrency!];
-	}
+  get feeCurrencies(): Currency[] {
+    return [this.feeCurrency!];
+  }
 
-	get feeCurrency(): Currency | undefined {
-		const chainInfo = this.chainGetter.getChain(this.chainId);
-		return chainInfo.feeCurrencies[0];
-	}
+  get feeCurrency(): Currency {
+    const chainInfo = this.chainGetter.getChain(this.chainId);
+    return chainInfo.feeCurrencies[0];
+  }
 
-	feeType: FeeType | undefined;
+  feeType: FeeType | undefined;
 
-	getError(): Error | undefined {
-		// noop
-		return undefined;
-	}
+  getError(): Error | undefined {
+    // noop
+    return undefined;
+  }
 
-	readonly getFeePrimitive = computedFn((): CoinPrimitive | undefined => {
-		const gasPriceStep = this.chainInfo.gasPriceStep ?? DefaultGasPriceStep;
-		const feeAmount = new Dec(gasPriceStep.high.toString()).mul(new Dec(this.gas));
+  readonly getFeePrimitive = computedFn((): CoinPrimitive | undefined => {
+    const gasPriceStep = this.chainInfo.gasPriceStep ?? DefaultGasPriceStep;
+    const feeAmount = new Dec(gasPriceStep.high.toString()).mul(new Dec(this.gas));
 
-		console.log(this.feeCurrency!.coinMinimalDenom, feeAmount.truncate().toString());
+    console.log(this.feeCurrency!.coinMinimalDenom, feeAmount.truncate().toString());
 
-		return {
-			denom: this.feeCurrency!.coinMinimalDenom,
-			amount: feeAmount.truncate().toString(),
-		};
-	});
+    return {
+      denom: this.feeCurrency!.coinMinimalDenom,
+      amount: feeAmount.truncate().toString(),
+    };
+  });
 
-	getFeeTypePretty(feeType: FeeType): CoinPretty {
-		// noop
-		return new CoinPretty(this.feeCurrency!, new Dec(0));
-	}
+  getFeeTypePretty(feeType: FeeType): CoinPretty {
+    // noop
+    return new CoinPretty(this.feeCurrency!, new Dec(0));
+  }
 
-	setFeeType(feeType: FeeType | undefined): void {
-		// noop
-	}
+  setFeeType(feeType: FeeType | undefined): void {
+    // noop
+  }
 
-	toStdFee(): StdFee {
-		return {
-			gas: this.gas.toString(),
-			amount: [this.getFeePrimitive()!],
-		};
-	}
+  toStdFee(): StdFee {
+    return {
+      gas: this.gas.toString(),
+      amount: [this.getFeePrimitive()!],
+    };
+  }
 
-	isManual: boolean = false;
+  isManual: boolean = false;
 }
 
 export const useFakeFeeConfig = (chainGetter: ChainGetter, chainId: string, gas: number) => {
-	const [config] = useState(() => new FakeFeeConfig(chainGetter, chainId, gas));
-	config.setChain(chainId);
-	config.setGas(gas);
+  const config = useMemo(
+    () => new FakeFeeConfig(chainGetter, chainId, gas),
+    [chainGetter, chainId, gas]
+  );
 
-	return config;
+  config.setChain(chainId);
+  config.setGas(gas);
+
+  return config;
 };

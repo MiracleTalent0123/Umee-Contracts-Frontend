@@ -29,7 +29,7 @@ const TextItem: React.FC<TextItemProps> = ({
 );
 
 TextItem.defaultProps = {
-  direction: 'column',
+  direction: 'row',
   justify: 'center',
   align: 'center'
 };

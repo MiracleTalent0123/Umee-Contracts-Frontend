@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonItem, DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
+import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, utils } from 'ethers';
 import { IBorrowData } from '../lib/types';
-import { safeBigNumberToStringTruncate } from '../lib/number-utils';
+import { bigNumberToString } from '../lib/number-utils';
 import { Box, Text } from 'grommet';
+import { SecondaryBtn } from './common';
 
 export interface BorrowsDataListProps {
   columns: IDataListColumn[];
@@ -24,38 +25,41 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
       <Box flex>
         {data.length > 0 && (
           <>
-            <Text margin={{ bottom: 'small' }} size="small">
-              Borrow
-            </Text>
+            <Box pad={{ vertical: 'small' }} className="border-gradient-bottom">
+              <Text size="medium">Borrow</Text>
+            </Box>
             <DataList columns={columns}>
               {data.map((row) => {
                 const { symbol, currentVariableDebt, variableBorrowAPR, decimals, address } = row;
 
                 return (
                   <DataListRow columnSizes={columnSizes} key={`row-${symbol}-2`}>
-                    {symbol && <TokenItem name={symbol} />}
-                    <TextItem>
-                      <PrimaryText>
+                    {symbol && <TokenItem textSize="small" name={symbol} />}
+                    <TextItem justify="start">
+                      <PrimaryText size="small">
                         {currentVariableDebt &&
-                          Number(safeBigNumberToStringTruncate(currentVariableDebt, decimals)).toLocaleString()}
+                          Number(bigNumberToString(currentVariableDebt, decimals)).toLocaleString()}
                       </PrimaryText>
                     </TextItem>
-                    <TextItem>
-                      <PrimaryText>
+                    <TextItem justify="start">
+                      <PrimaryText size="small">
                         {variableBorrowAPR && parseFloat(utils.formatUnits(variableBorrowAPR, aprDecimals)).toFixed(2)}%
                       </PrimaryText>
                     </TextItem>
                     {address && (
-                      <TextItem>
+                      <TextItem justify="end">
                         <Link
                           to={{
                             pathname: '/borrow',
                             state: { tokenAddress: address },
                           }}
                         >
-                          <ButtonItem textColor="white" background="#131A33" textSize="small" round="5px">
-                            Borrow
-                          </ButtonItem>
+                          <SecondaryBtn
+                            round="large"
+                            text="BORROW"
+                            pad={{ vertical: 'small', horizontal: 'medium' }}
+                            textSize="xsmall"
+                          />
                         </Link>
                       </TextItem>
                     )}

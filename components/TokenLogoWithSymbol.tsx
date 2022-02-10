@@ -15,21 +15,9 @@ const TokenLogoWithSymbol = ({
 }) => {
   return (
     <>
-      <Box direction="row" justify="center" style={{ position: 'relative' }}>
+      <Box margin="-55px 0 0" direction="column" justify="center" align='center'>
         <TokenLogo symbol={symbol} src={src} width={width} height={height} />
-        <Box style={{ position: 'absolute', bottom: '-10px' }} direction="row" justify="center">
-          <Text
-            size="small"
-            style={{
-              color: 'black',
-              padding: '2px 8px',
-              borderRadius: '5px',
-              background: 'linear-gradient(110.73deg, #FDA9FF -7.25%, #4DFFE5 105.72%)',
-            }}
-          >
-            {symbol}
-          </Text>
-        </Box>
+        <Text margin={{top: 'xsmall'}} size="xsmall">{symbol}</Text>
       </Box>
     </>
   );
