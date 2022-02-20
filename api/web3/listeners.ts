@@ -54,11 +54,11 @@ const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal
         web3Modal.clearCachedProvider();
         setMyProvider(null);
       }
-      // else {
-      //   toast('Network changed', { toastId: 'switchNetwork' });
-      //   const web3Provider = new ethers.providers.Web3Provider(provider as any);
-      //   setMyProvider(web3Provider);
-      // }
+       else {
+         toast('Network changed', { toastId: 'switchNetwork' });
+         const web3Provider = new ethers.providers.Web3Provider(provider as any);
+         setMyProvider(web3Provider);
+       }
     });
 
     // subscribe to account change events

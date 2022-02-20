@@ -8,13 +8,20 @@ interface ITheme {
     colors: {
       [key: string]: string;
     };
-    
+    breakpoints: {
+      [key: string]: {
+        [key: string]: number;
+      };
+    };
   };
   text: {
     [key: string]: {
       [key: string]: string;
     };
   };
+  layer: {
+    [key: string]: any
+  },
   tip: any;
 }
 
@@ -31,7 +38,14 @@ const grommetTheme: ITheme = {
       clrNavLinkDefault: 'var(--umee-full-grey2)',
       clrOverlay: 'var(--umee-overlay)',
       clrButtonBorderGrey: 'var(--umee-full-grey3)',
-      clrInfoBarBG: 'var(--umee-full-grey1)'
+      clrInfoBarBG: 'var(--umee-full-grey1)',
+    },
+    breakpoints: {
+      small: { value: 640 },
+      medium: { value: 768 },
+      large: { value: 1024 },
+      xlarge: { value: 1280 },
+      xxlarge: { value: 1536 },
     },
   },
   text: {
@@ -45,11 +59,17 @@ const grommetTheme: ITheme = {
       size: '20px',
     },
     large: {
-      size: '44px'
+      size: '44px',
     },
     xlarge: {
-      size: '54px'
-    }
+      size: '54px',
+    },
+  },
+  layer: {
+    overlay: {
+      background: 'clrOverlay',
+    },
+    responsiveBreakpoint: ''
   },
   tip: {
     content: {

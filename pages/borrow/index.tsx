@@ -34,7 +34,7 @@ const Borrow = () => {
   const [tokens, setTokens] = useState<IAvailableBorrowsData[]>([]);
   const [myBorrowsData, setMyBorrowsData] = useState<IAvailableBorrowsData[]>();
   const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [loggedIn, setLoggedIn] = useState<boolean>();
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
     if (web3.account) {
@@ -145,8 +145,8 @@ const Borrow = () => {
   }
 
   return (
-    <Layout title='Borrow' subtitle='Borrow assets for cross-chain leverage'>
-      {loggedIn !== undefined && (
+    <Layout title="Borrow" subtitle="Borrow assets for cross-chain leverage">
+      {loggedIn && (
         <AvailableBorrowsDataList
           columns={availableTokensColumns}
           userAssetsColumns={userAssetsColumns}

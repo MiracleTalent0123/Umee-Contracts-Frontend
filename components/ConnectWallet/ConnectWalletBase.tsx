@@ -40,11 +40,11 @@ export const ConnectWalletBase = ({
     <>
       {!walletConnected ? (
         <PrimaryBtn
-          pad={{ vertical: 'small', horizontal: 'medium' }}
+          pad={{ vertical: 'medium', horizontal: 'medium' }}
           textSize="medium"
           round="large"
           text="Connect Wallet"
-          className="connect-wallet"
+          className={'connect-wallet'}
           onClick={onClick}
         />
       ) : isShowWallets ? (
@@ -53,11 +53,11 @@ export const ConnectWalletBase = ({
         </div>
       ) : (
         <PrimaryBtn
-          pad={{ vertical: 'small', horizontal: 'medium' }}
+          pad={{ vertical: 'medium', horizontal: 'medium' }}
           textSize="medium"
           round="large"
           text="Connected Wallets"
-          className="connect-wallet"
+          className={'connect-wallet'}
           onClick={() => setIsShowWallets(true)}
         />
       )}

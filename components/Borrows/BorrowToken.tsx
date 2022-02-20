@@ -193,7 +193,7 @@ const BorrowToken = ({
       setStep(ETxnSteps.Failure);
       return;
     }
-
+    
     const borrowGas = async () => {
       let gas = await lendingPool.estimateGas.borrow(
         token.address || '',
@@ -228,52 +228,27 @@ const BorrowToken = ({
       setStep(ETxnSteps.Failure);
       return;
     }
-    const repayGasMax = async () => {
-      let gasMax = await lendingPool.estimateGas.repay(
-        token.address || '',
-        constants.MaxUint256,
-        interestRateType,
-        account
-      );
-      return gasMax.toNumber();
-    };
+
     const repayGas = async () => {
       let gas = await lendingPool.estimateGas.repay(token.address || '', txnAmountBN, interestRateType, account);
       return gas.toNumber();
     };
-    if (txnAmountBN && amountBorrowed && txnAmountBN.gte(amountBorrowed.sub(10))) {
-      contractCallRepay(
-        ETxnType.repay,
-        async () =>
-          lendingPool.repay(token.address || '', constants.MaxUint256, interestRateType, account, {
-            gasLimit: (await repayGasMax()) * 3,
-          }),
-        'Repaying',
-        'Repay failed',
-        'Repay succeeded',
-        () => {
-          setStep(ETxnSteps.Input);
-          onClose();
-        },
-        undefined
-      );
-    } else if (txnAmountBN) {
-      contractCallRepay(
-        ETxnType.repay,
-        async () =>
-          lendingPool.repay(token.address || '', txnAmountBN, interestRateType, account, {
-            gasLimit: (await repayGas()) * 3,
-          }),
-        'Repaying',
-        'Repay failed',
-        'Repay succeeded',
-        () => {
-          setStep(ETxnSteps.Input);
-          onClose();
-        },
-        undefined
-      );
-    }
+
+    contractCallRepay(
+      ETxnType.repay,
+      async () =>
+        lendingPool.repay(token.address || '', txnAmountBN, interestRateType, account, {
+          gasLimit: (await repayGas()) * 3,
+        }),
+      'Repaying',
+      'Repay failed',
+      'Repay succeeded',
+      () => {
+        setStep(ETxnSteps.Input);
+        onClose();
+      },
+      undefined
+    );
   };
 
   const pickOne = <V1, V2>(v1: V1, v2: V2, first: boolean): V1 | V2 => {

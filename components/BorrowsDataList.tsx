@@ -5,7 +5,7 @@ import { IDataListColumn } from './DataList/DataList';
 import { BigNumber, utils } from 'ethers';
 import { IBorrowData } from '../lib/types';
 import { bigNumberToString } from '../lib/number-utils';
-import { Box, Text } from 'grommet';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { SecondaryBtn } from './common';
 
 export interface BorrowsDataListProps {
@@ -17,6 +17,7 @@ export interface BorrowsDataListProps {
 const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
   const aprDecimals = BigNumber.from(25);
   const columnSizes = columns.map((col) => col.size);
+  const size = React.useContext(ResponsiveContext);
 
   if (total === 0) {
     return <></>;
@@ -26,7 +27,7 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
         {data.length > 0 && (
           <>
             <Box pad={{ vertical: 'small' }} className="border-gradient-bottom">
-              <Text size="medium">Borrow</Text>
+              <Text size={size === 'small' ? 'small' : 'medium'}>Borrow</Text>
             </Box>
             <DataList columns={columns}>
               {data.map((row) => {
@@ -41,11 +42,15 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
                           Number(bigNumberToString(currentVariableDebt, decimals)).toLocaleString()}
                       </PrimaryText>
                     </TextItem>
-                    <TextItem justify="start">
-                      <PrimaryText size="small">
-                        {variableBorrowAPR && parseFloat(utils.formatUnits(variableBorrowAPR, aprDecimals)).toFixed(2)}%
-                      </PrimaryText>
-                    </TextItem>
+                    {size !== 'small' && (
+                      <TextItem justify="start">
+                        <PrimaryText size="small">
+                          {variableBorrowAPR &&
+                            parseFloat(utils.formatUnits(variableBorrowAPR, aprDecimals)).toFixed(2)}
+                          %
+                        </PrimaryText>
+                      </TextItem>
+                    )}
                     {address && (
                       <TextItem justify="end">
                         <Link
@@ -57,7 +62,7 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
                           <SecondaryBtn
                             round="large"
                             text="BORROW"
-                            pad={{ vertical: 'small', horizontal: 'medium' }}
+                            pad={{ vertical: 'small', horizontal: 'small' }}
                             textSize="xsmall"
                           />
                         </Link>

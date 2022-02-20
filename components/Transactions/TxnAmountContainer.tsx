@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, Text } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { InfoWindow, InfoWindowBody } from 'components/InfoWindow';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { PrimaryBtn } from 'components/common';
@@ -37,25 +37,30 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
   isFinal,
   bridge,
 }) => {
+  const size = useContext(ResponsiveContext);
+
   return (
     <Box direction="row">
       <InfoWindow flex>
         <InfoWindowBody>
           <Box width="100%" align="center" alignSelf="center">
             <Box width="100%">{header}</Box>
-            <Box width="100%" margin={{top: 'xxsmall'}}>
+            <Box width="100%" margin={{ top: 'xxsmall' }}>
               {children}
             </Box>
             {!isPending && !isFinal && handleContinue && (
               <PrimaryBtn
                 fullWidth
                 text={bridge ? 'Transfer' : txnType}
-                pad={{vertical: 'small'}}
-                textSize='medium'
+                pad={{ vertical: 'small' }}
+                textSize="medium"
                 round="large"
                 disabled={buttonDisabled}
                 onClick={handleContinue}
-                margin={{top: 'medium', horizontal: 'medium'}}
+                margin={{
+                  top: 'medium',
+                  horizontal: 'medium',
+                }}
               />
             )}
           </Box>

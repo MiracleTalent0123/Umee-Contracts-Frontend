@@ -58,7 +58,7 @@ const makeInjectedProvider = async (web3Provider: ethers.providers.Web3Provider)
     networkName: local ? 'localhost' : (await web3Provider.getNetwork()).name,
     account: await web3Provider.getSigner().getAddress(),
     chainId: (await web3Provider.getNetwork()).chainId,
-    provider: web3Provider.provider as ethers.providers.Provider,
+    provider: web3Provider as ethers.providers.Provider,
     signerOrProvider: web3Provider.getSigner(),
   };
 

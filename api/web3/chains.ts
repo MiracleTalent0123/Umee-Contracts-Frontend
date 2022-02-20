@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 const supportedChains = () => {
   const dev = process.env.NODE_ENV !== 'production' ? [parseInt(process.env.LOCAL_CHAIN_ID || '0', 10)] : [];
   const supported = [...dev, ...(process.env.SUPPORTED_CHAIN_IDS || '').split(',').map(i => parseInt(i, 10))];
+  console.log('supported ', supported);
   return supported;
 };
 
@@ -14,6 +15,7 @@ const useGravityAddress = (chainId: number | undefined) => {
 
     const addresses = JSON.parse(process.env.GRAVITY_ADDRESSES);
     const addr: string = addresses[chainId];
+    console.log('addr ', addresses);
     if (!addr) {
       console.error(`Peggy address for network ${chainId} is not set. Check settings or wallet network.`);
       return null;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Text, Image } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, Text, Image, ResponsiveContext } from 'grommet';
 import UmeeLogo from '/public/images/Logo.svg';
 import dashBoardIcon from '../../public/images/dashboard-icon.png';
 import activeDashboardIcon from '../../public/images/dashboard-selected.png';
@@ -13,7 +13,7 @@ import stakeIcon from '../../public/images/stake-icon.png';
 import voteIcon from '../../public/images/vote-icon.png';
 import activeStakeIcon from '../../public/images/stake-selected.png';
 import activeVoteIcon from '../../public/images/vote-selected.png';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import marketsHoverIcon from '../../public/images/markets-hover-icon.svg';
 import dashboardHoverIcon from '../../public/images/dashboard-hover-icon.svg';
 import depositHoverIcon from '../../public/images/deposit-hover-icon.svg';
@@ -27,6 +27,7 @@ export interface INavItem {
   id: number;
   title: string;
   url?: string;
+  link?: string;
   icon: string;
   activeIcon: string;
   hoverIcon: string;
@@ -66,50 +67,91 @@ export const SideNav = () => {
       activeIcon: activeBorrowIcon,
       hoverIcon: borrowHoverIcon,
     },
-    { id: 5, title: 'Stake', icon: stakeIcon, activeIcon: stakeIcon, hoverIcon: stakeHoverIcon },
-    { id: 6, title: 'Vote', icon: voteIcon, activeIcon: voteIcon, hoverIcon: voteHoverIcon },
+    {
+      id: 5,
+      title: 'Stake',
+      link: 'https://wallet.keplr.app/#/umee/stake',
+      icon: stakeIcon,
+      activeIcon: stakeIcon,
+      hoverIcon: stakeHoverIcon,
+    },
+    {
+      id: 6,
+      title: 'Vote',
+      link: 'https://wallet.keplr.app/#/umee/governance',
+      icon: voteIcon,
+      activeIcon: voteIcon,
+      hoverIcon: voteHoverIcon,
+    },
   ];
 
   const location = useLocation();
+  const size = useContext(ResponsiveContext);
 
   return (
-    <Box className="sidenav">
-      <Box pad={{ top: 'xsmall', bottom: 'xsmall' }} focusIndicator={false} justify="center" align="center">
-        <NavLink to="/">
-          <Image src={UmeeLogo} alt="Umee Logo" />
-        </NavLink>
-      </Box>
-      <Box className="sidenav-menus" margin={{ top: 'large' }}>
-        {navItems &&
-          navItems.map((navItem, i) => (
-            <Box key={i}>
-              <NavLink
-                exact
-                activeClassName="active"
-                to={navItem.url ? navItem.url : '#'}
-                isActive={() => location.pathname === navItem.url}
-              >
-                <Box direction="column" justify="center" className="icon-img">
-                  <Image
-                    className="icons icon-default"
-                    src={location.pathname === navItem.url ? navItem.activeIcon : navItem.icon}
-                    width="32px"
-                    alt="icon"
-                  />
-                  <Image className="icons icon-hover" src={navItem.hoverIcon} width="32px" alt="icon" />
-                  <Text
-                    size="xsmall"
-                    color={location.pathname === navItem.url ? 'clrDefaultBGAndText' : 'clrNavLinkDefault'}
-                    margin={{ top: 'xsmall' }}
-                  >
-                    {navItem.title}
-                  </Text>
+    <>
+      {size !== 'small' && size !== 'medium' && (
+        <Box className="sidenav">
+          <Box pad={{ top: 'xsmall', bottom: 'xsmall' }} focusIndicator={false} justify="center" align="center">
+            <NavLink to="/">
+              <Image src={UmeeLogo} alt="Umee Logo" />
+            </NavLink>
+          </Box>
+          <Box className="sidenav-menus" margin={{ top: 'large' }}>
+            {navItems &&
+              navItems.map((navItem, i) => (
+                <Box key={i}>
+                  {navItem.url && (
+                    <NavLink
+                      exact
+                      activeClassName="active"
+                      to={navItem.url ? navItem.url : '#'}
+                      isActive={() => location.pathname === navItem.url}
+                    >
+                      <Box direction="column" justify="center" className="icon-img">
+                        <Image
+                          className="icons icon-default"
+                          src={location.pathname === navItem.url ? navItem.activeIcon : navItem.icon}
+                          width="32px"
+                          alt="icon"
+                        />
+                        <Image className="icons icon-hover" src={navItem.hoverIcon} width="32px" alt="icon" />
+                        <Text
+                          size="xsmall"
+                          color={location.pathname === navItem.url ? 'clrDefaultBGAndText' : 'clrNavLinkDefault'}
+                          margin={{ top: 'xsmall' }}
+                        >
+                          {navItem.title}
+                        </Text>
+                      </Box>
+                    </NavLink>
+                  )}
+                  {navItem.link && (
+                    <a href={navItem.link}>
+                      <Box direction="column" justify="center" className="icon-img">
+                        <Image
+                          className="icons icon-default"
+                          src={location.pathname === navItem.url ? navItem.activeIcon : navItem.icon}
+                          width="32px"
+                          alt="icon"
+                        />
+                        <Image className="icons icon-hover" src={navItem.hoverIcon} width="32px" alt="icon" />
+                        <Text
+                          size="xsmall"
+                          color={location.pathname === navItem.url ? 'clrDefaultBGAndText' : 'clrNavLinkDefault'}
+                          margin={{ top: 'xsmall' }}
+                        >
+                          {navItem.title}
+                        </Text>
+                      </Box>
+                    </a>
+                  )}
                 </Box>
-              </NavLink>
-            </Box>
-          ))}
-      </Box>
-    </Box>
+              ))}
+          </Box>
+        </Box>
+      )}
+    </>
   );
 };
 export default SideNav;

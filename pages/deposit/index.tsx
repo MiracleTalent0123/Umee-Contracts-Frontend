@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AvailableDepositsDataList } from 'components';
 import { IDataListColumn } from 'components/DataList/DataList';
@@ -10,6 +10,9 @@ import PageLoading from 'components/common/Loading/PageLoading';
 import { useUserBalances } from 'api/data/allowanceData';
 import { useWeb3 } from 'api/web3';
 import Layout from 'pages/Layout';
+import { ResponsiveContext } from 'grommet';
+import { bigNumberToUSDString } from 'lib/number-utils';
+import { IMarketsData } from 'components/MarketsDataList';
 
 export interface IMyDepositsData {
   name: string;
@@ -21,13 +24,21 @@ type stateType = {
   tokenAddress: string;
 };
 
+export interface IAssetCap {
+  [address: string]: boolean;
+} 
+
+const capMap: IAssetCap = {};
+
 const Deposit = () => {
+  const size = useContext(ResponsiveContext);
   const { state } = useLocation<stateType>();
   const [depositsData, setDepositsData] = useState<IAvailableDepositsData[]>([]);
   const [userDeposits, setUserDeposits] = useState<IAvailableDepositsData[]>([]);
   const [tokenAddresses, setTokenAddresses] = useState<string[]>([]);
+  const [assetCap, setAssetCap] = useState<{}>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [loggedIn, setLoggedIn] = useState<boolean>();
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
   const { ReserveConfigurationData, ReserveData } = useData();
   const { UserReserveData, Addresses, priceData } = useData();
@@ -46,6 +57,18 @@ const Deposit = () => {
     { title: 'SUPPLIED', size: 'flex' },
     { title: 'SUPPLY APY', size: 'flex' },
     { title: 'COLLATERAL', size: 'flex' },
+  ];
+
+  const availableTokensMobileColumns: IDataListColumn[] = [
+    { title: 'AVAILABLE ASSETS', size: 'flex' },
+    { title: 'AVAILABLE', size: 'flex' },
+    { title: 'COLLATERAL', size: 'xsmall' },
+  ];
+
+  const userAssetsMobileColumns: IDataListColumn[] = [
+    { title: 'YOUR POSITIONS', size: 'flex' },
+    { title: 'SUPPLIED', size: 'flex' },
+    { title: 'COLLATERAL', size: 'xsmall' },
   ];
 
   useEffect(() => {
@@ -72,6 +95,28 @@ const Deposit = () => {
     web3.account,
   ]);
 
+  useEffect(() => {
+    ReserveData.reduce((acc, reserveData) => {
+      const tokenConfig = ReserveConfigurationData.find((rc) => rc.address === reserveData.address);
+      const decimals = tokenConfig?.decimals || BigNumber.from(18);
+      const totalBorrowed = reserveData.totalStableDebt.add(reserveData.totalVariableDebt);
+      const marketSizeUsd = bigNumberToUSDString(
+        reserveData.availableLiquidity.add(totalBorrowed),
+        decimals,
+        reserveData.usdPrice
+      );
+
+      if (parseFloat(marketSizeUsd) >= 1000000) {
+        capMap[reserveData.address] = true; // Cap limit reached for asset
+        setAssetCap(capMap);
+      } else {
+        capMap[reserveData.address] = false; // Cap limit not reached for asset
+        setAssetCap(capMap);
+      }
+      return acc;
+    }, Array<IMarketsData>());
+  }, [ReserveConfigurationData, ReserveData, UserReserveData]);
+  
   useEffect(() => {
     if (!Addresses.reserve?.length) return;
     setTokenAddresses(Addresses.reserve?.length ? Addresses.reserve.map((r) => r.tokenAddress) : []);
@@ -151,17 +196,18 @@ const Deposit = () => {
 
   return (
     <>
-      <Layout title='Supply' subtitle='Supply assets and set collateral for borrowing'>
-        {loggedIn !== undefined && 
+      <Layout title="Supply" subtitle="Supply assets and set collateral for borrowing">
+        {loggedIn && (
           <AvailableDepositsDataList
-            columns={availableTokensColumns}
-            userAssetsColumns={userAssetsColumns}
+            capMap={assetCap}
+            columns={size === 'small' ? availableTokensMobileColumns : availableTokensColumns}
+            userAssetsColumns={size === 'small' ? userAssetsMobileColumns : userAssetsColumns}
             data={depositsData}
             userDeposits={userDeposits}
             loggedIn={loggedIn}
             selectedTokenAddress={state && state.tokenAddress}
           />
-        }
+        )}
       </Layout>
     </>
   );

@@ -47,7 +47,7 @@ export const SecondaryBtn = ({
         border={{color: 'clrButtonBorderGrey', size: '2px'}}
         {...props}
       >
-        <Text size={textSize || 'xsmall'}>{text}</Text>
+        <Text style={{letterSpacing: '0.1em'}} size={textSize || 'xsmall'}>{text}</Text>
       </Box>
     </Button>
   );

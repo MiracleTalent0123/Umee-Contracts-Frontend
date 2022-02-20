@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber } from 'ethers';
@@ -8,6 +8,10 @@ import { AssetBalancesList } from './Markets/AssetBalancesList';
 import { bigNumberToString } from 'lib/number-utils';
 import abbreviateNumber from 'lib/abbreviate';
 import { SecondaryBtn } from './common';
+import { ResponsiveContext } from 'grommet';
+import { useStore } from 'api/cosmosStores';
+import { Currency } from '@keplr-wallet/types';
+import { IBCAssetInfos } from '../config';
 
 export interface IMarketsData {
   name: string;
@@ -32,10 +36,13 @@ export interface MarketsDataListProps {
 const aprDecimals = BigNumber.from(25);
 
 const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, selectedTokenAddress, decimals }) => {
+  const size = useContext(ResponsiveContext);
   const [tokenAddress, setTokenAddress] = useState<string>('');
   const [tokenName, setTokenName] = useState<string>('');
   const [isModalShow, setIsModalShow] = useState<string>('');
   const columnSizes = columns.map((col) => col.size);
+
+  const { chainStore, accountStore, queriesStore } = useStore();
 
   useMemo(() => {
     if (selectedTokenAddress) {
@@ -83,26 +90,15 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
             <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
               <PrimaryText size="small">{'$' + abbreviateNumber(marketSizeUsd)}</PrimaryText>
             </TextItem>
-            <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
-              <PrimaryText size="small">{depositAPY && bigNumberToString(depositAPY, aprDecimals)}%</PrimaryText>
-            </TextItem>
-            <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
-              <PrimaryText size="small">
-                {variableBorrowAPR && bigNumberToString(variableBorrowAPR, aprDecimals)}%
-              </PrimaryText>
-            </TextItem>
-            {name == 'ATOM' && (
+            {size !== 'small' && size !== 'medium' && (
               <>
-                <TextItem justify="end">
-                  <SecondaryBtn
-                    onClick={() => setBridgeModal({ address, name } as IMarketsData)}
-                    round="large"
-                    pad={{ vertical: 'small', horizontal: 'medium' }}
-                    text="BRIDGE"
-                    margin={{ right: 'small' }}
-                    textSize="xsmall"
-                  />
-                  <AssetBalancesList />
+                <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
+                  <PrimaryText size="small">{depositAPY && bigNumberToString(depositAPY, aprDecimals)}%</PrimaryText>
+                </TextItem>
+                <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
+                  <PrimaryText size="small">
+                    {variableBorrowAPR && bigNumberToString(variableBorrowAPR, aprDecimals)}%
+                  </PrimaryText>
                 </TextItem>
               </>
             )}
@@ -112,11 +108,12 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
                   <SecondaryBtn
                     onClick={() => setBridgeModal({ address, name } as IMarketsData)}
                     round="large"
-                    pad={{ vertical: 'small', horizontal: 'medium' }}
+                    pad={{ vertical: 'small', horizontal: 'small' }}
                     text="BRIDGE"
-                    margin={{ right: '110px' }}
+                    margin={{ right: size === 'small' ? '66px' : '103px' }}
                     textSize="xsmall"
                   />
+                  <AssetBalancesList />
                 </TextItem>
               </>
             )}

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { BaseModal } from 'components/common/BaseModal';
-import { Box } from 'grommet';
 import BorrowToken from './BorrowToken';
 import { useData } from 'api/data';
 import { utils } from 'ethers';
@@ -49,7 +48,6 @@ const BorrowModal = ({ address: tokenAddress, onClose }: { address: string; onCl
     if (myBorrowsUSDTotal && initialBorrowLimit) {
       setCurrentLtv(((myBorrowsUSDTotal / parseFloat(initialBorrowLimit)) * 100).toFixed(2));
     }
-   
   }, [myBorrowsUSDTotal, initialBorrowLimit, tokenAddress, priceData, UserReserveData]);
 
   return (

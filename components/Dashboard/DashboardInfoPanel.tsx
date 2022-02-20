@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Text } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, ResponsiveContext, Text } from 'grommet';
 
 interface DashboardInfoPanelProps {
   title: string;
@@ -8,6 +8,8 @@ interface DashboardInfoPanelProps {
 }
 
 const DashboardInfoPanel: React.FC<DashboardInfoPanelProps> = ({ title, borderColor, value }) => {
+  const size = useContext(ResponsiveContext);
+
   return (
     <Box
       border={[
@@ -18,7 +20,9 @@ const DashboardInfoPanel: React.FC<DashboardInfoPanelProps> = ({ title, borderCo
       flex
     >
       <Text size="xsmall">{title}</Text>
-      <Text margin={{top: 'medium'}} size="large">${value}</Text>
+      <Text margin={{ top: 'medium' }} size={size === 'small' ? '32px' : 'large'}>
+        ${value}
+      </Text>
     </Box>
   );
 };

@@ -2,12 +2,13 @@ import { Box, Button, BoxProps, Image, Text, TextProps, ButtonProps } from 'grom
 import * as React from 'react';
 
 export interface ButtonItemProps extends BoxProps {
-  children?: string;
+  children?: React.ReactChild;
   textSize?: TextProps['size'];
   textColor?: TextProps['color'];
   hoverIndicator?: ButtonProps['hoverIndicator'];
   href?: ButtonProps['href'];
   onClick?(e: React.MouseEvent): void;
+  gradient?: boolean
 }
 
 const ButtonItem = ({
@@ -23,10 +24,20 @@ const ButtonItem = ({
   textSize,
   textColor,
   hoverIndicator,
+  gradient,
   ...props
 }: ButtonItemProps) => {
   return (
-    <Button href={href} onClick={onClick} hoverIndicator={hoverIndicator || 'false'}>
+    <Button
+      href={href}
+      onClick={onClick}
+      hoverIndicator={hoverIndicator || 'false'}
+      style={gradient ? {
+        background: 'var(--umee-gradient)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent'
+      } : undefined}
+    >
       <Box
         justify={justify || 'center'}
         align={align || 'center'}

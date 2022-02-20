@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box } from 'grommet';
+import React, { useState, useEffect, useContext } from 'react';
+import { Box, ResponsiveContext } from 'grommet';
 import { IUserTxnDeposit, IUserTxnBorrow } from 'lib/types';
 import { useData } from 'api/data';
 import { useWeb3 } from 'api/web3';
@@ -13,6 +13,7 @@ import Layout from 'pages/Layout';
 import DashboardOverview from 'components/Dashboard/DashboardOverview';
 
 const Dashboard = () => {
+  const size = useContext(ResponsiveContext);
   const [borrowData, setBorrowData] = useState<IUserTxnBorrow[]>([]);
   const [depositData, setDepositData] = useState<IUserTxnDeposit[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
@@ -143,6 +144,18 @@ const Dashboard = () => {
     { title: '', size: 'flex' },
   ];
 
+  const depositsMobileColumns: IDataListColumn[] = [
+    { title: 'ASSETS', size: 'flex' },
+    { title: 'SUPPLIED', size: 'flex' },
+    { title: '', size: 'flex' },
+  ];
+
+  const borrowsMobileColumns: IDataListColumn[] = [
+    { title: 'ASSETS', size: 'flex' },
+    { title: 'BORROWED', size: 'flex' },
+    { title: '', size: 'flex' },
+  ];
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -162,16 +175,26 @@ const Dashboard = () => {
       )}
       {web3.account && (
         <Box
-          margin={{top: 'large'}}
+          margin={{ top: 'large' }}
           align={Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? 'center' : undefined}
         >
           {Number(UserAccountData?.totalDebtETH) === 0 && myDepositsTotal === 0 ? (
             <NoDepositsBox />
           ) : (
-            <Box width="auto" direction="row" gap="medium" flex>
-              <DepositsDataList columns={depositsColumns} data={depositData} total={myDepositsTotal} />
+            <Box
+              width="auto"
+              direction={size === 'large' || size === 'medium' || size === 'small' ? 'column' : 'row'}
+              gap={size === 'medium' || size === 'small' ? 'xlarge' : 'medium'}
+              flex
+              margin={{ top: size === 'small' ? 'medium' : '' }}
+            >
+              <DepositsDataList
+                columns={size === 'small' ? depositsMobileColumns : depositsColumns}
+                data={depositData}
+                total={myDepositsTotal}
+              />
               <BorrowsDataList
-                columns={borrowsColumns}
+                columns={size === 'small' ? borrowsMobileColumns : borrowsColumns}
                 data={borrowData}
                 total={Number(UserAccountData?.totalDebtETH) || 0}
               />

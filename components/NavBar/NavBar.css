@@ -57,3 +57,25 @@
   opacity: 0;
   position: absolute;
 }
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  opacity: 0;
+  transition: 0.3s ease-in-out;
+}
+
+.navbar.open {
+  left: 0;
+  opacity: 1;
+}
+
+.connect-wallet-mobile {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}

@@ -30,6 +30,42 @@ export const IBCAssetInfos: {
 
 export const EmbedChainInfos: ChainInfoWithExplorer[] = [
   {
+    rpc: 'https://rpc.aphrodite.main.network.umee.cc',
+    rest: 'https://api.aphrodite.main.network.umee.cc',
+    chainId: 'umee-1',
+    chainName: 'Umee',
+    stakeCurrency: {
+      coinDenom: 'UMEE',
+      coinMinimalDenom: 'uumee',
+      coinDecimals: 6,
+    },
+    bip44: { coinType: 118 },
+    bech32Config: Bech32Address.defaultBech32Config('umee'),
+    currencies: [
+      {
+        coinDenom: 'UMEE',
+        coinMinimalDenom: 'uumee',
+        coinDecimals: 6,
+      },
+      {
+        coinDenom: 'ATOM',
+        coinMinimalDenom: ibcDenom,
+        coinDecimals: 6,
+        coinGeckoId: 'cosmos',
+      },
+    ],
+    feeCurrencies: [
+      {
+        coinDenom: 'UMEE',
+        coinMinimalDenom: 'uumee',
+        coinDecimals: 6,
+      },
+    ],
+    coinType: 118,
+    features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx', 'ibc-go'],
+    explorerUrlToTx: 'https://www.mintscan.io/umee/txs/{txHash}',
+  },
+  {
     rpc: 'https://rpc.biplosion.umeeverse-party-1.network.umee.cc',
     rest: 'https://api.biplosion.umeeverse-party-1.network.umee.cc',
     chainId: 'umeeverse-party-1',

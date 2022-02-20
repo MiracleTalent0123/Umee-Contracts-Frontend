@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box } from 'grommet';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, ResponsiveContext } from 'grommet';
 import { DataList, DataListRow, PrimaryText, TextItem, TokenItem } from './DataList';
 import { IDataListColumn } from './DataList/DataList';
 import { BigNumber } from 'ethers';
@@ -11,6 +11,7 @@ import { useData } from '../api/data';
 import { useTransaction } from '../api/data/transactions';
 import { ETxnSteps } from 'lib/types';
 import { toast } from 'react-toastify';
+import { IAssetCap } from 'pages/deposit';
 
 export interface IAvailableDepositsData {
   address: string;
@@ -32,6 +33,7 @@ export interface AvailableDepositsDataListProps {
   loggedIn: boolean;
   selectedTokenAddress?: string;
   userDeposits: IAvailableDepositsData[];
+  capMap: IAssetCap;
 }
 
 const AvailableDepositsDataList = ({
@@ -41,7 +43,9 @@ const AvailableDepositsDataList = ({
   loggedIn,
   selectedTokenAddress,
   userDeposits,
+  capMap,
 }: AvailableDepositsDataListProps) => {
+  const size = useContext(ResponsiveContext);
   const [token, setToken] = useState<any>('');
   const [tokenAddress, setTokenAddress] = useState<string>('');
   const [isModalShow, setIsModalShow] = useState<string>('');
@@ -138,6 +142,7 @@ const AvailableDepositsDataList = ({
         ) : null}
         {tokenAddress && isModalShow == 'deposit' ? (
           <DepositModal
+            capMap={capMap}
             address={tokenAddress}
             onClose={() => {
               setTokenAddress('');
@@ -160,9 +165,11 @@ const AvailableDepositsDataList = ({
                           {tokenBalance && bigNumberToString(tokenBalance, decimals)}
                         </PrimaryText>
                       </TextItem>
-                      <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                        <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
-                      </TextItem>
+                      {size !== 'small' && (
+                        <TextItem justify="start" handleClick={() => setAssetModal(row)}>
+                          <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                        </TextItem>
+                      )}
                       <ToggleSwitch
                         handleClick={(event) => setCollateralModal(row, event)}
                         enabled={usageAsCollateralEnabled}
@@ -190,9 +197,11 @@ const AvailableDepositsDataList = ({
                           {tokenBalance && bigNumberToString(tokenBalance, decimals)}
                         </PrimaryText>
                       </TextItem>
-                      <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                        <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
-                      </TextItem>
+                      {size !== 'small' && (
+                        <TextItem justify="start" handleClick={() => setAssetModal(row)}>
+                          <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                        </TextItem>
+                      )}
                       <ToggleSwitch
                         handleClick={(event) => setCollateralModal(row, event)}
                         enabled={usageAsCollateralEnabled}
@@ -219,9 +228,11 @@ const AvailableDepositsDataList = ({
                 <TextItem justify="start">
                   <PrimaryText size="small">–</PrimaryText>
                 </TextItem>
-                <TextItem justify="start">
-                  <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
-                </TextItem>
+                {size !== 'small' && (
+                  <TextItem justify="start">
+                    <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                  </TextItem>
+                )}
                 <ToggleSwitch handleClick={() => null} enabled={false} label={symbol} />
               </DataListRow>
             );

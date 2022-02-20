@@ -3,8 +3,17 @@ import { BaseModal } from 'components/common/BaseModal';
 import DepositToken from './DepositToken';
 import { useData } from 'api/data';
 import { utils } from 'ethers';
+import { IAssetCap } from 'pages/deposit';
 
-const DepositModal = ({ address: tokenAddress, onClose }: { address: string; onClose: () => void }) => {
+const DepositModal = ({
+  address: tokenAddress,
+  onClose,
+  capMap,
+}: {
+  address: string;
+  onClose: () => void;
+  capMap: IAssetCap;
+}) => {
   const { priceData, UserReserveData, UserAccountData, ReserveConfigurationData } = useData();
   const [myDepositsTotal, setMyDepositsTotal] = useState<number>(0);
   const [myBorrowsUSDTotal, setMyBorrowsUSDTotal] = useState<number>(0);
@@ -53,6 +62,7 @@ const DepositModal = ({ address: tokenAddress, onClose }: { address: string; onC
   return (
     <BaseModal onClose={onClose}>
       <DepositToken
+        capMap={capMap}
         address={tokenAddress}
         myDepositsTotal={myDepositsTotal}
         myBorrowsTotal={myBorrowsUSDTotal}

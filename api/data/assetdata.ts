@@ -18,13 +18,13 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
       setReservesAddresses([]);
       return;
     }
-    
+
     umeeProtocolDataProvider.getAllReservesTokens()
       .then(function(result){
         let atomCount = 0;
         let assets = [];
         //for Goerli
-        if(chainId === 5){
+        if (chainId === 5) {
           for (let i = 0; i < result.length; i++) {
             if (
               result[i].tokenAddress == '0xad3Fd5A0fAf3818DF880c6f18AF4971d2F7F3bB2' || //uatom
@@ -50,19 +50,19 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
             }
             assets.sort(); // Puts Atom at top of asset list for all pages
           }
-        //for Rinkeby
-        }else if (chainId === 4){
-          for(let i = 0; i<result.length; i++){
-            if(result[i].symbol == ''){
+          //for Rinkeby
+        } else if (chainId === 4) {
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].symbol == '') {
               let build = ['ATOM', '0xA0944413193a94Da2BC6593204B5988f40870ed4'];
               build.symbol = 'ATOM';
               build.tokenAddress = '0xA0944413193a94Da2BC6593204B5988f40870ed4';
               assets.push(build);
-            }else{
+            } else {
               assets.push(result[i]);
             }
           }
-        }
+        } 
         //if you add another chain, add another elseif here
         /*
         TEMPLATE FOR NEW EXCEPTION
@@ -78,8 +78,8 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
             }
           }
         }
-        */ 
-       
+        */
+
         return assets;
       })
       .then(setReservesAddresses)

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Box } from 'grommet';
+import { Box, ResponsiveContext } from 'grommet';
 import { BigNumber } from 'ethers';
 import { InfoWindow, InfoWindowBody } from 'components/InfoWindow';
 import { useData } from 'api/data';
@@ -19,6 +19,7 @@ import TokenLogo from 'components/TokenLogo';
 import { PrimaryBtn } from 'components/common';
 
 const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; onClose: (show: boolean) => void }) => {
+  const size = useContext(ResponsiveContext);
   const { ReserveData, ReserveConfigurationData, UserReserveData, UserAccountData, priceData } = useData();
   const [loading, setLoading] = useState<boolean>(true);
   const [decimals, setDecimals] = useState<BigNumber>(BigNumber.from(18));
@@ -155,12 +156,12 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
     <>
       {token && reserveStats && (
         <Modal onClose={onClose}>
-          <Box direction="row" fill="horizontal" alignContent="center" alignSelf="center" align="center">
-            <Box direction="column">
+          <Box width={'100%'} direction="row" fill="horizontal" alignContent="center" alignSelf="center" align="center">
+            <Box width={'100%'} direction="column">
               <InfoWindow flex round="5px">
-                <InfoWindowBody round="5px" pad="xsmall" background="white">
-                  <Box round="5px" direction="row" align="center" justify="center">
-                    <Box margin={{ top: '-10px' }} width={{ min: '190px' }}>
+                <InfoWindowBody round="5px" pad={size === 'small' ? 'small' : 'xsmall'} background="white">
+                  <Box round="5px" direction={size === 'small' ? 'column' : 'row'} align="center" justify="center">
+                    <Box width={{ min: size !== 'small' ? '190px' : '' }}>
                       <InfoPanelItem
                         title="TOTAL BORROWED"
                         titleBg="clrBoxGradient"
@@ -173,6 +174,7 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                             textSize: 'medium',
                           },
                         ]}
+                        align={size === 'small' ? 'center' : 'end'}
                       />
                     </Box>
                     <Box style={{ position: 'relative' }}>
@@ -183,7 +185,7 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                         <TokenLogo width="74" height="74" symbol={token.symbol} />
                       </Box>
                     </Box>
-                    <Box margin={{ top: '-10px' }} width={{ min: '190px' }}>
+                    <Box width={{ min: size !== 'small' ? '190px' : '' }}>
                       <InfoPanelItem
                         title="AVAILABLE LIQUIDITY"
                         titleBg="#131A33"
@@ -196,24 +198,26 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                             textSize: 'medium',
                           },
                         ]}
-                        align="start"
+                        align={size === 'small' ? 'center' : 'start'}
                       />
                     </Box>
                   </Box>
-                  <Box direction="row" justify="between">
-                    <InfoPanelItem
-                      align="center"
-                      textSize="xsmall"
-                      title="MAXIMUM LTV"
-                      data={[
-                        {
-                          value: tokenConfig?.ltv && bigNumberToString(tokenConfig.ltv, 2),
-                          textSize: 'small',
-                        },
-                        { value: '%', textSize: 'small' },
-                      ]}
-                    />
-                    <Box margin={{ right: 'small' }}>
+                  <Box margin={{ top: size == 'small' ? 'medium' : '' }} direction={'row'} wrap flex justify="around">
+                    <Box width={size === 'small' ? '50%' : 'auto'}>
+                      <InfoPanelItem
+                        align="center"
+                        textSize="xsmall"
+                        title="MAXIMUM LTV"
+                        data={[
+                          {
+                            value: tokenConfig?.ltv && bigNumberToString(tokenConfig.ltv, 2),
+                            textSize: 'small',
+                          },
+                          { value: '%', textSize: 'small' },
+                        ]}
+                      />
+                    </Box>
+                    <Box width={size === 'small' ? '50%' : 'auto'}>
                       <InfoPanelItem
                         align="center"
                         textSize="xsmall"
@@ -229,7 +233,7 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                         ]}
                       />
                     </Box>
-                    <Box margin={{ left: 'small' }}>
+                    <Box width={size === 'small' ? '50%' : 'auto'}>
                       <InfoPanelItem
                         align="center"
                         textSize="xsmall"
@@ -245,18 +249,20 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                         ]}
                       />
                     </Box>
-                    <InfoPanelItem
-                      align="center"
-                      textSize="xsmall"
-                      title="COLLATERAL"
-                      data={[{ value: canUseAsCollateral ? 'Yes' : 'No', textSize: 'small' }]}
-                    />
+                    <Box width={size === 'small' ? '50%' : 'auto'}>
+                      <InfoPanelItem
+                        align="center"
+                        textSize="xsmall"
+                        title="COLLATERAL"
+                        data={[{ value: canUseAsCollateral ? 'Yes' : 'No', textSize: 'small' }]}
+                      />
+                    </Box>
                   </Box>
                 </InfoWindowBody>
               </InfoWindow>
               <InfoWindow>
                 <InfoWindowBody background="transparent">
-                  <Box margin={{ top: 'small' }} direction="row" gap="small" flex>
+                  <Box margin={{ top: 'small' }} direction={size === 'small' ? 'column' : 'row'} gap="small" flex>
                     <MarketDetailsBox borderColor="clrDetailBoxBorderTop1" title="SUPPLY INFORMATION" textSize="xsmall">
                       <InfoPanelItem
                         title="Supply Position"

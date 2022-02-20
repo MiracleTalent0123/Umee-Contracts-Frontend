@@ -15,6 +15,7 @@ import EnableDeposit from './AssetModal';
 import { Box } from 'grommet';
 import { toast } from 'react-toastify';
 import { displayToast, TToastType } from 'components/common/toasts';
+import { IAssetCap } from 'pages/deposit';
 
 const DepositToken = ({
   address: tokenAddress,
@@ -23,6 +24,7 @@ const DepositToken = ({
   maxLtv,
   myBorrowsTotal,
   onClose,
+  capMap,
 }: {
   address: string;
   myDepositsTotal: number;
@@ -30,6 +32,7 @@ const DepositToken = ({
   maxLtv: string;
   myBorrowsTotal: number;
   onClose: () => void;
+  capMap: IAssetCap;
 }) => {
   const [activeTab, setActiveTab] = useState<string>(ETxnType.deposit);
   const [token, setToken] = useState<ITokenData>();
@@ -44,20 +47,21 @@ const DepositToken = ({
 
   const availableAmount = useUserBalance(tokenAddress) || BigNumber.from(0);
   const [availableWithdrawalAmount, setAvailableWithdrawalAmount] = useState<BigNumber>(BigNumber.from(0));
-  const [reserveCfgData, setReserveCfgData] = useState<{
-    symbol: string;
-    address: string;
-    decimals: BigNumber;
-    ltv: BigNumber;
-    liquidationThreshold: BigNumber;
-    liquidationBonus: BigNumber;
-    reserveFactor: BigNumber;
-    usageAsCollateralEnabled: boolean;
-    borrowingEnabled: boolean;
-    stableBorrowRateEnabled: boolean;
-    isActive: boolean;
-    isFrozen: boolean;
-  }>();
+  const [reserveCfgData, setReserveCfgData] =
+    useState<{
+      symbol: string;
+      address: string;
+      decimals: BigNumber;
+      ltv: BigNumber;
+      liquidationThreshold: BigNumber;
+      liquidationBonus: BigNumber;
+      reserveFactor: BigNumber;
+      usageAsCollateralEnabled: boolean;
+      borrowingEnabled: boolean;
+      stableBorrowRateEnabled: boolean;
+      isActive: boolean;
+      isFrozen: boolean;
+    }>();
   const { ReserveData, ReserveConfigurationData, UserAccountData, UserReserveData } = useData();
   const {
     Contracts: { lendingPool },
@@ -244,6 +248,16 @@ const DepositToken = ({
       setStep(ETxnSteps.Failure);
       return;
     }
+
+    // checks if asset cap limit has been reached
+    if (capMap[tokenAddress]) {
+      displayToast('Cannot supply!', TToastType.TX_FAILED, {
+        message: 'Marketsize has reached the cap limit.',
+      });
+      setStep(ETxnSteps.Failure);
+      onClose();
+      return;
+    }
     const depositGas = async () => {
       let gas = await lendingPool.estimateGas.deposit(token.address || '', txnAmountBN, account, 0);
       return gas.toNumber();
@@ -262,7 +276,7 @@ const DepositToken = ({
         setStep(ETxnSteps.Input);
         onClose();
       },
-      undefined,
+      undefined
     );
   };
 

@@ -33,7 +33,7 @@
   height: 20px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;
+  z-index: 1;
 }
 
 .steps {
@@ -156,4 +156,21 @@ input[type=range]:hover + .bubble-container {
   border-top: 0;
   border-bottom: 5px solid #FDA9FF;
   transform: translate(-50%, calc(-100% - 5px));
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+}
+
+@media(max-width: 640px) {
+  .modal-layer {
+    width: 100%;
+  }
+
+  .modal-width {
+    min-width: 100% !important;
+  }
 }

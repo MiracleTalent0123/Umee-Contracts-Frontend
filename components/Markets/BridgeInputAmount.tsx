@@ -1,17 +1,16 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import clsx from 'clsx';
-import capitalize from 'lodash/capitalize';
-import { Box, Text, Image } from 'grommet';
-import Loading from 'components/common/Loading/Loading';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Box, Text, Image, TextInput } from 'grommet';
 import { TxnAmountContainer, TxnConfirm } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
-import { AvailableToTxnInformationRow, TxnAmountInputRow, TxnStatusBar } from 'components/Transactions';
+import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
 import { TTxnAvailability, ETxnType, ETxnSteps } from 'lib/types';
 import truncate from 'lib/truncate';
 import { useAccountConnection } from 'lib/hooks/account/useAccountConnection';
 import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { BaseTab } from 'components/Transactions/TxnTabs';
 import { utils } from 'ethers';
+import { ButtonItem } from 'components';
+import { suggestedFee } from 'dialogs/Bridge';
 
 enum Steps {
   Input,
@@ -21,13 +20,15 @@ enum Steps {
 
 interface BridgeInputProps {
   txnAvailability: TTxnAvailability;
-  handleContinue: (amount: number) => (e: React.MouseEvent) => void;
+  handleContinue: (amount: number, fee: number) => (e: React.MouseEvent) => void;
   onTabChange: (activeTab: ETxnType) => void;
   txnType: ETxnType;
   txnStep: ETxnSteps;
   depositTab: string;
   withdrawTab: string;
   layers: { address: string; logo: string }[];
+  defaultFeeAmount: number;
+  suggestedFees: suggestedFee[];
 }
 
 const BridgeInputAmount: React.FC<BridgeInputProps> = ({
@@ -39,10 +40,18 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
   depositTab,
   withdrawTab,
   layers,
+  defaultFeeAmount,
+  suggestedFees,
 }) => {
   const [amount, setAmount] = useState('');
 
   const { isAccountConnected } = useAccountConnection();
+
+  const [feeAmount, setFeeAmount] = useState(0);
+
+  const [editFeeAmount, setEditFeeAmount] = useState(false);
+
+  useEffect(() => setFeeAmount(defaultFeeAmount), [defaultFeeAmount]);
 
   const { token, availableAmount, tokenDecimals } = txnAvailability;
 
@@ -87,6 +96,23 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
     setAmount('');
   }, [txnType]);
 
+  const handleFeeCancelClick = useCallback(() => {
+    setEditFeeAmount(false);
+    setFeeAmount(defaultFeeAmount);
+  }, [defaultFeeAmount]);
+
+  const handleFeeOkayClick = useCallback(() => {
+    setFeeAmount(() => {
+      const v = Number(feeAmount);
+      if (isNaN(v) || v > 0) {
+        return v;
+      } else {
+        return defaultFeeAmount;
+      }
+    });
+    setEditFeeAmount(false);
+  }, [defaultFeeAmount, feeAmount]);
+
   if (step !== Steps.Input) {
     return (
       <TxnAmountContainer header={<TokenLogoWithSymbol width="60" height="60" symbol={token.symbol ?? ''} />}>
@@ -99,18 +125,18 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
     <TxnAmountContainer
       txnType={txnType}
       bridge={true}
-      handleContinue={handleContinue(Number(amount))}
-      buttonDisabled={Number(amount) === 0}
+      handleContinue={handleContinue(Number(amount), feeAmount)}
+      buttonDisabled={Number(amount) === 0 || editFeeAmount}
       header={
         <>
           <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol ?? ''} />
-            <BaseTab
-              choiceA={depositTab}
-              choiceB={withdrawTab}
-              defaultSelected={txnType === ETxnType.deposit}
-              handler={() => onTabChange(txnType === ETxnType.deposit ? ETxnType.withdraw : ETxnType.deposit)}
-              margin={{ top: 'medium' }}
-            />
+          <BaseTab
+            choiceA={depositTab}
+            choiceB={withdrawTab}
+            defaultSelected={txnType === ETxnType.deposit}
+            handler={() => onTabChange(txnType === ETxnType.deposit ? ETxnType.withdraw : ETxnType.deposit)}
+            margin={{ top: 'medium' }}
+          />
         </>
       }
     >
@@ -145,6 +171,83 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
           </Box>
         </Box>
       </Box>
+      {txnType === ETxnType.deposit && (
+        <Box
+          border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+          pad={{ horizontal: 'medium', top: 'small' }}
+        >
+          <Text size="xsmall" className="letter-spacing">
+            BRIDGE FEE
+          </Text>
+          <Box pad={{ top: 'small' }} direction="row" align="center" justify="between">
+            <Text size="small">Suggested fee</Text>
+            <Box direction="row" align="center" justify="between">
+              {editFeeAmount ? (
+                <TextInput
+                  autoFocus
+                  style={{
+                    borderStyle: 'none',
+                    width: '6em',
+                    maxWidth: '6em',
+                    fontSize: '15px',
+                    fontWeight: 'normal',
+                    textAlign: 'right',
+                    padding: 0,
+                  }}
+                  onChange={(e: any) => setFeeAmount(e.target.value)}
+                  value={feeAmount}
+                  type="number"
+                  min="0"
+                />
+              ) : (
+                <Text size="small">{feeAmount}</Text>
+              )}
+              <Text size="small" style={{ paddingLeft: 5 }}>
+                {token.symbol}
+              </Text>
+            </Box>
+          </Box>
+          <Box justify="end" direction="row" pad={{ top: 'xsmall' }}>
+            {editFeeAmount ? (
+              <>
+                <ButtonItem pad="0" margin="0" onClick={handleFeeOkayClick}>
+                  <strong className="gradient-text">OKAY</strong>
+                </ButtonItem>
+                <ButtonItem pad="0" margin={{ left: 'small' }} onClick={handleFeeCancelClick}>
+                  <strong className="gradient-text">CANCEL</strong>
+                </ButtonItem>
+              </>
+            ) : (
+              <ButtonItem pad="0" margin="0" onClick={() => setEditFeeAmount((val) => !val)}>
+                <strong className="gradient-text">EDIT</strong>
+              </ButtonItem>
+            )}
+          </Box>
+          <Box margin={{ top: 'medium' }} direction="row" gap="0" flex>
+            {suggestedFees.map((fee, index) => (
+              <Box
+                key={index}
+                direction="row"
+                justify="center"
+                align="center"
+                background={feeAmount === fee.value ? 'clrBoxGradient' : 'clrInfoBarBG'}
+                pad="small"
+                flex
+                onClick={() => setFeeAmount(fee.value)}
+              >
+                <Box>
+                  <Text size="small" alignSelf="center" weight="bold">
+                    {fee.label}
+                  </Text>
+                  <Text margin={{ top: 'xsmall' }} size="xsmall" alignSelf="center">
+                    {fee.value} {token.symbol}
+                  </Text>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
     </TxnAmountContainer>
   );
 };

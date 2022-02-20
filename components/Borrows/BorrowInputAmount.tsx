@@ -7,13 +7,11 @@ import TokenLogo from 'components/TokenLogo';
 import { BigNumber, utils } from 'ethers';
 import Arrow from '/public/images/arrow.png';
 import _ from 'lodash';
-import { bigNumberToString, BN } from 'lib/number-utils';
 import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { BaseTab } from 'components/Transactions/TxnTabs';
 import { TxnConfirm } from 'components/Transactions';
 
 const aprDecimals = BigNumber.from(25);
-const maxMantissa = 6;
 
 export interface DepositProps {
   txnAvailability: TTxnAvailability;
@@ -47,20 +45,6 @@ const BorrowInputAmount = ({
   const { availableAmount, tokenDecimals, token } = txnAvailability;
   const [isPending, setIsPending] = React.useState(false);
   const [isFinal, setIsFinal] = React.useState(false);
-  const [newTxnAvail, setNewTxnAvail] = React.useState(txnAvailability);
-
-  React.useEffect(() => {
-    // this function will generate a string with the proper length; then will need to convert back to a BN.
-    const wrkNum: string = bigNumberToString(availableAmount, tokenDecimals, maxMantissa);
-    const theMantissa: string = wrkNum.split('.')[1];
-
-    // recombine without the decimal place in order to create the BigNumber.
-    const adjustedAvailAmt: BigNumber = BN(wrkNum.split('.')[0] + theMantissa);
-    const tmpDecimals = tokenDecimals as BigNumber;
-    const decimalAdjust = tmpDecimals.toNumber() - maxMantissa;
-    const adjustedDecimals = tmpDecimals.sub(decimalAdjust);
-    setNewTxnAvail({ ...txnAvailability, availableAmount: adjustedAvailAmt, tokenDecimals: adjustedDecimals });
-  }, [availableAmount, tokenDecimals, txnAvailability, txnType]);
 
   React.useEffect(() => {
     txnStep === ETxnSteps.Pending || txnStep === ETxnSteps.PendingApprove || txnStep === ETxnSteps.PendingSubmit
@@ -104,7 +88,7 @@ const BorrowInputAmount = ({
               availableAmount={balance}
               tokenDecimals={tokenDecimals}
             />
-            <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={newTxnAvail} setTxnAmount={setTxnAmount} />
+            <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
           </Box>
           <Box
             border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}

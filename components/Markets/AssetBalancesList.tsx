@@ -84,13 +84,6 @@ export const AssetBalancesList = observer(function AssetBalancesList() {
         />
         
       ) : null}
-      {/* {chainStore.current.currencies
-        .filter(cur => !cur.coinMinimalDenom.includes('/'))
-        .map(cur => {
-          const bal = queries.queryBalances
-            .getQueryBech32Address(account.bech32Address)
-            .getBalanceFromCurrency(cur);
-        })} */}
       {ibcBalances.map(bal => {
         const currency = bal.balance.currency;
         const counterpartyCurrency = bal.counterpartyBalance.currency;
@@ -147,13 +140,15 @@ function AssetBalanceRow({
 }: AssetBalanceRowProps) {
   return (
     <>
-      <SecondaryBtn
-        onClick={onDeposit}
-        text="IBC"
-        round="large"
-        pad={{ vertical: 'small', horizontal: 'medium' }}
-        textSize="xsmall"
-      />
+      {chainName == 'UMEE' &&
+        <SecondaryBtn
+          onClick={onDeposit}
+          text="IBC"
+          round="large"
+          pad={{ vertical: 'small', horizontal: 'medium' }}
+          textSize="xsmall"
+        />
+      }
     </>
   );
 }

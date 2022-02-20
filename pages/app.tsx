@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Box, Grommet } from 'grommet';
+import { Box, Grommet, ResponsiveContext } from 'grommet';
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 
@@ -24,8 +24,11 @@ import { StoreProvider } from '../api/cosmosStores';
 import { AccountConnectionProvider } from '../lib/hooks/account/context';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
+import NavBarOpen from 'components/NavBar/NavBarOpen';
 
 function Body() {
+  const size = useContext(ResponsiveContext);
+
   return (
     <>
       <AccountConnectionProvider>
@@ -35,12 +38,16 @@ function Body() {
             className="markets-container"
             direction="row"
             justify="center"
-            pad={{ top: 'small', horizontal: 'large' }}
+            pad={{
+              top: 'medium',
+              horizontal: size === 'small' || size === 'medium' || size === 'large' ? 'medium' : 'large',
+            }}
             overflow="hidden"
+            margin={{ left: size === 'small' || size === 'medium' ? '' : '106px' }}
           >
             <Box className="content" style={{ position: 'relative' }}>
               <Box style={{ position: 'absolute', right: 0, zIndex: 10 }}>
-                <ConnectWalletButton />
+                {size === 'small' || size === 'medium' ? <NavBarOpen /> : <ConnectWalletButton />}
               </Box>
               <Switch>
                 <Route path="/dashboard">

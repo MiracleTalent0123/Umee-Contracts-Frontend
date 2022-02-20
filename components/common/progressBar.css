@@ -76,3 +76,17 @@
 .borrowed-value {
   transform: translate(-50%, -50%);
 }
+
+@media(max-width: 640px) {
+  .progress-bar-value::before { 
+    top: 20px;
+  }
+
+  .indicator::before {
+    height: 25px;
+  }
+
+  .indicators {
+    height: 25px;
+  }
+}

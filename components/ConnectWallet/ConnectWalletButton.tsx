@@ -25,6 +25,8 @@ export const ConnectWalletButton = () => {
   const connectWallet = () => {
     connect();
     accountStore.getAccount(chainStore.current.chainId).init();
+    console.log('account store ConnectWalletButton.tsx', accountStore.getAccount(chainStore.current.chainId));
+
   };
 
   const showConnectedWallets = () => {
@@ -32,7 +34,7 @@ export const ConnectWalletButton = () => {
   };
 
   return (
-    <Box className="con-wal" pad={{top: 'small'}} alignSelf="end">
+    <Box className="con-wal">
       <ConnectWalletBase
         account={web3.account ? truncate(web3.account, 6, 4) : null}
         walletConnected={walletConnected}

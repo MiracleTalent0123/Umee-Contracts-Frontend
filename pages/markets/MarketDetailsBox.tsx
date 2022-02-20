@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { Text, Box } from 'grommet';
+import React, { ReactNode, useContext } from 'react';
+import { Text, Box, ResponsiveContext } from 'grommet';
 
 export const MarketDetailsBox = ({
   title,
@@ -16,8 +16,16 @@ export const MarketDetailsBox = ({
   background?: string;
   borderColor?: string;
 }) => {
+  const size = useContext(ResponsiveContext);
+
   return (
-    <Box background={background || 'white'} pad="small" round="5px" fill="horizontal" width="xlarge">
+    <Box
+      background={background || 'white'}
+      pad={size === 'small' ? 'medium' : 'small'}
+      round="5px"
+      fill="horizontal"
+      width="xlarge"
+    >
       <Box
         pad={{ bottom: 'xsmall' }}
         margin={{ bottom: 'xsmall' }}
