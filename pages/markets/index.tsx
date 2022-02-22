@@ -9,7 +9,6 @@ import PageLoading from 'components/common/Loading/PageLoading';
 import { bigNumberToUSDString, bigNumberToString } from 'lib/number-utils';
 import Layout from 'pages/Layout';
 import { ResponsiveContext } from 'grommet';
-import { TransferHistory, TransferHistoryList } from 'components/Markets/TransferHistoryList';
 
 function Markets() {
   const size = useContext(ResponsiveContext);
@@ -17,48 +16,6 @@ function Markets() {
   const [totalMarketSizeUsd, setTotalMarketSizeUsd] = useState(0);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [usdDecimals, setUsdDecimals] = useState<BigNumber>(BigNumber.from(18));
-  const transferHistories: TransferHistory[] = [
-    {
-      txHash: 'EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      explorerUrl: 'https://www.mintscan.io/umee/txs/EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      txType: 'SendToEth',
-      amount: 100,
-      symbol: 'UMEE',
-      status: 'pending',
-    },
-    {
-      txHash: 'EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      explorerUrl: 'https://www.mintscan.io/umee/txs/EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      txType: 'SendToEth',
-      amount: 100,
-      symbol: 'UMEE',
-      status: 'complete',
-    },
-    {
-      txHash: 'EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      explorerUrl: 'https://www.mintscan.io/umee/txs/EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      txType: 'SendToEth',
-      amount: 100,
-      symbol: 'UMEE',
-      status: 'timeout',
-    },
-    {
-      txHash: 'EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      explorerUrl: 'https://www.mintscan.io/umee/txs/EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      txType: 'SendToEth',
-      amount: 100,
-      symbol: 'UMEE',
-      status: 'complete',
-    },
-    {
-      txHash: 'EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      explorerUrl: 'https://www.mintscan.io/umee/txs/EDEE8DFD46A546AB65553D25B46B1961BEC9F90536BFDB2C246DA3FE2A2B7CC9',
-      txType: 'SendToEth',
-      amount: 100,
-      symbol: 'UMEE',
-      status: 'complete',
-    },
-  ];
 
   const marketColumns: IDataListColumn[] = [
     { title: 'ASSETS', size: 'flex' },
@@ -72,20 +29,6 @@ function Markets() {
     { title: 'ASSETS', size: 'flex' },
     { title: 'MARKET SIZE', size: 'xsmall' },
     { title: '', size: 'flex' },
-  ];
-
-  const historyColumns: IDataListColumn[] = [
-    { title: 'TRANSACTION', size: 'flex' },
-    { title: 'TYPE', size: 'flex' },
-    { title: 'AMOUNT', size: 'flex' },
-    { title: 'CURRENT STATUS', size: 'flex' },
-    { title: '', size: 'flex' },
-  ];
-
-  const historyMobileColumns: IDataListColumn[] = [
-    { title: 'TRANSACTION', size: 'flex' },
-    { title: 'AMOUNT', size: 'xsmall' },
-    { title: 'CURRENT STATUS', size: 'flex' },
   ];
 
   const { ReserveData, ReserveConfigurationData, UserReserveData } = useData();
@@ -146,20 +89,7 @@ function Markets() {
       variableBorrowAPR: BigNumber.from(0),
       stableBorrowAPR: BigNumber.from(0),
     } as IMarketsData;
-    marketsData.push(umee);
-    let umeeTest = {
-      name: 'UMEETEST',
-      address: '0x850b72fce82e0bccfbe6aaed2db792be5c9e9973',
-      color: 'clrReserveIndicatorSecondary',
-      marketSize: '0',
-      totalBorrowed: BigNumber.from(0),
-      marketSizeUsd: '0.00',
-      totalBorrowedUsd: '0',
-      depositAPY: BigNumber.from(0),
-      variableBorrowAPR: BigNumber.from(0),
-      stableBorrowAPR: BigNumber.from(0),
-    } as IMarketsData;
-    //marketsData.push(umeeTest);
+    marketsData.splice(1, 0, umee);
     setMarketData(marketsData);
     setTotalMarketSizeUsd(localTotalMarketSizeUsd);
   }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd, UserReserveData]);
@@ -175,12 +105,6 @@ function Markets() {
         data={marketData}
         decimals={usdDecimals}
       />
-      {transferHistories.length > 0 && (
-        <TransferHistoryList
-          columns={size === 'medium' || size === 'small' ? historyMobileColumns : historyColumns}
-          histories={transferHistories}
-        />
-      )}
     </Layout>
   );
 }

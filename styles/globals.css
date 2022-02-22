@@ -64,12 +64,6 @@ a {
   box-shadow: none !important;
 }
 
-.shortence {
-  width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -111,10 +105,6 @@ input[type='number'] {
 
 .upper-case {
   text-transform: uppercase;
-}
-
-.outline {
-  outline: 10px solid white;
 }
 
 ::-webkit-scrollbar {

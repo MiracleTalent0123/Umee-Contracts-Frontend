@@ -131,13 +131,13 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
       const token = chainStore.current.currencies.find((c) => c.coinDenom === tokenName);
       let denom = tokenName == 'UMEE' ? 'uumee' : token?.coinMinimalDenom;
       const ethereumAddress = web3.account?.toLowerCase();
-      const mainnetUmee = accountStore.getAccount('umee-1');
+      const account = accountStore.getAccount(chainStore.current.chainId);
       if (ethereumAddress && denom) {
         setStep(ETxnSteps.Pending);
-        mainnetUmee.umee
+        account.umee
           .sendToEthereum(
             ethereumAddress,
-            'uumee',
+            denom,
             parseUnits(amount.toString(), originCurrency.coinDecimals).toString(),
             parseUnits(fee.toString(), originCurrency.coinDecimals).toString()
           )

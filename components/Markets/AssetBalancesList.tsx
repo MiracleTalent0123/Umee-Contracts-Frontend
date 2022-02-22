@@ -140,15 +140,13 @@ function AssetBalanceRow({
 }: AssetBalanceRowProps) {
   return (
     <>
-      {chainName == 'UMEE' &&
-        <SecondaryBtn
-          onClick={onDeposit}
-          text="IBC"
-          round="large"
-          pad={{ vertical: 'small', horizontal: 'medium' }}
-          textSize="xsmall"
-        />
-      }
+      <SecondaryBtn
+        onClick={onDeposit}
+        text="IBC"
+        round="large"
+        pad={{ vertical: 'small', horizontal: 'medium' }}
+        textSize="xsmall"
+      />
     </>
   );
 }

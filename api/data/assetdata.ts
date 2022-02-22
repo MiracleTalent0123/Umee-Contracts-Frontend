@@ -62,7 +62,20 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
               assets.push(result[i]);
             }
           }
+        } else if (chainId === 1) {
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].symbol == 'uatom') {
+              let build = ['ATOM', '0xEa5A82B35244d9e5E48781F00b11B14E627D2951'];
+              build.symbol = 'ATOM';
+              build.tokenAddress = '0xEa5A82B35244d9e5E48781F00b11B14E627D2951';
+              assets.push(build);
+            } else {
+              assets.push(result[i]);
+            }
+          }
+          assets.sort(); // Puts Atom at top of asset list for all pages
         } 
+
         //if you add another chain, add another elseif here
         /*
         TEMPLATE FOR NEW EXCEPTION

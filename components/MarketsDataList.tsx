@@ -42,8 +42,6 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
   const [isModalShow, setIsModalShow] = useState<string>('');
   const columnSizes = columns.map((col) => col.size);
 
-  const { chainStore, accountStore, queriesStore } = useStore();
-
   useMemo(() => {
     if (selectedTokenAddress) {
       setTokenAddress(selectedTokenAddress);
@@ -102,6 +100,21 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
                 </TextItem>
               </>
             )}
+            {name == 'ATOM' && (
+              <>
+                <TextItem justify="end">
+                  <SecondaryBtn
+                    onClick={() => setBridgeModal({ address, name } as IMarketsData)}
+                    round="large"
+                    pad={{ vertical: 'small', horizontal: 'small' }}
+                    text="BRIDGE"
+                    margin={{ right: 'small' }}
+                    textSize="xsmall"
+                  />
+                  <AssetBalancesList />
+                </TextItem>
+              </>
+            )}
             {name == 'UMEE' && (
               <>
                 <TextItem justify="end">
@@ -113,7 +126,6 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
                     margin={{ right: size === 'small' ? '66px' : '103px' }}
                     textSize="xsmall"
                   />
-                  <AssetBalancesList />
                 </TextItem>
               </>
             )}

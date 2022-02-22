@@ -14,7 +14,7 @@ import { connect } from 'api/web3/providers';
 const ConnectedWallets = ({ account }: { account?: string }) => {
   const { isAccountConnected, isCosmosAccountConnected } = useAccountConnection();
   const { accountStore, chainStore } = useStore();
-  const cosmosAccount = accountStore.getAccount('gaia-umeeverse-party-1');
+  const cosmosAccount = accountStore.getAccount('cosmoshub-4');
   const address = accountStore.getAccount(chainStore.current.chainId).bech32Address;
   const KeyConnectingWalletType = 'connecting_wallet_type';
 
