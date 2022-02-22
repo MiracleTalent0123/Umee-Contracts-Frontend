@@ -14,7 +14,7 @@ See [this guide](https://teller.gitbook.io/teller-1/testing-guide/getting-testne
 
 You need a `.env.local` file with the contents shown in `.env.example`.
 
-## How to run
+## How to run  
 
 ### Development
 New DATA_PROVIDER_ADDRESS is the 
