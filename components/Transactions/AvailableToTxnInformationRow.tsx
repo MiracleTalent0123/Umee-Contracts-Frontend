@@ -23,8 +23,8 @@ export const AvailableToTxnInformationRow: React.FC<AvailableToTxnInformationRow
   tokenDecimals,
   bridge,
 }) => (
-  <Box direction="row" style={{letterSpacing: '0.1em'}}>
-    <Text size="xsmall" className="upper-case">
+  <Box direction="row" style={{ letterSpacing: '0.1em' }}>
+    <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case">
       {bridge
         ? 'Wallet'
         : txnType == ETxnType.deposit
@@ -36,7 +36,7 @@ export const AvailableToTxnInformationRow: React.FC<AvailableToTxnInformationRow
             : 'Supplied'}
       {':'}
     </Text>
-    <Text size="xsmall" margin={{ left: 'xsmall' }}>
+    <Text color="clrTextAndDataListHeader" size="xsmall" margin={{ left: 'xsmall' }}>
       {(userBalance || availableAmount) &&
         (Number(safeBigNumberToStringAllDecimals(availableAmount, tokenDecimals)) < 0
           ? '0'

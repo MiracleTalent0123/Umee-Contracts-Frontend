@@ -1,4 +1,5 @@
 import { Box, BoxProps, Card, Grid, GridSizeType } from 'grommet';
+import { Theme, useTheme } from 'lib/hooks/theme/context';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './DataListRow.css';
@@ -41,9 +42,11 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
     props.onClick = handleClick;
   }
 
+  const { themeMode } = useTheme();
+
   return (
-    <div className="row-container">
-      <Box border={{ side: 'bottom', color: '#E2E3ED', size: '1px' }} {...props}>
+    <div className={`row-container ${themeMode === Theme.dark ? 'row-container-dark' : null}`}>
+      <Box border={{ side: 'bottom', color: 'clrDataListBorderBottom', size: '1px' }} {...props}>
         {rowColor && <Box border={{ color: rowColor, side: 'left', size: '3px' }} height="2rem" />}
         <Grid className="row-content" columns={columnSizes} gap="small" fill="horizontal" align="center">
           {children}

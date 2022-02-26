@@ -34,12 +34,14 @@
   font-weight: bold;
   box-sizing: border-box;
 }
+
 .inner:before {
   content: "YES";
   padding-left: 10px;
   background: linear-gradient(94.82deg, #FDA9FF -5.19%, #4DFFE5 133.43%);
   color: #fff;
 }
+
 .inner:after {
   content: "NO";
   padding-right: 10px;
@@ -47,11 +49,16 @@
   text-align: right;
   background: #DDEEFF;
 }
+
+.linner-dark::after {
+  background: var(--umee-mid-grey-on-navy);
+}
+
 .switch {
   display: block;
   width: 14px;
   position: absolute;
-  background-color: #131A33;
+  background-color: var(--umee-color-primary);
   height: 14px;
   border: 0 solid #bbb;
   border-radius: 50%;
@@ -59,12 +66,19 @@
   top: 50%;
   transform: translateY(-50%);
   box-shadow: 1px 1px 4px 0px #00000040;
+  left: -1px;
 }
+
+.switch-dark {
+  background-color: var(--umee-dark-grey-on-navy);
+}
+
 .checkbox:checked + .label .inner {
   margin-left: 0;
 }
 .checkbox:checked + .label .switch {
   right: 0px;
+  left: unset;
 }
 
 .checkbox:checked + .label .switch {

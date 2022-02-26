@@ -1,23 +1,26 @@
-import React, { FunctionComponent, ReactComponentElement, ReactElement, ReactNode } from 'react';
+import React, { FunctionComponent } from 'react';
 import { toast, ToastOptions } from 'react-toastify';
 import failed from '../../../public/assets/FailedTx.png';
 import success from '../../../public/assets/ToastSuccess.png';
 import loading from '../../../public/assets/Loading.png';
 import view from '../../../public/assets/Link.png';
-import close from '../../../public/assets/Exit.png';
-import { Image, Box, Text } from 'grommet';
+import ViewWhite from '../../../public/assets/LinkWhite.png';
+import Logo from '../../../public/images/Logo.svg';
+import { Image, Box, Text, Button } from 'grommet';
 import './toast.css';
+import { Theme, useTheme } from 'lib/hooks/theme/context';
+import { Close } from 'grommet-icons';
 
-const CloseButton: FunctionComponent<{ closeToast: () => void }> = ({ closeToast }) => (
-  <Image
-    width="13px"
-    height="14px"
-    style={{ position: 'absolute', top: '10px', right: '10px' }}
-    onClick={() => closeToast()}
-    alt="close"
-    src={close}
-  />
-);
+const CloseButton: FunctionComponent<{ closeToast: () => void }> = ({ closeToast }) => {
+  return (
+    <Button
+      style={{ position: 'absolute', top: '5px', right: '5px' }}
+      onClick={() => closeToast()}
+      plain={true}
+      icon={<Close size="18px" color="clrTextAndDataListHeader" />}
+    />
+  );
+};
 
 const defaultOptions = {
   position: 'top-right',
@@ -37,6 +40,7 @@ export enum TToastType {
   TX_BROADCASTING,
   TX_SUCCESSFUL,
   TX_FAILED,
+  TX_INFO,
 }
 
 interface IToastExtra {
@@ -59,6 +63,12 @@ export type DisplayToastFn = ((
   ((
     string: String,
     type: TToastType.TX_FAILED,
+    extraData?: Partial<Pick<IToastExtra, 'message'>>,
+    options?: Partial<ToastOptions>
+  ) => void) &
+  ((
+    string: String,
+    type: TToastType.TX_INFO,
     extraData?: Partial<Pick<IToastExtra, 'message'>>,
     options?: Partial<ToastOptions>
   ) => void);
@@ -86,10 +96,30 @@ export const displayToast: DisplayToastFn = (
     toast(<ToastTxSuccess string={string} link={inputExtraData.customLink} />, inputOptions);
   } else if (type === TToastType.TX_FAILED) {
     toast(<ToastTxFailed string={string} message={inputExtraData.message} />, inputOptions);
+  } else if (type === TToastType.TX_INFO) {
+    toast(<ToastTxInfo string={string} />, inputOptions);
   } else {
     console.error(`Undefined toast type - ${type}`);
   }
 };
+
+const ToastTxInfo: FunctionComponent<{ string: String }> = ({ string }) => (
+  <Box
+    style={{
+      fontFamily: 'Helvetica',
+      color: 'var(--umee-color-primary)',
+    }}
+    direction="row"
+    align="center"
+  >
+    <Image style={{ display: 'flex' }} width="35px" alt="info" src={Logo} />
+    <Box margin={{ left: 'small' }}>
+      <Text color="clrTextAndDataListHeader" size="16px">
+        {string}
+      </Text>
+    </Box>
+  </Box>
+);
 
 const ToastTxBroadcasting: FunctionComponent<{ string: String; message: string }> = ({ string, message }) => (
   <Box
@@ -102,8 +132,10 @@ const ToastTxBroadcasting: FunctionComponent<{ string: String; message: string }
   >
     <Image className="toast-loading" style={{ display: 'flex' }} width="40px" alt="loading" src={loading} />
     <Box margin={{ left: 'small' }}>
-      <Text size="18px">{string}</Text>
-      <Text size="small" style={{ lineHeight: '16px' }}>
+      <Text color="clrTextAndDataListHeader" size="18px">
+        {string}
+      </Text>
+      <Text color="clrTextAndDataListHeader" size="small" style={{ lineHeight: '16px' }}>
         {message ? message : 'Waiting for transaction to be included in the block'}
       </Text>
     </Box>
@@ -121,30 +153,42 @@ const ToastTxFailed: FunctionComponent<{ string: String; message: string }> = ({
   >
     <Image style={{ display: 'flex' }} width="40px" alt="failed" src={failed} />
     <Box margin={{ left: 'small' }}>
-      <Text size="18px">{string}</Text>
-      <Text size="small">{message}</Text>
+      <Text color="clrTextAndDataListHeader" size="18px">
+        {string}
+      </Text>
+      <Text color="clrTextAndDataListHeader" size="small">
+        {message}
+      </Text>
     </Box>
   </Box>
 );
 
-const ToastTxSuccess: FunctionComponent<{ string: String; link: string }> = ({ link, string }) => (
-  <Box
-    style={{
-      fontFamily: 'Helvetica',
-      color: 'var(--umee-color-primary)',
-    }}
-    direction="row"
-    align="center"
-  >
-    <Image style={{ display: 'flex' }} width="40px" alt="success" src={success} />
-    <Box margin={{ left: 'small' }}>
-      <Text size="18px">{string}</Text>
-      <a target="__blank" href={link}>
-        <Box direction="row" align="center">
-          <Text size="small">View in explorer</Text>{' '}
-          <Image style={{ display: 'flex' }} alt="external link" src={view} />
-        </Box>
-      </a>
+const ToastTxSuccess: FunctionComponent<{ string: String; link: string }> = ({ link, string }) => {
+  const { themeMode } = useTheme();
+
+  return (
+    <Box
+      style={{
+        fontFamily: 'Helvetica',
+        color: 'var(--umee-color-primary)',
+      }}
+      direction="row"
+      align="center"
+    >
+      <Image style={{ display: 'flex' }} width="40px" alt="success" src={success} />
+      <Box margin={{ left: 'small' }}>
+        <Text color="clrTextAndDataListHeader" size="18px">
+          {string}
+        </Text>
+        <a target="__blank" href={link}>
+          <Box direction="row" align="center">
+            <Text color="clrTextAndDataListHeader" size="small">
+              View in explorer
+            </Text>{' '}
+            <Image style={{ display: 'flex' }} alt="external link" src={themeMode === Theme.light ? view : ViewWhite} />
+          </Box>
+        </a>
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};

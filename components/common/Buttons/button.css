@@ -1,8 +1,12 @@
 .secondary-btn:hover {
   border: double 2px transparent;
-  background-image: linear-gradient(white,white), var(--umee-gradient);
+  background-image: linear-gradient(white, white), var(--umee-gradient);
   background-clip: padding-box, border-box;
   background-origin: border-box;
+}
+
+.secondary-btn-dark:hover {
+  background-image: linear-gradient(var(--umee-color-primary), var(--umee-color-primary)), var(--umee-gradient) !important;
 }
 
 .secondary-btn {
@@ -10,7 +14,7 @@
   min-height: 35px !important;
 }
 
-@media(max-width: 640px) {
+@media (max-width: 640px) {
   .secondary-btn {
     min-width: 60px !important;
   }

@@ -17,7 +17,7 @@ export const Modal: React.FC<{ onClose: (show: boolean) => void }> = ({ children
       <Main pad="small">
         {size === 'small' && (
           <Box className="modal-close">
-            <Button onClick={close} plain={true} icon={<Close color="clrPrimary" />} />
+            <Button onClick={close} plain={true} icon={<Close color="clrTextAndDataListHeader" />} />
           </Box>
         )}
         {children}

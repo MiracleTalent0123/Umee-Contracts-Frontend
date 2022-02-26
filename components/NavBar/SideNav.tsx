@@ -22,6 +22,7 @@ import stakeHoverIcon from '../../public/images/stake-hover-icon.svg';
 import voteHoverIcon from '../../public/images/vote-hover-icon.svg';
 
 import './NavBar.css';
+import ToggleTheme from './ToggleTheme';
 
 export interface INavItem {
   id: number;
@@ -91,7 +92,11 @@ export const SideNav = () => {
   return (
     <>
       {size !== 'small' && size !== 'medium' && (
-        <Box className="sidenav">
+        <Box
+          className="sidenav"
+          background="clrPrimary"
+          border={{ side: 'right', size: '1px', color: 'clrSideNavBorder' }}
+        >
           <Box pad={{ top: 'xsmall', bottom: 'xsmall' }} focusIndicator={false} justify="center" align="center">
             <NavLink to="/">
               <Image src={UmeeLogo} alt="Umee Logo" />
@@ -148,6 +153,16 @@ export const SideNav = () => {
                   )}
                 </Box>
               ))}
+          </Box>
+          <Box
+            direction="row"
+            justify="center"
+            width="100%"
+            margin={{ bottom: 'medium' }}
+            style={{ position: 'absolute', bottom: 0 }}
+            pad={{ horizontal: 'small' }}
+          >
+            <ToggleTheme />
           </Box>
         </Box>
       )}

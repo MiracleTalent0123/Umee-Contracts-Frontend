@@ -109,7 +109,7 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
         const feeInEth = (gasSpentBy20txBatch * currenEthGasPriceInGwei) / 1000000000;
         const ethPrice = ReserveData.find((r) => r.symbol === 'WETH')?.usdPrice || 3000;
         const feeTimesEth = feeInEth * ethPrice;
-        const fast = feeTimesEth / priceData[symbol].usd;
+        const fast = (feeTimesEth / priceData[symbol].usd) * 1.5;
         setFeeAmount(truncateAfterDecimals(fast / 20, 6));
         suggestedFees[0].value = truncateAfterDecimals(fast / 20, 6);
         suggestedFees[1].value = truncateAfterDecimals(fast, 6);

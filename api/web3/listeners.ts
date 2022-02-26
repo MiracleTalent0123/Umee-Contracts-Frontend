@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { toast } from 'react-toastify';
 import Web3Modal from 'web3modal';
 import { supportedChains } from './chains';
-
-const defaultOptions = {
-  hideProgressBar: true,
-};
+import { displayToast, TToastType } from 'components/common/toasts';
 
 const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal: Web3Modal) => {
   const [myProvider, setMyProvider] = useState<ethers.providers.Web3Provider | null>(null);
@@ -20,7 +16,7 @@ const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal
           .then((value: any) => {
             const web3Provider = new ethers.providers.Web3Provider(provider);
             setMyProvider(web3Provider);
-            toast('Connected', { ...defaultOptions, toastId: 'connected' });
+            displayToast('Connected', TToastType.TX_INFO, undefined, { toastId: 'connected' });
           });
       } catch (error) {
         web3Modal.clearCachedProvider();
@@ -35,7 +31,7 @@ const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal
       } else {
         const web3Provider = new ethers.providers.Web3Provider(provider);
         setMyProvider(web3Provider);
-        toast('Connected', { ...defaultOptions, toastId: 'connected' });
+        displayToast('Connected', TToastType.TX_INFO, undefined, { toastId: 'connected' });
       }
     });
 
@@ -50,32 +46,37 @@ const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal
     // subscribe to Network events
     provider.on('chainChanged', (chainId: string) => {
       if (!supportedChains().includes(parseInt(chainId))) {
-        toast('Switch to a supported network', { ...defaultOptions, toastId: 'switchNetwork' });
+        displayToast('Switch to a supported network', TToastType.TX_INFO, undefined, {
+          toastId: 'switchNetwork',
+        });
         web3Modal.clearCachedProvider();
         setMyProvider(null);
+      } else {
+        displayToast('Network changed', TToastType.TX_INFO, undefined, { toastId: 'switchNetwork' });
+        const web3Provider = new ethers.providers.Web3Provider(provider as any);
+        setMyProvider(web3Provider);
       }
-       else {
-         toast('Network changed', { toastId: 'switchNetwork' });
-         const web3Provider = new ethers.providers.Web3Provider(provider as any);
-         setMyProvider(web3Provider);
-       }
     });
 
     // subscribe to account change events
     provider.on('accountsChanged', (accounts: string[]) => {
       if (accounts.length === 0) {
-        toast('Account disconnected', { ...defaultOptions, toastId: 'disconnected' });
+        displayToast('Account disconnected', TToastType.TX_INFO, undefined, {
+          toastId: 'disconnected',
+        });
         web3Modal.clearCachedProvider();
         setMyProvider(null);
       } else {
-        toast('Account changed', { ...defaultOptions, toastId: 'connected' });
+        displayToast('Account changed', TToastType.TX_INFO, undefined, { toastId: 'connected' });
         web3Modal.connect();
       }
     });
 
     // subscribe to provider disconnection
     provider.on('disconnect', () => {
-      toast('Account disconnected', { ...defaultOptions, toastId: 'disconnected' });
+      displayToast('Account disconnected', TToastType.TX_INFO, undefined, {
+        toastId: 'disconnected',
+      });
       web3Modal.clearCachedProvider();
       setMyProvider(null);
     });

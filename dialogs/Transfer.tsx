@@ -134,7 +134,7 @@ export const TransferDialog = observer(
           <Box pad={{ horizontal: 'medium' }}>
             <Box margin={{ top: 'xxsmall', bottom: 'medium' }}>
               <Box direction="row" align="center" style={{ letterSpacing: '0.1em' }}>
-                <Text size="xsmall" className="upper-case">
+                <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case">
                   Balance:{' '}
                   <span style={{ marginLeft: '3px' }}>
                     {pickOne(
@@ -180,12 +180,12 @@ export const TransferDialog = observer(
                       placeholder="0.00"
                       min="0"
                     />
-                    <Text className="letter-spacing" alignSelf="center" size="medium">
+                    <Text color="clrTextAndDataListHeader" className="letter-spacing" alignSelf="center" size="medium">
                       {currency.coinDenom}
                     </Text>
                   </Box>
                   <Box>
-                    <Text style={{ letterSpacing: '0.1em' }} size="xsmall">
+                    <Text color="clrMidGreyOnNavy" style={{ letterSpacing: '0.1em' }} size="xsmall">
                       ~${price.toFixed(2)}
                     </Text>
                   </Box>
@@ -195,7 +195,7 @@ export const TransferDialog = observer(
                     amountConfig.setIsMax(true);
                   }}
                 >
-                  <Text size="xsmall" className="letter-spacing" color="clrDisabled">
+                  <Text color="clrMidGreyOnNavy" size="xsmall" className="letter-spacing">
                     MAX
                   </Text>
                 </Box>
@@ -214,13 +214,13 @@ export const TransferDialog = observer(
             border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
             pad={{ top: 'medium', horizontal: 'medium' }}
           >
-            <Text size="xsmall" className="letter-spacing">
+            <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
               From
             </Text>
             <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Box direction="row" justify="start" align="center">
                 <Image width="36px" height="36px" alt="token logo" src={pickOne(UMEE, ATOM, isWithdraw)} />
-                <Text color="#142A5B" margin={{ left: 'small' }} size="small">
+                <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
                   {pickOne(
                     Bech32Address.shortenAddress(account.bech32Address, 30),
                     Bech32Address.shortenAddress(counterpartyAccount.bech32Address, 30),
@@ -229,12 +229,12 @@ export const TransferDialog = observer(
                 </Text>
               </Box>
             </Box>
-            <Text className="letter-spacing" margin={{ top: 'small' }} size="xsmall">
+            <Text color="clrTextAndDataListHeader" className="letter-spacing" margin={{ top: 'small' }} size="xsmall">
               To
             </Text>
             <Box margin={{ vertical: 'small' }} direction="row" justify="start" align="center">
               <Image width="36px" height="36px" alt="token logo" src={pickOne(ATOM, UMEE, isWithdraw)} />
-              <Text color="#142A5B" margin={{ left: 'small' }} size="small">
+              <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
                 {pickOne(
                   Bech32Address.shortenAddress(counterpartyAccount.bech32Address, 30),
                   Bech32Address.shortenAddress(account.bech32Address, 30),

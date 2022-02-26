@@ -78,13 +78,23 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
     () => [
       <>
         <TokenLogo src={layers[0].logo} width="36" height="36" />
-        <Text margin={{ left: 'small' }} color="#142A5B" size="small" title={layers[0].address}>
+        <Text
+          color="clrTextAndDataListHeader"
+          margin={{ left: 'small' }}
+          size="small"
+          title={layers[0].address}
+        >
           {isAccountConnected && truncate(layers[0].address, 25, 4)}
         </Text>
       </>,
       <>
         <Image alt="symbol" src={layers[1].logo} width="36" height="36" />
-        <Text margin={{ left: 'small' }} color="#142A5B" size="small" title={layers[1].address}>
+        <Text
+          color="clrTextAndDataListHeader"
+          margin={{ left: 'small' }}
+          size="small"
+          title={layers[1].address}
+        >
           {truncate(layers[1].address, 23, 4)}
         </Text>
       </>,
@@ -154,7 +164,7 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
         border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
         pad={{ horizontal: 'medium', top: 'medium' }}
       >
-        <Text size="xsmall" className="letter-spacing">
+        <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
           From
         </Text>
         <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
@@ -163,7 +173,7 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
           </Box>
         </Box>
         <Box pad={{ top: 'small' }}>
-          <Text size="xsmall" className="letter-spacing">
+          <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
             To
           </Text>
           <Box pad={{ vertical: 'small' }} width="100%" direction="row" align="center">
@@ -176,14 +186,17 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
           border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
           pad={{ horizontal: 'medium', top: 'small' }}
         >
-          <Text size="xsmall" className="letter-spacing">
+          <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
             BRIDGE FEE
           </Text>
           <Box pad={{ top: 'small' }} direction="row" align="center" justify="between">
-            <Text size="small">Suggested fee</Text>
+            <Text color="clrTextAndDataListHeader" size="small">
+              Suggested fee
+            </Text>
             <Box direction="row" align="center" justify="between">
               {editFeeAmount ? (
                 <TextInput
+                  color="clrTextAndDataListHeader"
                   autoFocus
                   style={{
                     borderStyle: 'none',
@@ -200,28 +213,14 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
                   min="0"
                 />
               ) : (
-                <Text size="small">{feeAmount}</Text>
+                <Text color="clrTextAndDataListHeader" size="small">
+                  {feeAmount}
+                </Text>
               )}
-              <Text size="small" style={{ paddingLeft: 5 }}>
+              <Text color="clrTextAndDataListHeader" size="small" style={{ paddingLeft: 5 }}>
                 {token.symbol}
               </Text>
             </Box>
-          </Box>
-          <Box justify="end" direction="row" pad={{ top: 'xsmall' }}>
-            {editFeeAmount ? (
-              <>
-                <ButtonItem pad="0" margin="0" onClick={handleFeeOkayClick}>
-                  <strong className="gradient-text">OKAY</strong>
-                </ButtonItem>
-                <ButtonItem pad="0" margin={{ left: 'small' }} onClick={handleFeeCancelClick}>
-                  <strong className="gradient-text">CANCEL</strong>
-                </ButtonItem>
-              </>
-            ) : (
-              <ButtonItem pad="0" margin="0" onClick={() => setEditFeeAmount((val) => !val)}>
-                <strong className="gradient-text">EDIT</strong>
-              </ButtonItem>
-            )}
           </Box>
           <Box margin={{ top: 'medium' }} direction="row" gap="0" flex>
             {suggestedFees.map((fee, index) => (
@@ -230,16 +229,16 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
                 direction="row"
                 justify="center"
                 align="center"
-                background={feeAmount === fee.value ? 'clrBoxGradient' : 'clrInfoBarBG'}
+                background={feeAmount === fee.value ? 'clrBoxGradient' : 'clrBridgeFeeBox'}
                 pad="small"
                 flex
                 onClick={() => setFeeAmount(fee.value)}
               >
                 <Box>
-                  <Text size="small" alignSelf="center" weight="bold">
+                  <Text color="clrPrimary" size="small" alignSelf="center" weight="bold">
                     {fee.label}
                   </Text>
-                  <Text margin={{ top: 'xsmall' }} size="xsmall" alignSelf="center">
+                  <Text color="clrPrimary" margin={{ top: 'xsmall' }} size="xsmall" alignSelf="center">
                     {fee.value} {token.symbol}
                   </Text>
                 </Box>

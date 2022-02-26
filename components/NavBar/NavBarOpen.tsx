@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
-import { Box, Text, Image } from 'grommet';
+import { Box, Text, Image, Button } from 'grommet';
 import MobileNav from './MobileNav';
-import OpenNav from '../../public/images/open-nav.svg';
+import { Add } from 'grommet-icons';
 
 const NavBarOpen = () => {
   const [navOpen, setNavOpen] = useState<boolean>(false);
 
   return (
     <>
-      <Box
-        onClick={() => setNavOpen(true)}
-        direction="row"
-        align="center"
-        height={'42px'}
-      >
-        <Text margin={{ right: 'small' }} size="medium">
+      <Box focusIndicator={false} onClick={() => setNavOpen(true)} direction="row" align="center" height={'42px'}>
+        <Text margin={{ right: 'small' }} size="medium" color="clrTextAndDataListHeader">
           Menu
         </Text>
-        <Image src={OpenNav} alt="open nav" />
+        <Button plain={true} icon={<Add color="clrTextAndDataListHeader" />} />
       </Box>
       <MobileNav navOpen={navOpen} close={() => setNavOpen(false)} />
     </>

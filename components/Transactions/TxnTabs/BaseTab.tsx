@@ -13,13 +13,13 @@ export const BaseTab: React.FC<TabProps> = ({ choiceA, choiceB, defaultSelected,
   return (
     <>
       <Box margin={margin || ''} direction="row" flex>
-        <Box direction="row" justify="center" onClick={() => handler(choiceA)} flex>
-          <Text size="medium" color={defaultSelected ? 'clrPrimary' : 'clrDisabled'}>
+        <Box focusIndicator={false} direction="row" justify="center" onClick={() => handler(choiceA)} flex>
+          <Text size="medium" color={defaultSelected ? 'clrTabPrimary' : 'clrTabDisabled'}>
             {choiceA}
           </Text>
         </Box>
-        <Box direction="row" justify="center" onClick={() => handler(choiceB)} flex>
-          <Text size="medium" color={!defaultSelected ? 'clrPrimary' : 'clrDisabled'}>
+        <Box focusIndicator={false} direction="row" justify="center" onClick={() => handler(choiceB)} flex>
+          <Text size="medium" color={!defaultSelected ? 'clrTabPrimary' : 'clrTabDisabled'}>
             {choiceB}
           </Text>
         </Box>

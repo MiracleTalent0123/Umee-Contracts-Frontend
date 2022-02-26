@@ -62,7 +62,7 @@ const DashboardOverview = ({
             { value: '$', textSize: size === 'small' ? 'small' : 'medium' },
             { value: Number(borrowLimit.toFixed(2)).toLocaleString(), textSize: size === 'small' ? 'small' : 'medium' },
           ]}
-          textSize={'small' ? 'small' : 'medium'}
+          textSize={size === 'small' ? 'small' : 'medium'}
           style={InfoPanelItemStyles.Horizontal}
           justify="start"
         />

@@ -159,7 +159,12 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
           <Box width={'100%'} direction="row" fill="horizontal" alignContent="center" alignSelf="center" align="center">
             <Box width={'100%'} direction="column">
               <InfoWindow flex round="5px">
-                <InfoWindowBody round="5px" pad={size === 'small' ? 'small' : 'xsmall'} background="white">
+                <InfoWindowBody
+                  border={{ size: '1px', color: 'clrSideNavBorder' }}
+                  round="5px"
+                  pad={size === 'small' ? 'small' : 'xsmall'}
+                  background="clrBackground"
+                >
                   <Box round="5px" direction={size === 'small' ? 'column' : 'row'} align="center" justify="center">
                     <Box width={{ min: size !== 'small' ? '190px' : '' }}>
                       <InfoPanelItem
@@ -188,7 +193,7 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                     <Box width={{ min: size !== 'small' ? '190px' : '' }}>
                       <InfoPanelItem
                         title="AVAILABLE LIQUIDITY"
-                        titleBg="#131A33"
+                        titleBg="clrTextAndDataListHeader"
                         titleDirection="row-reverse"
                         textSize="xsmall"
                         data={[
@@ -263,7 +268,12 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
               <InfoWindow>
                 <InfoWindowBody background="transparent">
                   <Box margin={{ top: 'small' }} direction={size === 'small' ? 'column' : 'row'} gap="small" flex>
-                    <MarketDetailsBox borderColor="clrDetailBoxBorderTop1" title="SUPPLY INFORMATION" textSize="xsmall">
+                    <MarketDetailsBox
+                      background="clrBackground"
+                      borderColor="clrDetailBoxBorderTop1"
+                      title="SUPPLY INFORMATION"
+                      textSize="xsmall"
+                    >
                       <InfoPanelItem
                         title="Supply Position"
                         textSize="small"
@@ -321,7 +331,12 @@ const MarketsDetail = ({ address: tokenAddress, onClose }: { address: string; on
                         </Link>
                       </Box>
                     </MarketDetailsBox>
-                    <MarketDetailsBox borderColor="clrDetailBoxBorderTop3" title="BORROW INFORMATION" textSize="xsmall">
+                    <MarketDetailsBox
+                      background="clrBackground"
+                      borderColor="clrDetailBoxBorderTop3"
+                      title="BORROW INFORMATION"
+                      textSize="xsmall"
+                    >
                       <InfoPanelItem
                         title="Borrow Position"
                         textSize="small"

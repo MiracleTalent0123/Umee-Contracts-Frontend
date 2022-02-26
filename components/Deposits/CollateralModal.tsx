@@ -38,10 +38,16 @@ const CollateralModal = ({
         {token?.symbol && <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />}
         {!isPending && !isFinal && (
           <Box margin={{ top: 'small' }}>
-            <Text color="black" textAlign="center" size="medium">
+            <Text color="clrTextAndDataListHeader" textAlign="center" size="medium">
               Use as Collateral
             </Text>
-            <Text style={{ lineHeight: 'small' }} margin={{ vertical: 'small' }} size="small" textAlign="center">
+            <Text
+              color="clrTextAndDataListHeader"
+              style={{ lineHeight: 'small' }}
+              margin={{ vertical: 'small' }}
+              size="small"
+              textAlign="center"
+            >
               Enable {token?.symbol && token.symbol} to be used as collateral to increase your borrowing limit. Please
               note collateralized assets can be seized in liquidation.
             </Text>

@@ -18,7 +18,7 @@ export const MaxBtn = ({
   };
   return (
     <Box align="center" onClick={handleOnClick}>
-      <Text color="clrDisabled" size="xsmall" className="letter-spacing">
+      <Text color="clrMidGreyOnNavy" size="xsmall" className="letter-spacing">
         MAX
       </Text>
     </Box>

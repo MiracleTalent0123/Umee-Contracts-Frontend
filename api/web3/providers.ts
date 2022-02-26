@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { ethers, getDefaultProvider } from 'ethers';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -122,7 +121,15 @@ const getFallbackProvider = () => {
 const useProvider = () => {
   const [web3Provider, setWeb3Provider] = useState(defaultWeb3);
 
-  const reloadedProvider = useListeners(web3Provider.provider, web3Modal);
+  const provider = useMemo(() => {
+    if (web3Provider.provider) {
+      return (web3Provider.provider as ethers.providers.Web3Provider).provider as ethers.providers.Provider;
+    } else {
+      return web3Provider.provider;
+    }
+  }, [web3Provider.provider]);
+
+  const reloadedProvider = useListeners(provider, web3Modal);
 
   useEffect(() => {
     if (!reloadedProvider) {

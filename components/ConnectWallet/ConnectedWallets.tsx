@@ -19,7 +19,13 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
   const KeyConnectingWalletType = 'connecting_wallet_type';
 
   return (
-    <Box width="300px" background="white" pad="xsmall" round="5px">
+    <Box
+      width="300px"
+      background="clrBackground"
+      pad="xsmall"
+      round="5px"
+      border={{ size: '1px', color: 'clrBoxBorder' }}
+    >
       <Box
         className={account ? 'connected-wallet' : ''}
         justify="between"
@@ -32,10 +38,10 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
             <Image width="30px" src={Eth} alt="Eth logo" />
           </Box>
           <Box margin={{ left: 'small' }}>
-            <Text weight="bold" size="small">
+            <Text color="clrTextAndDataListHeader" weight="bold" size="small">
               Ethereum
             </Text>
-            <Text margin={{ top: '-4px' }} size="small">
+            <Text color="clrTextAndDataListHeader" margin={{ top: '-4px' }} size="small">
               Metamask
             </Text>
           </Box>
@@ -44,7 +50,13 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
           <Box width={{ min: 'unset' }} direction="row" justify="center">
             <Image width="30px" src={Metamask} alt="Metamask logo" />
           </Box>
-          <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
+          <Text
+            color="clrTextAndDataListHeader"
+            size="small"
+            style={{ width: '100%' }}
+            textAlign="center"
+            margin={{ left: 'xsmall' }}
+          >
             {account ? (
               account
             ) : (
@@ -72,10 +84,10 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
             <Image width="30px" src={Cosmos} alt="Eth logo" />
           </Box>
           <Box margin={{ left: 'small' }}>
-            <Text weight="bold" size="small">
+            <Text color="clrTextAndDataListHeader" weight="bold" size="small">
               Cosmoshub
             </Text>
-            <Text margin={{ top: '-4px' }} size="small">
+            <Text color="clrTextAndDataListHeader" margin={{ top: '-4px' }} size="small">
               Keplr
             </Text>
           </Box>
@@ -84,7 +96,13 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
           <Box direction="row" justify="start" width={{ min: 'unset' }}>
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>
-          <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
+          <Text
+            color="clrTextAndDataListHeader"
+            size="small"
+            style={{ width: '100%' }}
+            textAlign="center"
+            margin={{ left: 'xsmall' }}
+          >
             {isCosmosAccountConnected && cosmosAccount.bech32Address ? (
               truncate(cosmosAccount.bech32Address, 7, 4)
             ) : (
@@ -116,10 +134,10 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
             <Image width="30px" src={UmeeLogo} alt="Umee logo" />
           </Box>
           <Box margin={{ left: 'small' }}>
-            <Text weight="bold" size="small">
+            <Text color="clrTextAndDataListHeader" weight="bold" size="small">
               Umee
             </Text>
-            <Text margin={{ top: '-4px' }} size="small">
+            <Text color="clrTextAndDataListHeader" margin={{ top: '-4px' }} size="small">
               Keplr
             </Text>
           </Box>
@@ -128,7 +146,13 @@ const ConnectedWallets = ({ account }: { account?: string }) => {
           <Box direction="row" justify="start" width={{ min: 'unset' }}>
             <Image width="24px" src={Keplr} alt="Keplr logo" />
           </Box>
-          <Text size="small" color="#142A5B" style={{ width: '100%' }} textAlign="center" margin={{ left: 'xsmall' }}>
+          <Text
+            color="clrTextAndDataListHeader"
+            size="small"
+            style={{ width: '100%' }}
+            textAlign="center"
+            margin={{ left: 'xsmall' }}
+          >
             {isAccountConnected && address ? (
               truncate(address, 7, 4)
             ) : (

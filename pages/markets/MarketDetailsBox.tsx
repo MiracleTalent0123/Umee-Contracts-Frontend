@@ -1,5 +1,5 @@
 import React, { ReactNode, useContext } from 'react';
-import { Text, Box, ResponsiveContext } from 'grommet';
+import { Text, Box, ResponsiveContext, BoxProps } from 'grommet';
 
 export const MarketDetailsBox = ({
   title,
@@ -25,13 +25,14 @@ export const MarketDetailsBox = ({
       round="5px"
       fill="horizontal"
       width="xlarge"
+      border={{ size: '1px', color: 'clrSideNavBorder' }}
     >
       <Box
         pad={{ bottom: 'xsmall' }}
         margin={{ bottom: 'xsmall' }}
         border={{ side: 'bottom', size: '2px', color: borderColor }}
       >
-        <Text size={textSize ? textSize : 'medium'} weight={bold ? 'bold' : 'normal'}>
+        <Text color="clrTextAndDataListHeader" size={textSize ? textSize : 'medium'} weight={bold ? 'bold' : 'normal'}>
           {title}
         </Text>
       </Box>

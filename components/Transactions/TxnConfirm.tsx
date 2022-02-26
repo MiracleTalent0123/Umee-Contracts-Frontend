@@ -11,7 +11,9 @@ export const TxnConfirm = ({ wallet }: { wallet: string }) => {
         <Loading />
       </Box>
       <Box margin={{ bottom: 'medium' }} width="100%" direction="row" justify="center">
-        <Text size="small">Confirm transaction in {wallet} wallet</Text>
+        <Text color="clrTextAndDataListHeader" size="small">
+          Confirm transaction in {wallet} wallet
+        </Text>
       </Box>
     </>
   );

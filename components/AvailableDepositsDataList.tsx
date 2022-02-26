@@ -10,8 +10,8 @@ import DepositModal from './Deposits/DepositModal';
 import { useData } from '../api/data';
 import { useTransaction } from '../api/data/transactions';
 import { ETxnSteps } from 'lib/types';
-import { toast } from 'react-toastify';
 import { IAssetCap } from 'pages/deposit';
+import { displayToast, TToastType } from './common/toasts';
 
 export interface IAvailableDepositsData {
   address: string;
@@ -83,11 +83,11 @@ const AvailableDepositsDataList = ({
   const toggleCollateral = async () => {
     let balance = token && bigNumberToNumber(token.tokenBalance, token.decimals);
     if (isZero(balance)) {
-      toast.error('Sorry, balance is not enough');
+      displayToast('Sorry, balance is not enough', TToastType.TX_FAILED);
       setIsModalShow('');
       return;
     } else if (!userDeposits.find((e) => e.address == tokenAddress)) {
-      toast.error('Asset must be supplied before enabling for collateral');
+      displayToast('Asset must be supplied before enabling for collateral', TToastType.TX_FAILED);
       setIsModalShow('');
       return;
     } else {
@@ -161,13 +161,15 @@ const AvailableDepositsDataList = ({
                     <DataListRow columnSizes={columnSizes} key={`row-${symbol}`} tokenAddress={address}>
                       <TokenItem textSize="small" handleClick={() => setAssetModal(row)} name={symbol} />
                       <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                        <PrimaryText size="small">
+                        <PrimaryText color="clrTextAndDataListHeader" size="small">
                           {tokenBalance && bigNumberToString(tokenBalance, decimals)}
                         </PrimaryText>
                       </TextItem>
                       {size !== 'small' && (
                         <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                          <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                          <PrimaryText color="clrTextAndDataListHeader" size="small">
+                            {apy && bigNumberToString(apy, aprDecimals)}%
+                          </PrimaryText>
                         </TextItem>
                       )}
                       <ToggleSwitch
@@ -193,13 +195,15 @@ const AvailableDepositsDataList = ({
                     <DataListRow columnSizes={columnSizes} key={`row-${symbol}`} tokenAddress={address}>
                       <TokenItem textSize="small" handleClick={() => setAssetModal(row)} name={symbol} />
                       <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                        <PrimaryText size="small">
+                        <PrimaryText color="clrTextAndDataListHeader" size="small">
                           {tokenBalance && bigNumberToString(tokenBalance, decimals)}
                         </PrimaryText>
                       </TextItem>
                       {size !== 'small' && (
                         <TextItem justify="start" handleClick={() => setAssetModal(row)}>
-                          <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                          <PrimaryText color="clrTextAndDataListHeader" size="small">
+                            {apy && bigNumberToString(apy, aprDecimals)}%
+                          </PrimaryText>
                         </TextItem>
                       )}
                       <ToggleSwitch
@@ -226,11 +230,15 @@ const AvailableDepositsDataList = ({
               <DataListRow columnSizes={columnSizes} key={`row-${symbol}`}>
                 <TokenItem textSize="small" name={symbol} />
                 <TextItem justify="start">
-                  <PrimaryText size="small">–</PrimaryText>
+                  <PrimaryText color="clrTextAndDataListHeader" size="small">
+                    –
+                  </PrimaryText>
                 </TextItem>
                 {size !== 'small' && (
                   <TextItem justify="start">
-                    <PrimaryText size="small">{apy && bigNumberToString(apy, aprDecimals)}%</PrimaryText>
+                    <PrimaryText color="clrTextAndDataListHeader" size="small">
+                      {apy && bigNumberToString(apy, aprDecimals)}%
+                    </PrimaryText>
                   </TextItem>
                 )}
                 <ToggleSwitch handleClick={() => null} enabled={false} label={symbol} />

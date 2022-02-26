@@ -94,17 +94,17 @@ const BorrowInputAmount = ({
             border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
             pad={{ top: 'medium', horizontal: 'medium' }}
           >
-            <Text size="xsmall" className="upper-case letter-spacing">
+            <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case letter-spacing">
               {ETxnType.borrow} Rates
             </Text>
             <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Box direction="row" justify="start" align="center">
                 {token?.symbol && <TokenLogo symbol={token?.symbol} width="36" height="36" />}
-                <Text margin={{ left: 'small' }} size="small">
+                <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
                   Borrow APY
                 </Text>
               </Box>
-              <Text size="small">
+              <Text color="clrTextAndDataListHeader" size="small">
                 {token.variableBorrowRate &&
                   parseFloat(utils.formatUnits(token.variableBorrowRate, aprDecimals)).toFixed(2).toString()}
                 %
@@ -112,33 +112,41 @@ const BorrowInputAmount = ({
             </Box>
           </Box>
           <Box margin={{ top: 'small' }} pad={{ horizontal: 'medium' }}>
-            <Text size="xsmall" className="upper-case letter-spacing">
+            <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case letter-spacing">
               Borrow Information
             </Text>
             <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
-              <Text size="small" margin={{ right: 'medium' }}>
+              <Text color="clrTextAndDataListHeader" size="small" margin={{ right: 'medium' }}>
                 Borrow Position
               </Text>
               <Box direction="row" align="center">
-                <Text size="small">${initialBorrowBalance.toFixed(2)}</Text>
+                <Text color="clrTextAndDataListHeader" size="small">
+                  ${initialBorrowBalance.toFixed(2)}
+                </Text>
                 {borrowBalance && (
                   <>
                     <Image margin={{ horizontal: 'xsmall' }} src={Arrow} alt="arrow icon" />
-                    <Text size="small">${borrowBalance}</Text>
+                    <Text color="clrTextAndDataListHeader" size="small">
+                      ${borrowBalance}
+                    </Text>
                   </>
                 )}
               </Box>
             </Box>
             <Box direction="row" justify="between" align="center">
-              <Text margin={{ right: 'medium' }} size="small">
+              <Text color="clrTextAndDataListHeader" margin={{ right: 'medium' }} size="small">
                 Borrow Limit Used
               </Text>
               <Box direction="row" align="center">
-                <Text size="small">{currentLtv}%</Text>
+                <Text color="clrTextAndDataListHeader" size="small">
+                  {currentLtv}%
+                </Text>
                 {ltv && (
                   <>
                     <Image margin={{ horizontal: 'xsmall' }} src={Arrow} alt="arrow icon" />
-                    <Text size="small">{ltv}%</Text>
+                    <Text color="clrTextAndDataListHeader" size="small">
+                      {ltv}%
+                    </Text>
                   </>
                 )}
               </Box>

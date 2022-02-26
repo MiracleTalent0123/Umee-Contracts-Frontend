@@ -1,8 +1,10 @@
+import { Theme, useTheme } from 'lib/hooks/theme/context';
 import React, { useEffect, useState } from 'react';
 
 const InfoCustomMeter = ({ value }: { value?: number }) => {
   const [strokeDasharray1, setStrokeDasharray1] = useState<string>('0, 376.8');
   const [strokeDasharray2, setStrokeDasharray2] = useState<string>('376.8, 376.8');
+  const { themeMode } = useTheme();
 
   useEffect(() => {
     if (value) {
@@ -30,7 +32,7 @@ const InfoCustomMeter = ({ value }: { value?: number }) => {
         cx="75"
         cy="75"
         r="60"
-        stroke="#131A33"
+        stroke={themeMode === Theme.dark ? 'white' : '#131A33'}
         strokeWidth="10"
         fill="none"
         strokeDasharray={strokeDasharray2}

@@ -43,19 +43,23 @@ const InfoPanelItem = ({
       {titleBg ? (
         <Box align="center" direction={titleDirection}>
           <Box margin={{ horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
-          <Text size={textSize || 'medium'}>{title}</Text>
+          <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
+            {title}
+          </Text>
         </Box>
       ) : (
-        <Text size={textSize || 'medium'}>{title}</Text>
+        <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
+          {title}
+        </Text>
       )}
       <Box direction="row" align={align ? align : 'end'}>
         {data &&
           data.map((datum) => (
             <Text
+              color="clrTextAndDataListHeader"
               key={`${title}-${datum.value}`}
               size={datum.textSize || 'medium'}
               weight={datum.bold ? 'bold' : 'normal'}
-              color={datum.color}
               style={{ lineHeight: '22px' }}
             >
               {datum.value}
@@ -68,17 +72,23 @@ const InfoPanelItem = ({
   const HorizontalItem = () => (
     <Box pad={{ vertical: 'xxsmall' }} direction="row" align="center" flex justify={justify ? justify : 'between'}>
       <Box justify="start">
-        <Text size={textSize || 'medium'}>{title}</Text>
-        {!!subTitle && <Text size="xsmall">{subTitle}</Text>}
+        <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
+          {title}
+        </Text>
+        {!!subTitle && (
+          <Text color="clrTextAndDataListHeader" size="xsmall">
+            {subTitle}
+          </Text>
+        )}
       </Box>
       <Box direction="row" align="end" margin={{ left: 'xsmall' }}>
         {data &&
           data.map((datum, index) => (
             <Text
+              color="clrTextAndDataListHeader"
               key={`${title}-${datum.value}`}
               size={datum.textSize || 'medium'}
               weight={datum.bold ? 'bold' : 'normal'}
-              color={datum.color}
               style={{ marginLeft: index > 0 ? '3px' : '' }}
             >
               {datum.value}

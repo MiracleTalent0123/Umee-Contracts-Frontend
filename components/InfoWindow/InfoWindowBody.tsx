@@ -7,11 +7,18 @@ export interface InfoWindowBodyProps {
   pad?: BoxProps['pad'];
   gap?: BoxProps['gap'];
   round?: BoxProps['round'];
+  border?: BoxProps['border'];
 }
 
-const InfoWindowBody = ({ background, pad, gap, children, round }: InfoWindowBodyProps) => {
+const InfoWindowBody = ({ background, pad, gap, children, round, border }: InfoWindowBodyProps) => {
   return (
-    <CardBody round={round || '3px'} background={background || 'white'} pad={pad || 'none'} gap={gap || 'none'}>
+    <CardBody
+      border={border}
+      round={round || '3px'}
+      background={background || 'white'}
+      pad={pad || 'none'}
+      gap={gap || 'none'}
+    >
       {children}
     </CardBody>
   );

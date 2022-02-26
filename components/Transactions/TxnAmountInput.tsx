@@ -42,6 +42,7 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabl
         <Box>
           <Box direction="row" justify="start" align="center" pad={{ top: 'xsmall' }}>
             <TextInput
+              color="clrTextAndDataListHeader"
               style={{
                 borderStyle: 'none',
                 width: `${truncatedValue.toString().length}ch`,
@@ -66,16 +67,16 @@ export const TxnAmountInput: React.FC<TTxnAmountInput> = ({ setTxnAmount, disabl
               min="0"
               disabled={disabled}
             />
-            <Text alignSelf="center" margin={{ left: 'xxsmall' }} size="medium">
+            <Text color="clrTextAndDataListHeader" alignSelf="center" margin={{ left: 'xxsmall' }} size="medium">
               {token?.symbol}
             </Text>
           </Box>
           <Box>
-            {token.symbol != 'UMEE' && 
-              <Text style={{ letterSpacing: '0.1em' }} color={usdPrice > 0 ? 'clrPrimary' : 'clrDisabled'} size="xsmall">
+            {token.symbol != 'UMEE' && (
+              <Text style={{ letterSpacing: '0.1em' }} color={'clrMidGreyOnNavy'} size="xsmall">
                 ~${usdPrice.toFixed(2)}
               </Text>
-            }
+            )}
           </Box>
         </Box>
         <Box>

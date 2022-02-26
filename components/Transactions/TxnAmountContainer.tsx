@@ -42,7 +42,7 @@ export const TxnAmountContainer: React.FC<TxnAmountContainerProps> = ({
   return (
     <Box direction="row">
       <InfoWindow flex>
-        <InfoWindowBody>
+        <InfoWindowBody background="clrBackground">
           <Box width="100%" align="center" alignSelf="center">
             <Box width="100%">{header}</Box>
             <Box width="100%" margin={{ top: 'xxsmall' }}>

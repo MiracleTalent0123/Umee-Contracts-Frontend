@@ -1,0 +1,34 @@
+.theme-toggle-container {
+  position: relative;
+  height: 30px;
+  width: 100%;
+}
+
+.theme-mode-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.light-mode-text {
+  right: 0px;
+}
+
+.dark-mode-text {
+  left: 0;
+}
+
+.theme-toggle-box {
+  position: absolute;
+  height: 100%;
+  padding: 3px;
+  border-radius: 50%;
+  z-index: 10;
+  left: 0;
+  transition: 0.3s ease-in-out;
+}
+
+.theme-toggle-box-dark {
+  left: 100%;
+  transform: translateX(-100%);
+}

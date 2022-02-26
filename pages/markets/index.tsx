@@ -60,7 +60,6 @@ function Markets() {
       const stableBorrowAPR = reserveData.stableBorrowRate;
       localTotalMarketSizeUsd += parseFloat(marketSizeUsd);
 
-      if (reserveData.symbol !== 'WETH') {
         acc.push({
           name: reserveData.symbol,
           address: reserveData.address,
@@ -73,7 +72,6 @@ function Markets() {
           variableBorrowAPR,
           stableBorrowAPR,
         });
-      }
 
       return acc;
     }, Array<IMarketsData>());

@@ -11,16 +11,17 @@ export const BaseModal: React.FC<{ onClose: (show: boolean) => void }> = ({ chil
       <Main
         overflow="none"
         round="10px"
-        background="white"
+        background="clrBackground"
         pad={{ vertical: size === 'small' ? 'large' : 'medium' }}
         gap="small"
         align="center"
         width={size === 'small' ? '95%' : ''}
         margin={'auto'}
+        border={{ size: '1px', color: 'clrSideNavBorder' }}
       >
         {size === 'small' && (
           <Box className="modal-close">
-            <Button onClick={close} plain={true} icon={<Close color="clrPrimary" />} />
+            <Button onClick={close} plain={true} icon={<Close color="clrTextAndDataListHeader" />} />
           </Box>
         )}
         {children}

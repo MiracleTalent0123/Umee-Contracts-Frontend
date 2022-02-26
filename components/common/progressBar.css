@@ -13,14 +13,24 @@
   transform: translateX(-100%);
 }
 
-.indicator::before {
+.indicator-light::before {
   position: absolute;
   content: '';
   right: 0;
   top: 100%;
   height: 30px;
   width: 0px;
-  border: 1px solid #16183C;
+  border: 1px solid #16183c;
+}
+
+.indicator-dark::before {
+  position: absolute;
+  content: '';
+  right: 0;
+  top: 100%;
+  height: 30px;
+  width: 0px;
+  border: 1px solid white;
 }
 
 .indicator-80 {
@@ -34,7 +44,6 @@
 .progress-bar {
   height: 5px;
   border-radius: 5px;
-  background-color: white;
   position: relative;
 }
 
@@ -77,8 +86,8 @@
   transform: translate(-50%, -50%);
 }
 
-@media(max-width: 640px) {
-  .progress-bar-value::before { 
+@media (max-width: 640px) {
+  .progress-bar-value::before {
     top: 20px;
   }
 

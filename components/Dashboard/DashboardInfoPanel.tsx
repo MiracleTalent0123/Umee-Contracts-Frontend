@@ -13,14 +13,16 @@ const DashboardInfoPanel: React.FC<DashboardInfoPanelProps> = ({ title, borderCo
   return (
     <Box
       border={[
-        { side: 'bottom', size: '1px', color: 'clrPrimary' },
+        { side: 'bottom', size: '1px', color: 'clrTextAndDataListHeader' },
         { side: 'top', size: '2px', color: borderColor || 'clrPrimary' },
       ]}
       pad={{ vertical: 'xsmall' }}
       flex
     >
-      <Text size="xsmall">{title}</Text>
-      <Text margin={{ top: 'medium' }} size={size === 'small' ? '32px' : 'large'}>
+      <Text color="clrTextAndDataListHeader" size="xsmall">
+        {title}
+      </Text>
+      <Text color="clrTextAndDataListHeader" margin={{ top: 'medium' }} size={size === 'small' ? '32px' : 'large'}>
         ${value}
       </Text>
     </Box>

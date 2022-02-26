@@ -5,8 +5,11 @@
  */
 interface ITheme {
   global: {
+    font: {
+      [key: string]: any;
+    };
     colors: {
-      [key: string]: string;
+      [key: string]: any;
     };
     breakpoints: {
       [key: string]: {
@@ -20,25 +23,81 @@ interface ITheme {
     };
   };
   layer: {
-    [key: string]: any
-  },
+    [key: string]: any;
+  };
   tip: any;
 }
 
 const grommetTheme: ITheme = {
   global: {
+    font: {
+      family: 'Helvetica',
+    },
     colors: {
       clrPrimary: 'var(--umee-color-primary)',
-      clrDisabled: 'var(--umee-color-disabled)',
+      clrDarkGreyOnNavy: 'var(--umee-dark-grey-on-navy)',
+      clrWhite: 'var(--umee-full-white)',
+      clrOffWhiteBlueLine: 'var(--umee-full-grey3)',
+      clrMidGreyOnNavy: 'var(--umee-mid-grey-on-navy)',
+      clrOffWhiteBlue: 'var(--umee-full-grey1)',
+      clrIconOff: 'var(--umee-full-grey2)',
+      clrBackground: {
+        light: 'clrWhite',
+        dark: 'clrPrimary',
+      },
+      clrSideNavBorder: {
+        light: 'clrPrimary',
+        dark: 'clrDarkGreyOnNavy',
+      },
+      clrBoxBorder: {
+        light: 'clrWhite',
+        dark: 'clrDarkGreyOnNavy'
+      },
+      clrTextAndDataListHeader: {
+        light: 'clrPrimary',
+        dark: 'clrWhite',
+      },
+      clrDataListBorderBottom: {
+        light: 'clrOffWhiteBlueLine',
+        dark: 'clrDarkGreyOnNavy',
+      },
+      clrBarBackground: {
+        light: 'clrOffWhiteBlue',
+        dark: '#2A2C4E',
+      },
+      clrBarRailBackground: {
+        light: 'clrWhite',
+        dark: 'clrMidGreyOnNavy'
+      },
+      clrButtonBorderGrey: {
+        light: 'clrOffWhiteBlueLine',
+        dark: 'clrIconOff'
+      },
+      clrTabPrimary: {
+        light: 'clrPrimary',
+        dark: 'clrWhite'
+      },
+      clrScale: {
+        light: 'clrMidGreyOnNavy',
+        dark: 'clrWhite'
+      },
+      clrBridgeFeeBox: {
+        light: 'clrOffWhiteBlue',
+        dark: '#2A2C4E'
+      },
+      clrThemeSwitchBG: {
+        light: 'clrWhite',
+        dark: 'clrDarkGreyOnNavy'
+      },
+      clrTabDisabled: 'clrMidGreyOnNavy',
       clrBoxGradient: 'var(--umee-gradient)',
       clrDetailBoxBorderTop1: 'var(--umee-full-pink)',
       clrDetailBoxBorderTop2: 'var(--umee-full-purple)',
       clrDetailBoxBorderTop3: 'var(--umee-full-green)',
       clrDefaultBGAndText: 'var(--umee-full-white)',
       clrNavLinkDefault: 'var(--umee-full-grey2)',
-      clrOverlay: 'var(--umee-overlay)',
-      clrButtonBorderGrey: 'var(--umee-full-grey3)',
-      clrInfoBarBG: 'var(--umee-full-grey1)',
+      clrOverlayLight: 'var(--umee-overlay)',
+      clrOverlayDark: 'var(--umee-overlay-dark)',
     },
     breakpoints: {
       small: { value: 640 },
@@ -67,9 +126,12 @@ const grommetTheme: ITheme = {
   },
   layer: {
     overlay: {
-      background: 'clrOverlay',
+      background: {
+        light: 'clrOverlayLight',
+        dark: 'clrOverlayDark',
+      },
     },
-    responsiveBreakpoint: ''
+    responsiveBreakpoint: '',
   },
   tip: {
     content: {

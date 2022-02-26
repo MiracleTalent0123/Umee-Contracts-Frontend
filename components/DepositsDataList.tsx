@@ -22,7 +22,9 @@ const DepositsDataList = ({ columns, data, total }: DepositsDataListProps) => {
       {data?.length ? (
         <>
           <Box pad={{ vertical: 'small' }} className="border-gradient-bottom">
-            <Text size={size === 'small' ? 'small' : 'medium'}>Supply</Text>
+            <Text color="clrTextAndDataListHeader" size={size === 'small' ? 'small' : 'medium'}>
+              Supply
+            </Text>
           </Box>
           <DataList background="neutral-1" columns={columns}>
             {data.map((row) => (
@@ -43,13 +45,13 @@ const Row = ({ columnSizes, row }: { columnSizes: GridSizeType[]; row: IUserTxnD
     <DataListRow columnSizes={columnSizes} key={`row-${symbol}-3`}>
       {symbol && <TokenItem textSize="small" name={symbol} />}
       <TextItem justify="start">
-        <PrimaryText size="small">
+        <PrimaryText color="clrTextAndDataListHeader" size="small">
           {currentUTokenBalance && Number(bigNumberToString(currentUTokenBalance, decimals)).toLocaleString()}
         </PrimaryText>
       </TextItem>
       {size !== 'small' && (
         <TextItem justify="start">
-          <PrimaryText size="small">
+          <PrimaryText color="clrTextAndDataListHeader" size="small">
             {liquidityRate && parseFloat(utils.formatUnits(liquidityRate, BigNumber.from(25))).toFixed(2)}%
           </PrimaryText>
         </TextItem>

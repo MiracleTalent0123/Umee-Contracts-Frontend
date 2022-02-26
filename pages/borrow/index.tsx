@@ -74,19 +74,17 @@ const Borrow = () => {
           }
         }
         if (!data || (data && data.currentVariableDebt?.isZero())) {
-          if (datum.symbol !== 'WETH') {
-            acc.push({
-              address: datum.address,
-              symbol: datum.symbol,
-              color: 'black',
-              tokensAvailable: availableAmount,
-              usdAvailable: datum.usdPrice,
-              variableAPR: datum.variableBorrowRate,
-              decimals: ReserveConfigurationData.find((r) => r.address === datum.address)?.decimals.toNumber(),
-              borrowingEnabled:
-                ReserveConfigurationData.find((r) => r.address === datum.address)?.borrowingEnabled || false,
-            });
-          }
+          acc.push({
+            address: datum.address,
+            symbol: datum.symbol,
+            color: 'black',
+            tokensAvailable: availableAmount,
+            usdAvailable: datum.usdPrice,
+            variableAPR: datum.variableBorrowRate,
+            decimals: ReserveConfigurationData.find((r) => r.address === datum.address)?.decimals.toNumber(),
+            borrowingEnabled:
+              ReserveConfigurationData.find((r) => r.address === datum.address)?.borrowingEnabled || false,
+          }); 
         }
         return acc;
       }, Array<IAvailableBorrowsData>());

@@ -86,15 +86,19 @@ const MarketsDataList: React.FC<MarketsDataListProps> = ({ columns, data, select
           <DataListRow columnSizes={columnSizes} key={`row-${name}`}>
             <TokenItem textSize="small" name={name} handleClick={() => setMarketsModal(address)} />
             <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
-              <PrimaryText size="small">{'$' + abbreviateNumber(marketSizeUsd)}</PrimaryText>
+              <PrimaryText color="clrTextAndDataListHeader" size="small">
+                {'$' + abbreviateNumber(marketSizeUsd)}
+              </PrimaryText>
             </TextItem>
             {size !== 'small' && size !== 'medium' && (
               <>
                 <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
-                  <PrimaryText size="small">{depositAPY && bigNumberToString(depositAPY, aprDecimals)}%</PrimaryText>
+                  <PrimaryText color="clrTextAndDataListHeader" size="small">
+                    {depositAPY && bigNumberToString(depositAPY, aprDecimals)}%
+                  </PrimaryText>
                 </TextItem>
                 <TextItem justify="start" handleClick={() => setMarketsModal(address)}>
-                  <PrimaryText size="small">
+                  <PrimaryText color="clrTextAndDataListHeader" size="small">
                     {variableBorrowAPR && bigNumberToString(variableBorrowAPR, aprDecimals)}%
                   </PrimaryText>
                 </TextItem>

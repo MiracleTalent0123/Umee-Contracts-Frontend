@@ -15,16 +15,16 @@ const TableItem = ({ borrowingEnabled, variableAPR, aprDecimals, textSize }: ITa
   if (!borrowingEnabled) {
     return (
       <>
-        <TextItem justify='start'>
-          <PrimaryText>-</PrimaryText>
+        <TextItem justify="start">
+          <PrimaryText color="clrTextAndDataListHeader">-</PrimaryText>
         </TextItem>
       </>
     );
   } else {
     return (
       <>
-        <TextItem justify='start'>
-          <PrimaryText size={'small'}>
+        <TextItem justify="start">
+          <PrimaryText color="clrTextAndDataListHeader" size={'small'}>
             {variableAPR && bigNumberToString(variableAPR, aprDecimals)}%
           </PrimaryText>
         </TextItem>

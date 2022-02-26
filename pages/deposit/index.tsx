@@ -130,36 +130,33 @@ const Deposit = () => {
           const price = priceData[userReserve.symbol].usd ? String(priceData[userReserve.symbol].usd) : '0.00';
           const priceDecimals = price.indexOf('.') > 0 ? price.length - price.indexOf('.') - 1 : 0;
           const bigPrice = priceData ? utils.parseUnits(price, priceDecimals) : BigNumber.from(0);
-          if (userReserve.symbol !== 'WETH') {
-            acc.push({
-              address: userReserve.address,
-              symbol: userReserve.symbol,
-              color: 'clrReserveIndicatorDefault',
-              tokenBalance: walletBalances[i],
-              usdBalance: walletBalances[i]?.mul(bigPrice),
-              usdPriceDecimals: priceDecimals,
-              apy: userReserve.liquidityRate,
-              decimals: userReserve.decimals.toNumber(),
-              usageAsCollateralEnabled: userReserve.usageAsCollateralEnabled,
-            });
-          }
+          acc.push({
+            address: userReserve.address,
+            symbol: userReserve.symbol,
+            color: 'clrReserveIndicatorDefault',
+            tokenBalance: walletBalances[i],
+            usdBalance: walletBalances[i]?.mul(bigPrice),
+            usdPriceDecimals: priceDecimals,
+            apy: userReserve.liquidityRate,
+            decimals: userReserve.decimals.toNumber(),
+            usageAsCollateralEnabled: userReserve.usageAsCollateralEnabled,
+          });
+          
         }
         return acc;
       }, Array<IAvailableDepositsData>());
     } else if (!web3.account) {
       depositReserves = ReserveData.reduce((acc, userReserve) => {
-        if (userReserve.symbol !== 'WETH') {
-          acc.push({
-            address: userReserve.address,
-            symbol: userReserve.symbol,
-            color: 'clrReserveIndicatorDefault',
-            tokenBalance: BigNumber.from(0),
-            usdBalance: BigNumber.from(0),
-            usdPriceDecimals: 0,
-            apy: userReserve.liquidityRate,
-            decimals: 0,
-          });
-        }
+        acc.push({
+          address: userReserve.address,
+          symbol: userReserve.symbol,
+          color: 'clrReserveIndicatorDefault',
+          tokenBalance: BigNumber.from(0),
+          usdBalance: BigNumber.from(0),
+          usdPriceDecimals: 0,
+          apy: userReserve.liquidityRate,
+          decimals: 0,
+        });
         return acc;
       }, Array<IAvailableDepositsData>());
     } else return;
@@ -170,19 +167,17 @@ const Deposit = () => {
           const price = priceData[reserve.symbol]?.usd ? String(priceData[reserve.symbol].usd) : '0.00';
           const priceDecimals = price.indexOf('.') > 0 ? price.length - price.indexOf('.') - 1 : 0;
           const bigPrice = priceData ? utils.parseUnits(price, priceDecimals) : BigNumber.from(0);
-          if (reserve.symbol !== 'WETH') {
-            acc.push({
-              address: reserve.address,
-              symbol: reserve.symbol,
-              color: 'clrReserveIndicatorDefault',
-              tokenBalance: reserve.currentUTokenBalance,
-              usdBalance: reserve.currentUTokenBalance.mul(bigPrice),
-              usdPriceDecimals: priceDecimals,
-              apy: reserve.liquidityRate,
-              decimals: reserve.decimals.toNumber(),
-              usageAsCollateralEnabled: reserve.usageAsCollateralEnabled,
-            });
-          }
+          acc.push({
+            address: reserve.address,
+            symbol: reserve.symbol,
+            color: 'clrReserveIndicatorDefault',
+            tokenBalance: reserve.currentUTokenBalance,
+            usdBalance: reserve.currentUTokenBalance.mul(bigPrice),
+            usdPriceDecimals: priceDecimals,
+            apy: reserve.liquidityRate,
+            decimals: reserve.decimals.toNumber(),
+            usageAsCollateralEnabled: reserve.usageAsCollateralEnabled,
+          });
         }
         return acc;
       }, Array<IAvailableDepositsData>());

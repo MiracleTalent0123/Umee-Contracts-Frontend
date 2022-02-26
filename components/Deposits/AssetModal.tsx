@@ -27,17 +27,19 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any; enabled: () => v
       {token?.symbol && <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />}
       {!isPending && !isFinal && (
         <>
-          <Text weight="bold" size="xsmall">
+          <Text color="clrTextAndDataListHeader" size="xsmall">
             Deposit Rates
           </Text>
           <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
             <Box direction="row" justify="start" align="center">
               {token?.symbol && <TokenLogo symbol={token?.symbol} width="36" height="36" />}
-              <Text margin="0 0 0 10px" size="small">
+              <Text color="clrTextAndDataListHeader" margin="0 0 0 10px" size="small">
                 Deposit APY
               </Text>
             </Box>
-            <Text size="small">{token?.liquidityRate && bigNumberToString(token.liquidityRate, aprDecimals)}%</Text>
+            <Text color="clrTextAndDataListHeader" size="small">
+              {token?.liquidityRate && bigNumberToString(token.liquidityRate, aprDecimals)}%
+            </Text>
           </Box>
           <PrimaryBtn
             fullWidth

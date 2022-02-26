@@ -2,6 +2,17 @@
   animation: loading 1s linear infinite; 
 }
 
+.toast-container {
+  background-color: white !important;
+  color: var(--umee-color-primary) !important;
+}
+
+.toast-container-dark {
+  background-color: var(--umee-color-primary) !important;
+  border: 1px solid var(--umee-dark-grey-on-navy) !important;
+  color: white !important;
+}
+
 @keyframes loading {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

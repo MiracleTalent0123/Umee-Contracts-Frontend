@@ -1,11 +1,11 @@
 import 'regenerator-runtime/runtime';
 import React, { useContext, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Box, Grommet, ResponsiveContext } from 'grommet';
+import { Box, grommet, Grommet, ResponsiveContext } from 'grommet';
+import { deepMerge } from 'grommet/utils';
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
-
-import theme from 'lib/theme';
+import grommetTheme from 'lib/theme';
 import '../styles/globals.css';
 import { DataProvider } from 'api/data';
 import { Web3Provider } from 'api/web3';
@@ -25,6 +25,7 @@ import { AccountConnectionProvider } from '../lib/hooks/account/context';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
 import NavBarOpen from 'components/NavBar/NavBarOpen';
+import { ThemeContext, Theme, useTheme } from 'lib/hooks/theme/context';
 
 function Body() {
   const size = useContext(ResponsiveContext);
@@ -35,6 +36,7 @@ function Body() {
         <Router>
           <SideNav />
           <Box
+            background="clrBackground"
             className="markets-container"
             direction="row"
             justify="center"
@@ -105,7 +107,35 @@ function Auth() {
 
 const queryClient = new QueryClient();
 
+const theme = deepMerge(grommet, grommetTheme);
+
+function GrommetTheme() {
+  const { themeMode } = useTheme();
+
+  return (
+    <Grommet full theme={theme} themeMode={themeMode === Theme.light ? 'light' : 'dark'}>
+      <Auth />
+      <ToastContainer toastClassName={themeMode === Theme.light ? 'toast-container' : 'toast-container-dark'} />
+    </Grommet>
+  );
+}
+
 function App() {
+  const [themeMode, setTheme] = useState(Theme.light);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      if (savedTheme === 'dark') setTheme(Theme.dark);
+      else setTheme(Theme.light);
+    } else setTheme(Theme.light);
+  }, []);
+
+  useEffect(() => {
+    if (themeMode === Theme.dark) localStorage.setItem('theme', 'dark');
+    else localStorage.setItem('theme', 'light');
+  }, [themeMode]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>
@@ -113,10 +143,9 @@ function App() {
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <Web3Provider>
               <DataProvider>
-                <Grommet theme={theme}>
-                  <Auth />
-                  <ToastContainer />
-                </Grommet>
+                <ThemeContext.Provider value={{ themeMode, setTheme }}>
+                  <GrommetTheme />
+                </ThemeContext.Provider>
               </DataProvider>
             </Web3Provider>
           </ErrorBoundary>

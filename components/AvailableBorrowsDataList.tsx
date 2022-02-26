@@ -73,7 +73,9 @@ const AvailableBorrowsDataList = ({
                     >
                       <TokenItem textSize="small" name={symbol} />
                       <TextItem justify="start">
-                        <PrimaryText size="small">{balance && balance.toFixed(2)}</PrimaryText>
+                        <PrimaryText color="clrTextAndDataListHeader" size="small">
+                          {balance && balance.toFixed(2)}
+                        </PrimaryText>
                       </TextItem>
                       <TableItem
                         borrowingEnabled={borrowingEnabled}
@@ -102,7 +104,7 @@ const AvailableBorrowsDataList = ({
                     >
                       <TokenItem textSize="small" name={symbol} />
                       <TextItem justify="start">
-                        <PrimaryText size="small">
+                        <PrimaryText color="clrTextAndDataListHeader" size="small">
                           {tokensAvailable && bigNumberToString(tokensAvailable, decimals)}
                         </PrimaryText>
                       </TextItem>
@@ -131,10 +133,14 @@ const AvailableBorrowsDataList = ({
                 <DataListRow columnSizes={columnSizes} key={`row-${symbol}`}>
                   <TokenItem textSize="small" name={symbol} />
                   <TextItem justify="start">
-                    <PrimaryText size="small">–</PrimaryText>
+                    <PrimaryText color="clrTextAndDataListHeader" size="small">
+                      –
+                    </PrimaryText>
                   </TextItem>
                   <TextItem justify="start">
-                    <PrimaryText size="small">0.00%</PrimaryText>
+                    <PrimaryText color="clrTextAndDataListHeader" size="small">
+                      0.00%
+                    </PrimaryText>
                   </TextItem>
                 </DataListRow>
               );

@@ -27,7 +27,9 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
         {data.length > 0 && (
           <>
             <Box pad={{ vertical: 'small' }} className="border-gradient-bottom">
-              <Text size={size === 'small' ? 'small' : 'medium'}>Borrow</Text>
+              <Text color="clrTextAndDataListHeader" size={size === 'small' ? 'small' : 'medium'}>
+                Borrow
+              </Text>
             </Box>
             <DataList columns={columns}>
               {data.map((row) => {
@@ -37,14 +39,14 @@ const BorrowsDataList = ({ columns, data, total }: BorrowsDataListProps) => {
                   <DataListRow columnSizes={columnSizes} key={`row-${symbol}-2`}>
                     {symbol && <TokenItem textSize="small" name={symbol} />}
                     <TextItem justify="start">
-                      <PrimaryText size="small">
+                      <PrimaryText color="clrTextAndDataListHeader" size="small">
                         {currentVariableDebt &&
                           Number(bigNumberToString(currentVariableDebt, decimals)).toLocaleString()}
                       </PrimaryText>
                     </TextItem>
                     {size !== 'small' && (
                       <TextItem justify="start">
-                        <PrimaryText size="small">
+                        <PrimaryText color="clrTextAndDataListHeader" size="small">
                           {variableBorrowAPR &&
                             parseFloat(utils.formatUnits(variableBorrowAPR, aprDecimals)).toFixed(2)}
                           %

@@ -6,6 +6,10 @@
   background-color: var(--umee-full-grey3);
 }
 
+.row-container-dark:hover {
+  background-color: #2A2C4E !important;
+}
+
 .row-content > div:first-child {
   padding-left: 5px;
 }

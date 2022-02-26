@@ -11,7 +11,7 @@ const DataListHeader = ({ columns }: DataListHeaderProps) => {
   return (
     <Box
       direction="row"
-      border={{ side: 'bottom', size: '1px', color: '#16183C' }}
+      border={{ side: 'bottom', size: '1px', color: 'clrTextAndDataListHeader' }}
       pad={{ vertical: 'small' }}
       align="center"
       justify="start"
@@ -20,7 +20,7 @@ const DataListHeader = ({ columns }: DataListHeaderProps) => {
       <Grid columns={columnSizes} gap="small" fill="horizontal">
         {columns.map((column, i) => (
           <Box key={`column-${i}`}>
-            <Text size="xsmall" style={{ letterSpacing: '0.1em' }}>
+            <Text size="xsmall" style={{ letterSpacing: '0.1em' }} color="clrTextAndDataListHeader">
               {column.title}
             </Text>
           </Box>

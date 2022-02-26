@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Box, Text, TextProps, BoxProps, ButtonProps } from 'grommet';
 import './button.css';
+import { Theme, useTheme } from 'lib/hooks/theme/context';
 
 export interface ButtonItemProps extends BoxProps {
   text?: string;
@@ -28,6 +29,8 @@ export const SecondaryBtn = ({
   disabled,
   ...props
 }: ButtonItemProps) => {
+  const { themeMode } = useTheme();
+
   return (
     <Button
       style={{ width: fullWidth ? '100%' : 'auto' }}
@@ -37,17 +40,19 @@ export const SecondaryBtn = ({
       disabled={disabled}
     >
       <Box
-        background="clrDefaultBGAndText"
-        className="secondary-btn"
+        className={`secondary-btn ${themeMode === Theme.dark ? 'secondary-btn-dark' : null}`}
         justify={justify || 'center'}
         align={align || 'center'}
         pad={pad || { vertical: 'xsmall' }}
         margin={margin || '0'}
         round={round || '3px'}
-        border={{color: 'clrButtonBorderGrey', size: '2px'}}
+        border={{ color: 'clrButtonBorderGrey', size: '2px' }}
+        background="clrBackground"
         {...props}
       >
-        <Text style={{letterSpacing: '0.1em'}} size={textSize || 'xsmall'}>{text}</Text>
+        <Text color="clrTextAndDataListHeader" style={{ letterSpacing: '0.1em' }} size={textSize || 'xsmall'}>
+          {text}
+        </Text>
       </Box>
     </Button>
   );

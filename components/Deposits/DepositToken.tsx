@@ -13,7 +13,6 @@ import { ETxnSteps } from 'lib/types';
 import { getMaxWithdraws } from 'lib/health-utils';
 import EnableDeposit from './AssetModal';
 import { Box } from 'grommet';
-import { toast } from 'react-toastify';
 import { displayToast, TToastType } from 'components/common/toasts';
 import { IAssetCap } from 'pages/deposit';
 
@@ -320,28 +319,6 @@ const DepositToken = ({
     }
   };
 
-  const handleFaucet = () => {
-    if (token?.symbol === 'DAI' || token?.symbol === 'USDC' || token?.symbol == 'USDT') {
-      setStep(ETxnSteps.Pending);
-      if (!erc20MintContract || !lendingPool) {
-        setStep(ETxnSteps.Failure);
-        return;
-      }
-
-      contractCallMint(
-        ETxnType.mint,
-        () => erc20MintContract.mint(utils.parseUnits('2', tokenDecimals)),
-        `Minting 2 ${token?.symbol}`,
-        'Mint failed',
-        'Mint succeeded',
-        () => {
-          setStep(ETxnSteps.Input);
-          onClose();
-        }
-      );
-    }
-  };
-
   const pickOne = <V1, V2>(v1: V1, v2: V2, first: boolean): V1 | V2 => {
     return first ? v1 : v2;
   };
@@ -368,7 +345,6 @@ const DepositToken = ({
               handleContinue={activeTab === ETxnType.deposit ? handleDeposit : handleWithdrawal}
               txnStep={step}
               setActiveTab={setActiveTab}
-              handleFaucet={handleFaucet}
               currentLtv={currentLtv}
               initialborrowBalance={myBorrowsTotal}
               ltv={ltv}
