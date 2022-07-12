@@ -1,110 +1,159 @@
-import React, { useContext } from 'react';
-import { BigNumber } from 'ethers';
-import { MarketsDataList } from 'components';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { IDataListColumn } from 'components/DataList/DataList';
-import { IMarketsData } from 'components/MarketsDataList';
-import { useData } from 'api/data';
-import { useState, useEffect } from 'react';
-import PageLoading from 'components/common/Loading/PageLoading';
-import { bigNumberToUSDString, bigNumberToString } from 'lib/number-utils';
 import Layout from 'pages/Layout';
 import { ResponsiveContext } from 'grommet';
+import Convexity from './convexity';
+import Reflection from './reflection';
+import { Chain, useChain } from 'lib/hooks/chain/context';
+import { useStore } from 'api/cosmosStores';
+import { useWeb3 } from 'api/web3';
+import { useData } from 'api/data';
+import { useBridgeHistory } from 'api/data/transactions';
+import { EmbedChainInfos } from '../../config';
+import { useUmeeTokenAddress } from 'api/web3/chains';
+import { IReserveConfigurationData } from 'lib/types';
+import TransferHistoryList from 'components/Markets/TransferHistoryList';
+import { WalletStatus } from '@keplr-wallet/stores';
+import TagManager from 'react-gtm-module';
+import { observer } from 'mobx-react-lite';
+
+const tagManagerArgs = {
+  dataLayer: {
+    userId: '0x000000000000000000',
+    userProject: 'umeev1',
+    page: 'markets',
+  },
+  dataLayerName: 'MarketLayer',
+};
+
+export const BridgeTransferEventContext = React.createContext(() => {});
+
+const transferPageSize = 10;
 
 function Markets() {
+  const { chainMode } = useChain();
   const size = useContext(ResponsiveContext);
-  const [marketData, setMarketData] = useState<IMarketsData[]>([]);
-  const [totalMarketSizeUsd, setTotalMarketSizeUsd] = useState(0);
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [usdDecimals, setUsdDecimals] = useState<BigNumber>(BigNumber.from(18));
+  const { chainStore, accountStore } = useStore();
+  const { account: etherAddr, chainId } = useWeb3();
+  const { ReserveConfigurationData } = useData();
+  const umeeTokenAddr = useUmeeTokenAddress(chainId);
+  const umeeCurrency = { address: umeeTokenAddr, decimals: 6, symbol: 'UMEE' } as unknown as IReserveConfigurationData;
+  const [transferPage, setTransferPage] = useState<number>(1);
+  TagManager.dataLayer(tagManagerArgs);
+
+  const cosmosChainInfo = chainStore.getChain(EmbedChainInfos[1].chainId);
+  const osmoChainInfo = chainStore.getChain(EmbedChainInfos[2].chainId);
+  const junoChainInfo = chainStore.getChain(EmbedChainInfos[3].chainId);
+
+  const umeeAccount = accountStore.getAccount(chainStore.current.chainId);
+  const cosmosAccount = accountStore.getAccount(cosmosChainInfo.chainId);
+  const junoAccount = accountStore.getAccount(junoChainInfo.chainId);
+  const osmoAccount = accountStore.getAccount(osmoChainInfo.chainId);
+
+  useEffect(() => {
+    if (umeeAccount.walletStatus === WalletStatus.Loaded) {
+      if (cosmosAccount.walletStatus === WalletStatus.NotInit) {
+        cosmosAccount.init();
+      }
+
+      if (junoAccount.walletStatus === WalletStatus.NotInit) {
+        junoAccount.init();
+      }
+
+      if (osmoAccount.walletStatus === WalletStatus.NotInit) {
+        osmoAccount.init();
+      }
+    }
+  }, [cosmosAccount, junoAccount, osmoAccount, umeeAccount, umeeAccount.walletStatus]);
+
+  const { transferHistory, refetch } = useBridgeHistory(
+    [
+      etherAddr?.toLowerCase() ?? '',
+      umeeAccount.bech32Address,
+      cosmosAccount.bech32Address,
+      junoAccount.bech32Address,
+      osmoAccount.bech32Address,
+    ],
+    [chainStore.current.currencies, cosmosChainInfo.currencies, junoChainInfo.currencies, osmoChainInfo.currencies],
+    ReserveConfigurationData.concat(umeeCurrency),
+    chainMode === Chain.cosmos,
+    chainId === 1
+  );
+
+  const handleBridgeTransfer = useCallback(() => {
+    refetch();
+    setTransferPage(1);
+  }, [refetch]);
 
   const marketColumns: IDataListColumn[] = [
     { title: 'ASSETS', size: 'flex' },
-    { title: 'MARKET SIZE', size: 'flex' },
-    { title: 'SUPPLY APY', size: 'flex' },
-    { title: 'BORROW APY', size: 'flex' },
+    { title: 'MARKET SIZE', size: 'flex', tooltip: 'Total value of assets supplied for lending.' },
+    {
+      title: `SUPPLY ${chainMode === Chain.cosmos ? 'APR' : 'APY'}`,
+      size: 'flex',
+      tooltip:
+        'APR earned for lending assets. APR is variable and this is an approximation used for illustrative purposes.',
+    },
+    {
+      title: `BORROW ${chainMode === Chain.cosmos ? 'APR' : 'APY'}`,
+      size: 'flex',
+      tooltip:
+        'Annual percentage rate paid for borrowing assets. APR is variable and this is an approximation used for illustrative purposes.',
+    },
     { title: '', size: 'flex' },
   ];
 
   const marketMobileColumns: IDataListColumn[] = [
     { title: 'ASSETS', size: 'flex' },
-    { title: 'MARKET SIZE', size: 'xsmall' },
+    { title: 'MARKET SIZE', size: 'xsmall', tooltip: 'Total value of assets supplied for lending.' },
     { title: '', size: 'flex' },
   ];
 
-  const { ReserveData, ReserveConfigurationData, UserReserveData } = useData();
+  const historyColumns: IDataListColumn[] = [
+    { title: 'TRANSACTION', size: 'flex' },
+    { title: 'TYPE', size: 'flex' },
+    { title: 'AMOUNT', size: 'flex' },
+    { title: 'CURRENT STATUS', size: 'flex' },
+    { title: '', size: 'flex' },
+  ];
 
-  useEffect(() => {
-    if (ReserveData && ReserveConfigurationData && marketData.length > 0) {
-      setPageLoading(false);
-    }
-  }, [ReserveConfigurationData, ReserveData, marketData.length]);
-
-  useEffect(() => {
-    let localTotalMarketSizeUsd = 0;
-    let marketsData = ReserveData.reduce((acc, reserveData, index) => {
-      let tokenConfig = ReserveConfigurationData.find((rc) => rc.address === reserveData.address);
-      let decimals = tokenConfig?.decimals || BigNumber.from(18);
-      setUsdDecimals(decimals);
-      let totalBorrowed = reserveData.totalStableDebt.add(reserveData.totalVariableDebt);
-
-      const marketSize = bigNumberToString(reserveData.availableLiquidity.add(totalBorrowed), decimals);
-      const totalBorrowedUsd = bigNumberToUSDString(totalBorrowed, decimals, reserveData.usdPrice);
-      const marketSizeUsd = bigNumberToUSDString(
-        reserveData.availableLiquidity.add(totalBorrowed),
-        decimals,
-        reserveData.usdPrice
-      );
-
-      const depositAPY = reserveData.liquidityRate;
-      const variableBorrowAPR = reserveData.variableBorrowRate;
-      const stableBorrowAPR = reserveData.stableBorrowRate;
-      localTotalMarketSizeUsd += parseFloat(marketSizeUsd);
-
-        acc.push({
-          name: reserveData.symbol,
-          address: reserveData.address,
-          color: 'clrReserveIndicatorSecondary',
-          marketSize,
-          marketSizeUsd,
-          totalBorrowed,
-          totalBorrowedUsd,
-          depositAPY,
-          variableBorrowAPR,
-          stableBorrowAPR,
-        });
-
-      return acc;
-    }, Array<IMarketsData>());
-    let umee = {
-      name: 'UMEE',
-      address: '0xc0a4df35568f116c370e6a6a6022ceb908eeddac',
-      color: 'clrReserveIndicatorSecondary',
-      marketSize: '0',
-      totalBorrowed: BigNumber.from(0),
-      marketSizeUsd: '0.00',
-      totalBorrowedUsd: '0',
-      depositAPY: BigNumber.from(0),
-      variableBorrowAPR: BigNumber.from(0),
-      stableBorrowAPR: BigNumber.from(0),
-    } as IMarketsData;
-    marketsData.splice(1, 0, umee);
-    setMarketData(marketsData);
-    setTotalMarketSizeUsd(localTotalMarketSizeUsd);
-  }, [ReserveConfigurationData, ReserveData, totalMarketSizeUsd, UserReserveData]);
-
-  if (pageLoading) {
-    return <PageLoading />;
-  }
+  const historyMobileColumns: IDataListColumn[] = [
+    { title: 'TRANSACTION', size: 'flex' },
+    { title: 'AMOUNT', size: 'xsmall' },
+    { title: 'CURRENT STATUS', size: 'flex' },
+  ];
 
   return (
     <Layout title="Umee Markets" subtitle="Markets available for cross-chain leverage">
-      <MarketsDataList
-        columns={size === 'small' || size === 'medium' ? marketMobileColumns : marketColumns}
-        data={marketData}
-        decimals={usdDecimals}
-      />
+      <BridgeTransferEventContext.Provider value={handleBridgeTransfer}>
+        {chainMode === Chain.cosmos ? (
+          <Convexity
+            size={size}
+            chain={chainMode}
+            marketColumns={marketColumns}
+            marketMobileColumns={marketMobileColumns}
+          />
+        ) : (
+          <Reflection
+            size={size}
+            chain={chainMode}
+            marketColumns={marketColumns}
+            marketMobileColumns={marketMobileColumns}
+          />
+        )}
+
+        {transferHistory.length > 0 && (
+          <TransferHistoryList
+            columns={size === 'medium' || size === 'small' ? historyMobileColumns : historyColumns}
+            data={transferHistory.slice((transferPage - 1) * transferPageSize, transferPage * transferPageSize)}
+            totalPages={Math.ceil(transferHistory.length / transferPageSize)}
+            onPageChange={setTransferPage}
+            page={transferPage}
+          />
+        )}
+      </BridgeTransferEventContext.Provider>
     </Layout>
   );
 }
 
-export default Markets;
+export default observer(Markets);

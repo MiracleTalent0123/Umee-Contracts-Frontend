@@ -1,8 +1,14 @@
 .row-container {
-  transition: 0.3s;
+  transition: 0.3s ease-out;
+}
+
+.row-container > div:focus {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .row-container:hover {
+  transition: 0.05s ease-in;
   background-color: var(--umee-full-grey3);
 }
 

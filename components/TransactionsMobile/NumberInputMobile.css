@@ -1,0 +1,19 @@
+.NumberInputMobile__percent:not(:first-child) {
+  margin-left: 1em;
+}
+
+.NumberInputMobile__underscore {
+  animation: underscore_animation 1s infinite;
+}
+
+@keyframes underscore_animation {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

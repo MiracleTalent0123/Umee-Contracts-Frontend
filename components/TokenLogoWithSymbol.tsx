@@ -15,10 +15,10 @@ const TokenLogoWithSymbol = ({
 }) => {
   return (
     <>
-      <Box margin="-55px 0 0" direction="column" justify="center" align="center">
+      <Box direction="column" justify="center" align="center" style={{ position: 'relative', minHeight: 'unset' }}>
         <TokenLogo symbol={symbol} src={src} width={width} height={height} />
         <Text color="clrTextAndDataListHeader" margin={{ top: 'xsmall' }} size="xsmall">
-          {symbol}
+          {symbol == 'WETH' ? 'ETH' : symbol}
         </Text>
       </Box>
     </>

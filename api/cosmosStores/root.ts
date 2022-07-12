@@ -2,7 +2,7 @@ import { QueriesStore } from '@keplr-wallet/stores';
 import { AccountStore } from '@keplr-wallet/stores';
 import { DenomHelper, IndexedDBKVStore } from '@keplr-wallet/common';
 import { ChainStore } from './chain';
-import { ChainInfo } from '@keplr-wallet/types';
+import { ChainInfo, Keplr } from '@keplr-wallet/types';
 import { EmbedChainInfos } from '../../config';
 import { Queries, QueriesWithCosmosAndUmee } from './cosmos/query';
 import { Account } from './cosmos/account';
@@ -10,7 +10,6 @@ import { displayToast, TToastType } from 'components/common/toasts';
 import { isSlippageError } from '../../utils/tx';
 import { prettifyTxError } from './prettify-tx-error';
 import { KeplrWalletConnectV1 } from '@keplr-wallet/wc-client';
-import { ConnectWalletManager } from '../../dialogs/connect-wallet';
 import { PoolIntermediatePriceStore } from './price';
 
 export class RootStore {
@@ -18,16 +17,14 @@ export class RootStore {
   public readonly accountStore: AccountStore<Account>;
   public readonly queriesStore: QueriesStore<QueriesWithCosmosAndUmee>;
   public readonly priceStore: PoolIntermediatePriceStore;
-  public readonly connectWalletManager: ConnectWalletManager;
 
-  constructor() {
+  constructor(getKeplr: () => Promise<Keplr | undefined> = () => Promise.resolve(undefined)) {
     this.chainStore = new ChainStore(EmbedChainInfos, EmbedChainInfos[0].chainId);
-    this.connectWalletManager = new ConnectWalletManager(this.chainStore);
 
     this.queriesStore = new QueriesStore(
       new IndexedDBKVStore('store_web_queries'),
       this.chainStore,
-      this.connectWalletManager.getKeplr,
+      getKeplr,
       QueriesWithCosmosAndUmee
     );
 
@@ -36,7 +33,7 @@ export class RootStore {
         prefetching: false,
         suggestChain: true,
         autoInit: false,
-        getKeplr: this.connectWalletManager.getKeplr,
+        getKeplr,
 
         msgOpts: {
           ibcTransfer: {
@@ -96,12 +93,9 @@ export class RootStore {
                 console.log(e);
               }
 
-              displayToast('Transfer Failed', TToastType.TX_FAILED, {
+              displayToast('Transaction Failed', TToastType.TX_FAILED, {
                 message,
               });
-            },
-            onBroadcasted: (txHash: Uint8Array) => {
-              displayToast('Transferring', TToastType.TX_BROADCASTING);
             },
             onFulfill: (tx: any) => {
               if (tx.code) {
@@ -117,15 +111,13 @@ export class RootStore {
                   }
                 }
 
-                displayToast('Transfer Failed', TToastType.TX_FAILED, { message });
+                displayToast('Transaction Failed', TToastType.TX_FAILED, { message });
               }
             },
           },
         };
       }),
     });
-		
-		this.connectWalletManager.setAccountStore(this.accountStore);
 
     this.priceStore = new PoolIntermediatePriceStore(
       EmbedChainInfos[0].chainId,
@@ -141,8 +133,6 @@ export class RootStore {
       },
       'usd'
     );
-
-    this.connectWalletManager.setAccountStore(this.accountStore);
   }
 }
 

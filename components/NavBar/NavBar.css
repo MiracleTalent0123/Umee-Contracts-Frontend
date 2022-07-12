@@ -1,3 +1,12 @@
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to { 
+    transform: translateX(0);
+  }
+}
+
 .sidenav {
   height: 100%;
   width: 106px;
@@ -6,7 +15,15 @@
   left: 0;
   padding-top: 20px;
   position: fixed;
+  animation: slideIn .5s var(--umee-ease-out) forwards;
   overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, .1) transparent;
+}
+
+.sidenav-menus {
+  display: block !important;
+  position: relative;
 }
 
 .sidenav-menus a {
@@ -15,17 +32,18 @@
   font-size: 25px;
   display: flex;
   justify-content: center;
-  padding: 15px 0;
+  padding: 12px 0;
 }
 
-.sidenav-menus a.active::before {
+.sidenav-menus .menu-tab {
   position: absolute;
   content: '';
   top: 0;
   left: 0;
   background: linear-gradient(180.14deg, #fda9ff 0.12%, #c9b8ff 27.33%, #4dffe5 99.92%);
   width: 5px;
-  height: 100%;
+  height: calc(100% / 6);
+  transition: ease-in 0.3s;
 }
 
 .main {
@@ -49,6 +67,7 @@
 
 .sidenav-menus a:not(.active):hover .icon-img .icon-hover {
   opacity: 1;
+  transition: none;
   position: initial;
 }
 
@@ -59,17 +78,24 @@
 
 .navbar {
   position: fixed;
-  top: 0;
-  left: -100%;
+  top: -100%;
+  left: 0;
   width: 100%;
-  height: 100vh;
-  z-index: 1000;
+  z-index: 10;
   opacity: 0;
-  transition: 0.3s ease-in-out;
+  transition: 0.2s ease-in-out;
+}
+
+.fixed-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
 }
 
 .navbar.open {
-  left: 0;
+  top: 90px;
   opacity: 1;
 }
 
@@ -77,4 +103,8 @@
   position: absolute;
   bottom: 0;
   left: 0;
+}
+
+.external-link {
+  margin-top: -4px;
 }

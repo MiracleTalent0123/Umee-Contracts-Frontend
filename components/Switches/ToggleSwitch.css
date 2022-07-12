@@ -1,8 +1,7 @@
 .toggle-label {
-  font-size: 15px !important;
   position: relative;
   z-index: 1;
-  transition: ease-in-out 0.3s;
+  text-transform: uppercase;
 }
 
 .toggle-hover-label:hover {
@@ -19,7 +18,6 @@
 .toggle-active {
   position: absolute;
   top: 0;
-  background-color: white;
   float: right;
-  transition: ease-in-out 0.3s;
+  transition: 0.3s ease-in-out;
 }

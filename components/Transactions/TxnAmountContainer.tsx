@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Button, ResponsiveContext, Text } from 'grommet';
+import { Box, ResponsiveContext } from 'grommet';
 import { InfoWindow, InfoWindowBody } from 'components/InfoWindow';
 import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
 import { PrimaryBtn } from 'components/common';

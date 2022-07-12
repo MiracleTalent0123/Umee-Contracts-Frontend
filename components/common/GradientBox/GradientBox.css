@@ -1,0 +1,21 @@
+.GradientBox {
+  position: relative;
+  z-index: 1;
+  border: none !important;
+}
+
+.GradientBox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(104.74deg, #DFB2FF 3.52%, #4EFFE5 96.25%);
+  padding: 1px;
+  border-radius: 5px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+}

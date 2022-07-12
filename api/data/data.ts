@@ -1,60 +1,30 @@
 import { BigNumber } from 'ethers';
 import { useWeb3 } from '../web3';
 
-import {
-  UmeeProtocolDataProvider,
-  LendingPool,
-  Gravity
-} from '../types';
+import { UmeeProtocolDataProvider, LendingPool, Gravity } from '../types';
 
-import {
-  useUmeeProtocolDataProviderContract,
-  useLendingPoolContract,
-  useGravityContract
-} from './contracts';
+import { useUmeeProtocolDataProviderContract, useLendingPoolContract, useGravityContract } from './contracts';
 
-import {
-  useAllReserveTokens,
-  useReserveConfigurationData,
-  useReserveData
-} from './assetdata';
+import { useAllReserveTokens, useReserveConfigurationData, useReserveData } from './assetdata';
 
-import {
-  useUserAccountData,
-  useUserReserveData,
-} from './userdata';
+import { GetBridgeHistoryFn, getBridgeHistory, useUserAccountData, useUserReserveData } from './userdata';
 
-import {
-  IAssetPrices,
-  usePriceData,
-} from './pricedata';
+import { IAssetPrices, usePriceData } from './pricedata';
+import { IReserveConfigurationData } from 'lib/types';
 export interface Data {
   Contracts: {
-    dataProvider?: UmeeProtocolDataProvider,
-    lendingPool?: LendingPool,
-    gravity?: Gravity
-  },
+    dataProvider?: UmeeProtocolDataProvider;
+    lendingPool?: LendingPool;
+    gravity?: Gravity;
+  };
   Addresses: {
-    addressProvider?: string,
-    reserve?: { symbol: string; tokenAddress: string }[],
-  },
-  ReserveConfigurationData: {
-    symbol: string,
-    address: string,
-    decimals: BigNumber;
-    ltv: BigNumber;
-    liquidationThreshold: BigNumber;
-    liquidationBonus: BigNumber;
-    reserveFactor: BigNumber;
-    usageAsCollateralEnabled: boolean;
-    borrowingEnabled: boolean;
-    stableBorrowRateEnabled: boolean;
-    isActive: boolean;
-    isFrozen: boolean;
-  }[],
+    addressProvider?: string;
+    reserve?: { symbol: string; tokenAddress: string }[];
+  };
+  ReserveConfigurationData: IReserveConfigurationData[];
   ReserveData: {
-    symbol: string,
-    address: string,
+    symbol: string;
+    address: string;
     usdPrice: number;
     availableLiquidity: BigNumber;
     totalStableDebt: BigNumber;
@@ -66,7 +36,7 @@ export interface Data {
     liquidityIndex: BigNumber;
     variableBorrowIndex: BigNumber;
     lastUpdateTimestamp: number;
-  }[],
+  }[];
   UserAccountData?: {
     totalCollateralETH: BigNumber;
     totalDebtETH: BigNumber;
@@ -74,7 +44,7 @@ export interface Data {
     currentLiquidationThreshold: BigNumber;
     ltv: BigNumber;
     healthFactor: BigNumber;
-  },
+  };
   UserReserveData: {
     symbol: string;
     address: string;
@@ -88,10 +58,10 @@ export interface Data {
     liquidityRate: BigNumber;
     stableRateLastUpdated: number;
     usageAsCollateralEnabled: boolean;
-  }[],
-
-  priceData: IAssetPrices | undefined,
-};
+  }[];
+  getBridgeHistory: GetBridgeHistoryFn;
+  priceData: IAssetPrices | undefined;
+}
 
 function useSystemData() {
   const { account } = useWeb3();
@@ -105,34 +75,47 @@ function useSystemData() {
 
   // Asset Data Access
   const returnAssetData = useAllReserveTokens(UmeeProtocolDataProviderContract);
-  let returnReserveConfigurationData = useReserveConfigurationData(UmeeProtocolDataProviderContract, LendingPoolContract, account, returnAssetData);
-  const returnReserveData = useReserveData(UmeeProtocolDataProviderContract, LendingPoolContract, returnAssetData, priceData);
+  let returnReserveConfigurationData = useReserveConfigurationData(
+    UmeeProtocolDataProviderContract,
+    LendingPoolContract,
+    account,
+    returnAssetData
+  );
+  const returnReserveData = useReserveData(LendingPoolContract, priceData)
 
   // User Data Access
   const returnUserAccountData = useUserAccountData(LendingPoolContract, account);
-  const returnUserReserveData = useUserReserveData(UmeeProtocolDataProviderContract, returnAssetData, returnReserveConfigurationData, account, LendingPoolContract);
+  const returnUserReserveData = useUserReserveData(
+    UmeeProtocolDataProviderContract,
+    returnAssetData,
+    returnReserveConfigurationData,
+    account,
+    LendingPoolContract
+  );
   returnReserveConfigurationData = returnReserveConfigurationData.reduce((acc, token) => {
-    if(token.symbol === 'ATOM'){
+    if (token.symbol === 'ATOM') {
       token.decimals = BigNumber.from(6);
     }
     acc.push(token);
     return acc;
-  },Array());
+  }, Array());
 
   const data: Data = {
     Contracts: {
       dataProvider: UmeeProtocolDataProviderContract,
       lendingPool: LendingPoolContract,
-      gravity: GravityContract
+      gravity: GravityContract,
     },
     Addresses: {
       reserve: returnAssetData,
     },
-    ReserveConfigurationData: returnReserveConfigurationData,
-    ReserveData: returnReserveData,
+    ReserveConfigurationData: returnReserveConfigurationData.filter(
+      (token) => token.symbol === 'ATOM' || token.symbol === 'UMEE'
+    ),
+    ReserveData: returnReserveData.filter((token) => token.symbol === 'ATOM' || token.symbol === 'UMEE'),
     UserAccountData: returnUserAccountData,
-    UserReserveData: returnUserReserveData,
-
+    UserReserveData: returnUserReserveData.filter((token) => token.symbol === 'ATOM' || token.symbol === 'UMEE'),
+    getBridgeHistory,
     priceData,
   };
 

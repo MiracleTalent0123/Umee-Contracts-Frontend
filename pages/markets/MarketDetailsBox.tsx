@@ -32,7 +32,12 @@ export const MarketDetailsBox = ({
         margin={{ bottom: 'xsmall' }}
         border={{ side: 'bottom', size: '2px', color: borderColor }}
       >
-        <Text color="clrTextAndDataListHeader" size={textSize ? textSize : 'medium'} weight={bold ? 'bold' : 'normal'}>
+        <Text
+          style={{ textTransform: 'uppercase' }}
+          color="clrTextAndDataListHeader"
+          size={textSize ? textSize : 'medium'}
+          weight={bold ? 'bold' : 'normal'}
+        >
           {title}
         </Text>
       </Box>

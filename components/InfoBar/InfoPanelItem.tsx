@@ -1,13 +1,13 @@
-import { Box, BoxExtendedProps, BoxProps, Text } from 'grommet';
-import { AlignContentType, JustifyContentType } from 'grommet/utils';
-import * as React from 'react';
-import { BigNumber } from 'ethers';
+import { Box, BoxProps, Text } from 'grommet'
+import * as React from 'react'
+import InfoTooltip from 'components/common/InfoTooltip/InfoTooltip'
+import { BigNumber } from 'ethers'
 
 export interface InfoPanelData {
-  value?: string;
-  textSize?: string;
-  bold?: boolean;
-  color?: string;
+  value?: string | BigNumber
+  textSize?: string
+  bold?: boolean
+  color?: string
 }
 
 export enum InfoPanelItemStyles {
@@ -16,16 +16,28 @@ export enum InfoPanelItemStyles {
 }
 
 export interface InfoPanelItemProps {
-  title: string;
-  data: InfoPanelData[];
-  style?: InfoPanelItemStyles;
-  align?: BoxProps['align'];
-  justify?: BoxProps['justify'];
-  subTitle?: string;
-  textSize?: string;
-  titleBg?: string;
-  titleDirection?: BoxProps['direction'];
+  title: string
+  data: InfoPanelData[]
+  style?: InfoPanelItemStyles
+  align?: BoxProps['align']
+  justify?: BoxProps['justify']
+  subTitle?: string
+  textSize?: string
+  titleBg?: string
+  titleDirection?: BoxProps['direction']
+  tooltip?: string
 }
+
+interface TitleProps {
+  title: string
+  textSize?: string
+}
+
+const Title: React.FC<TitleProps> = ({ title, textSize }) => (
+  <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
+    {title}
+  </Text>
+)
 
 const InfoPanelItem = ({
   data,
@@ -37,20 +49,17 @@ const InfoPanelItem = ({
   titleBg,
   titleDirection,
   style = InfoPanelItemStyles.Vertical,
+  tooltip,
 }: InfoPanelItemProps) => {
   const VerticalItem = () => (
     <Box justify={justify ? justify : 'center'} pad={{ vertical: 'xsmall' }} align={align ? align : 'end'} flex>
       {titleBg ? (
         <Box align="center" direction={titleDirection}>
           <Box margin={{ horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
-          <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
-            {title}
-          </Text>
+          <Title title={title} textSize={textSize} />
         </Box>
       ) : (
-        <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
-          {title}
-        </Text>
+        <Title title={title} textSize={textSize} />
       )}
       <Box direction="row" align={align ? align : 'end'}>
         {data &&
@@ -67,14 +76,19 @@ const InfoPanelItem = ({
           ))}
       </Box>
     </Box>
-  );
+  )
 
   const HorizontalItem = () => (
     <Box pad={{ vertical: 'xxsmall' }} direction="row" align="center" flex justify={justify ? justify : 'between'}>
       <Box justify="start">
-        <Text color="clrTextAndDataListHeader" size={textSize || 'medium'}>
-          {title}
-        </Text>
+        {titleBg ? (
+          <Box align="center" direction={titleDirection}>
+            <Box margin={{ horizontal: '2px' }} width="10px" height="10px" background={titleBg} />
+            <Title title={title} textSize={textSize} />
+          </Box>
+        ) : (
+          <Title title={title} textSize={textSize} />
+        )}
         {!!subTitle && (
           <Text color="clrTextAndDataListHeader" size="xsmall">
             {subTitle}
@@ -96,9 +110,17 @@ const InfoPanelItem = ({
           ))}
       </Box>
     </Box>
-  );
+  )
 
-  return style === InfoPanelItemStyles.Vertical ? <VerticalItem /> : <HorizontalItem />;
-};
+  return style === InfoPanelItemStyles.Vertical ? (
+    <VerticalItem />
+  ) : tooltip ? (
+    <InfoTooltip content={tooltip}>
+      <HorizontalItem />
+    </InfoTooltip>
+  ) : (
+    <HorizontalItem />
+  )
+}
 
-export default InfoPanelItem;
+export default InfoPanelItem

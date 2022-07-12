@@ -20,10 +20,29 @@ export enum ETxnType {
   repay = 'Repay',
   borrow = 'Borrow',
   deposit = 'Supply',
+  markets = 'Markets',
+  transfer = 'Transfer',
+  ibcToUmee = 'IBC to Umee',
+  ibcToCosmos = 'IBC to Cosmos',
+  bridgeToUmee = 'Bridge to Umee',
+  bridgeToEthereum = 'Bridge to Ethereum',
   mint = 'Mint'
 }
 
-export interface IUserTxnCommon { 
+export enum DelegateType {
+  delegate = 'Delegate',
+  redelegate = 'Redelegate',
+  undelegate = 'Undelegate',
+}
+
+export enum TxnStatusType {
+  initiated = 'initiated',
+  inProgress = 'inProgress',
+  complete = 'complete',
+  cancelled = 'cancelled',
+}
+
+export interface IUserTxnCommon {
   symbol: string;
   address: string;
   decimals: BigNumber;
@@ -33,14 +52,14 @@ export interface IUserTxnCommon {
   principalStableDebt: BigNumber;
   scaledVariableDebt: BigNumber;
   stableBorrowRate: BigNumber;
-  liquidityRate: BigNumber;
-  stableRateLastUpdated: number;
+  liquidityRate: BigNumber | string;
+  stableRateLastUpdated?: number;
   usageAsCollateralEnabled: boolean;
   usdPrice: number;
-} 
-export interface IUserTxnBorrow extends IUserTxnCommon { 
-  variableBorrowAPR: BigNumber;
-  stableBorrowAPR: BigNumber;
+}
+export interface IUserTxnBorrow extends IUserTxnCommon {
+  variableBorrowAPR: BigNumber | string;
+  stableBorrowAPR: BigNumber | string;
 }
 export interface IUserTxnDeposit extends IUserTxnCommon {
   // no extension.
@@ -79,12 +98,13 @@ export interface ITokenData {
   availableLiquidity?: BigNumber;
   totalStableDebt?: BigNumber;
   totalVariableDebt?: BigNumber;
-  liquidityRate?: BigNumber;
-  variableBorrowRate?: BigNumber;
+  liquidityRate?: BigNumber | string;
+  variableBorrowRate?: BigNumber | string;
   stableBorrowRate?: BigNumber;
   averageStableBorrowRate?: BigNumber;
   liquidityIndex?: BigNumber;
   variableBorrowIndex?: BigNumber;
+  ltv?: BigNumber;
 }
 
 export interface IReserveData {
@@ -142,11 +162,11 @@ export interface IBorrowData {
   principalStableDebt?: BigNumber;
   scaledVariableDebt?: BigNumber;
   stableBorrowRate?: BigNumber;
-  liquidityRate?: BigNumber;
+  liquidityRate?: BigNumber | string;
   stableRateLastUpdated?: number;
   usageAsCollateralEnabled?: boolean;
-  variableBorrowAPR: BigNumber;
-  stableBorrowAPR: BigNumber;
+  variableBorrowAPR: BigNumber | string;
+  stableBorrowAPR: BigNumber | string;
   decimals: BigNumber;
   usdPrice?: number;
 }

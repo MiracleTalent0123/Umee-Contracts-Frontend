@@ -11,7 +11,7 @@ export interface InfoBarBodyProps {
 
 const InfoBarBody = ({ children, margin, color = 'white', gap, direction }: InfoBarBodyProps) => {
   return (
-    <Box gap={gap || 'medium'} direction={direction || 'row'} flex wrap>
+    <Box gap={gap || 'medium'} margin={margin} direction={direction || 'row'} flex wrap>
       {children}
     </Box>
   );

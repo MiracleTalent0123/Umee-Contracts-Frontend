@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useContext } from 'react';
 import { Currency } from '@keplr-wallet/types';
 import { BigNumber, constants } from 'ethers';
 import { useData } from 'api/data';
@@ -15,12 +15,14 @@ import umeeLogo from '../public/images/Logo.svg';
 import ethereumLogo from '../public/images/eth-logo.svg';
 import { parseUnits } from 'ethers/lib/utils';
 import { displayToast, TToastType } from 'components/common/toasts';
-import { useProvider } from 'api/web3/providers';
 import { truncateAfterDecimals } from 'lib/number-utils';
+import { BridgeTransferEventContext } from 'pages/markets';
+import { observer } from 'mobx-react-lite';
 
 interface BridgeDialogProps {
   address: string;
   tokenName: string;
+  direction: ETxnType.deposit | ETxnType.withdraw
   onClose: () => void;
 }
 
@@ -31,10 +33,27 @@ export interface suggestedFee {
 
 const gasSpentBy20txBatch = 735000;
 
-const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, tokenName, onClose }) => {
-  const [activeTab, setActiveTab] = useState<ETxnType>(ETxnType.deposit);
+const suggestedFees: suggestedFee[] = [
+  { label: 'Average', value: 100 },
+  { label: 'Fast', value: 1000 },
+];
+
+const BridgeDialog: React.FC<BridgeDialogProps> = ({
+  address: tokenAddress,
+  tokenName,
+  onClose,
+  direction
+}) => {
+  const [activeTab, setActiveTab] = useState<ETxnType>(direction)
+
+  useEffect(() => {
+    setActiveTab(direction)
+  }, [direction])
+
+
   const balanceOnEthereum = useUserBalance(tokenAddress) || BigNumber.from(6);
   const [step, setStep] = useState<ETxnSteps>(ETxnSteps.Input);
+  const bridgeTransferEvent = useContext(BridgeTransferEventContext);
   const {
     ReserveData,
     ReserveConfigurationData,
@@ -47,21 +66,19 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
   const allowance = useAllowanceData(tokenContract, gravity ? gravity.address : '');
 
   const [feeAmount, setFeeAmount] = useState(0);
-  const suggestedFees: suggestedFee[] = [
-    { label: 'Average', value: 100 },
-    { label: 'Fast', value: 1000 },
-  ];
+
   const [fees, setFees] = useState(suggestedFees);
 
-  // reserveCfgData is token data on Ethereum
-  // 1M uatom on Ethereum is 1 ATOM
-  // todo: use reserveCfgData.decimals instead of hardcoded value once atom decimals on Ethereum is updated to 6
-  const decimalsOnEthereum = BigNumber.from(6);
   // reserveCfgData is token data on Ethereum
   const reserveCfgData = useMemo(
     () => ReserveConfigurationData.find((r) => r.address === tokenAddress),
     [ReserveConfigurationData, tokenAddress]
   );
+
+  // 1M uatom on Ethereum is 1 ATOM
+  // todo: use reserveCfgData.decimals instead of hardcoded value once atom decimals on Ethereum is updated to 6
+  const decimalsOnEthereum = reserveCfgData?.decimals ?? BigNumber.from(6);
+  const daiDecimals = BigNumber.from(18);
   const token = useMemo(() => {
     if (tokenName == 'UMEE') {
       return {
@@ -79,7 +96,7 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
         variableBorrowIndex: BigNumber.from(0),
       };
     } else {
-      const reserve = ReserveData.find((r) => r.address === tokenAddress);
+      const reserve = ReserveData.find((r) => r.address.toLowerCase() === tokenAddress.toLowerCase());
       return {
         symbol: reserve?.symbol,
         address: tokenAddress as string,
@@ -107,31 +124,49 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
         const wei = gasPrice.toNumber();
         const currenEthGasPriceInGwei = truncateAfterDecimals(wei / 10 ** 9, 6);
         const feeInEth = (gasSpentBy20txBatch * currenEthGasPriceInGwei) / 1000000000;
-        const ethPrice = ReserveData.find((r) => r.symbol === 'WETH')?.usdPrice || 3000;
+        const ethPrice = priceData['WETH'].usd;
         const feeTimesEth = feeInEth * ethPrice;
         const fast = (feeTimesEth / priceData[symbol].usd) * 1.5;
-        setFeeAmount(truncateAfterDecimals(fast / 20, 6));
-        suggestedFees[0].value = truncateAfterDecimals(fast / 20, 6);
+        let avg = fast / 20;
+
+        if (symbol == 'ATOM') {
+          avg = fast / 2;
+        }
+
+        setFeeAmount(truncateAfterDecimals(avg, 6));
+        suggestedFees[0].value = truncateAfterDecimals(avg, 6);
         suggestedFees[1].value = truncateAfterDecimals(fast, 6);
         setFees(suggestedFees);
       });
     }
-  }, [web3.provider, priceData, token.symbol]);
-
-  const originCurrency =
+  }, [web3.provider, priceData, token.symbol, ReserveData]);
+  let originCurrency: Currency;
+  if (tokenName == 'UMEE') {
+    originCurrency = chainStore.current.currencies.find((cur) => cur.coinMinimalDenom === 'uumee') as Currency;
+  } else if (tokenName == 'ATOM') {
+    originCurrency = chainStore.current.currencies.find(
+      (cur) => cur.coinMinimalDenom === IBCAssetInfos[0].coinMinimalDenom
+    ) as Currency;
+  } else {
+    originCurrency = chainStore.current.currencies.find(
+      (cur) => cur.coinMinimalDenom === 'gravity0xd787Ec2b6C962f611300175603741Db8438674a0'
+    ) as Currency;
+  }
+  /*originCurrency =
     tokenName == 'UMEE'
       ? (chainStore.current.currencies.find((cur) => cur.coinMinimalDenom === 'uumee') as Currency)
       : (chainStore.current.currencies.find(
         (cur) => cur.coinMinimalDenom === IBCAssetInfos[0].coinMinimalDenom
-      ) as Currency);
-  const account = useMemo(() => accountStore.getAccount(chainStore.current.chainId), [chainStore, accountStore]);
+      ) as Currency);*/
+  const account = accountStore.getAccount(chainStore.current.chainId);
 
   const sendToEthereum = useCallback(
     (amount: number, fee: number) => () => {
       const token = chainStore.current.currencies.find((c) => c.coinDenom === tokenName);
+
       let denom = tokenName == 'UMEE' ? 'uumee' : token?.coinMinimalDenom;
+
       const ethereumAddress = web3.account?.toLowerCase();
-      const account = accountStore.getAccount(chainStore.current.chainId);
       if (ethereumAddress && denom) {
         setStep(ETxnSteps.Pending);
         account.umee
@@ -139,19 +174,20 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
             ethereumAddress,
             denom,
             parseUnits(amount.toString(), originCurrency.coinDecimals).toString(),
-            parseUnits(fee.toString(), originCurrency.coinDecimals).toString()
+            parseUnits(fee.toString(), originCurrency.coinDecimals).toString(),
+            bridgeTransferEvent
           )
           .catch((e) => console.log(e))
           .finally(() => onClose());
       }
     },
-    [chainStore, tokenName, web3.account, accountStore, originCurrency.coinDecimals, onClose]
+    [chainStore, tokenName, web3.account, account.umee, originCurrency.coinDecimals, bridgeTransferEvent, onClose]
   );
 
   const sendToUmee = useCallback(
     (amount: number) => () => {
       if (gravity && tokenContract && decimalsOnEthereum && web3.account) {
-        const roundedAmount = Math.round(amount * 10 ** decimalsOnEthereum.toNumber());
+        const roundedAmount = Math.round(amount * 10 ** decimalsOnEthereum.toNumber()).toString();
         const tx = async () => {
           if (allowance?.lt(roundedAmount)) {
             const tx = await tokenContract.approve(gravity.address, constants.MaxUint256);
@@ -181,7 +217,8 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
               },
               { delay: 3000 }
             );
-          }
+          },
+          bridgeTransferEvent
         );
       }
     },
@@ -195,20 +232,17 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
       allowance,
       tokenAddress,
       onClose,
+      bridgeTransferEvent,
     ]
   );
 
-  const balance = useMemo(
-    () =>
-      BigNumber.from(
-        queriesStore
-          .get(chainStore.current.chainId)
-          .queryBalances.getQueryBech32Address(account.bech32Address)
-          .getBalanceFromCurrency(originCurrency)
-          .toCoin().amount
-      ),
-    [account.bech32Address, chainStore, originCurrency, queriesStore]
-  );
+  const balance = BigNumber.from(
+    queriesStore
+      .get(chainStore.current.chainId)
+      .queryBalances.getQueryBech32Address(account.bech32Address)
+      .getBalanceFromCurrency(originCurrency)
+      .toCoin().amount
+  )
 
   if (!(token && balanceOnEthereum)) {
     return <PageLoading />;
@@ -219,7 +253,12 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
       txnAvailability={{
         availableAmount: activeTab === ETxnType.deposit ? balance : balanceOnEthereum,
         token,
-        tokenDecimals: activeTab === ETxnType.deposit ? originCurrency.coinDecimals : decimalsOnEthereum,
+        tokenDecimals:
+          activeTab === ETxnType.deposit
+            ? originCurrency.coinDecimals
+            : token.symbol == 'DAI'
+              ? daiDecimals
+              : decimalsOnEthereum,
       }}
       layers={[
         { address: account.bech32Address, logo: umeeLogo },
@@ -237,4 +276,4 @@ const BridgeDialog: React.FC<BridgeDialogProps> = ({ address: tokenAddress, toke
   );
 };
 
-export default BridgeDialog;
+export default observer(BridgeDialog);

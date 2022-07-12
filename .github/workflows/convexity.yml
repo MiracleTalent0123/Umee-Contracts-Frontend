@@ -1,0 +1,53 @@
+name: Build and Deploy Convexity
+
+on:
+  push:
+    branches:
+      - convexity
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: nvm
+
+      - name: Use Node.js (.nvmrc)
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.nvm.outputs.NVMRC }}
+
+      - name: Edit package.json
+        run: npx json -I -f package.json -e 'this.homepage="${{ secrets.CONVEXITY_HOMEPAGE_URL }}"'
+      
+      - run: env
+
+      - name: Install and Build
+        run: |
+          npm install
+          npm run build
+        env:
+          API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
+          FALLBACK_CHAIN_ID: ${{ secrets.CONVEXITY_FALLBACK_CHAIN_ID }}
+          SUPPORTED_CHAIN_IDS: ${{ secrets.CONVEXITY_SUPPORTED_CHAIN_IDS }}
+          GRAVITY_ADDRESSES: ${{ secrets.CONVEXITY_GRAVITY_ADDRESSES }}
+          UMEE_TOKEN_ADDRESSES: ${{ secrets.CONVEXITY_UMEE_TOKEN_ADDRESSES }}
+          DATA_PROVIDER_ADDRESSES: ${{ secrets.CONVEXITY_DATA_PROVIDER_ADDRESSES }}
+          LENDING_POOL_ADDRESSES: ${{ secrets.CONVEXITY_LENDING_POOL_ADDRESSES }}
+          INFURA_API_KEY: ${{ secrets.CONVEXITY_INFURA_API_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.CONVEXITY_ALCHEMY_API_KEY }}
+          ETHERSCAN_API_KEY: ${{ secrets.CONVEXITY_ETHERSCAN_API_KEY }}
+          REACT_APP_GTM_ID: ${{ secrets.CONVEXITY_GTM_ID }}
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          repository-name: ${{ secrets.CONVEXITY_DEPLOY_REPOSITORY_NAME }}
+          ssh-key: ${{ secrets.CONVEXITY_DEPLOY_KEY }}
+          branch: gh-pages
+          folder: dist
+          clean: true

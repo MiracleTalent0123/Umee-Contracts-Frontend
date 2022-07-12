@@ -1,16 +1,17 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Box, Text, Image, TextInput } from 'grommet';
+import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
+import { Box, Text, Image, TextInput, ResponsiveContext } from 'grommet';
 import { TxnAmountContainer, TxnConfirm } from 'components/Transactions';
 import TokenLogo from 'components/TokenLogo';
 import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
-import { TTxnAvailability, ETxnType, ETxnSteps } from 'lib/types';
+import { TTxnAvailability, ETxnType, ETxnSteps, ITokenData } from 'lib/types';
 import truncate from 'lib/truncate';
 import { useAccountConnection } from 'lib/hooks/account/useAccountConnection';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { BaseTab } from 'components/Transactions/TxnTabs';
 import { utils } from 'ethers';
-import { ButtonItem } from 'components';
 import { suggestedFee } from 'dialogs/Bridge';
+import { Chain, useChain } from 'lib/hooks/chain/context';
+import GradientBox from 'components/common/GradientBox/GradientBox';
+import TransactionContainer from 'components/TransactionsMobile/TransactionContainer';
 
 enum Steps {
   Input,
@@ -44,12 +45,17 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
   suggestedFees,
 }) => {
   const [amount, setAmount] = useState('');
+  const { chainMode } = useChain();
 
   const { isAccountConnected } = useAccountConnection();
+
+  const [preview, setPreview] = useState<boolean>(false)
 
   const [feeAmount, setFeeAmount] = useState(0);
 
   const [editFeeAmount, setEditFeeAmount] = useState(false);
+
+  const size = useContext(ResponsiveContext)
 
   useEffect(() => setFeeAmount(defaultFeeAmount), [defaultFeeAmount]);
 
@@ -78,23 +84,13 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
     () => [
       <>
         <TokenLogo src={layers[0].logo} width="36" height="36" />
-        <Text
-          color="clrTextAndDataListHeader"
-          margin={{ left: 'small' }}
-          size="small"
-          title={layers[0].address}
-        >
+        <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small" title={layers[0].address}>
           {isAccountConnected && truncate(layers[0].address, 25, 4)}
         </Text>
       </>,
       <>
         <Image alt="symbol" src={layers[1].logo} width="36" height="36" />
-        <Text
-          color="clrTextAndDataListHeader"
-          margin={{ left: 'small' }}
-          size="small"
-          title={layers[1].address}
-        >
+        <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small" title={layers[1].address}>
           {truncate(layers[1].address, 23, 4)}
         </Text>
       </>,
@@ -123,9 +119,64 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
     setEditFeeAmount(false);
   }, [defaultFeeAmount, feeAmount]);
 
+  if (size === 'small') {
+    return (
+      <TransactionContainer
+        onClose={() => {}}
+        symbol={token.symbol}
+        bridge
+        txnType={ETxnType.transfer}
+        withdrawModal={false}
+        availableAmount={txnMaxAvail.availableAmount}
+        tokenDecimals={tokenDecimals}
+        txnAmount={amount}
+        txnAvailability={txnAvailability}
+        setTxnAmount={setAmount}
+        setIsPreview={setPreview}
+        isPreview={preview}
+        handleContinue={handleContinue(Number(amount), feeAmount)}
+        isPending={step === Steps.Pending}
+        isFinal={step === Steps.Final}
+      >
+        <Text color='clrTextAndDataListHeader' size='small'>
+          From
+        </Text>
+        <GradientBox pad='.5em' margin={{ top: 'xsmall' }}>
+          <Box direction="row" justify="start" align="center">
+            {layerInfo[txnType === ETxnType.deposit ? 0 : 1]}
+          </Box>
+        </GradientBox>
+        <Text color='clrTextAndDataListHeader' size='small' margin={{ top: 'small'}}>
+          To
+        </Text>
+        <GradientBox pad='.5em' margin={{ top: 'xsmall' }}>
+          <Box direction="row" justify="start" align="center">
+            {layerInfo[txnType === ETxnType.withdraw ? 0 : 1]}
+          </Box>
+        </GradientBox>
+        {txnType === ETxnType.deposit && (
+          <>
+            <Box
+              border={{ size: '1px', color: 'clrBorderGrey', side: 'top' }}
+              margin={{ vertical: 'large', horizontal: '-24px'}}
+              style={{ maxWidth: 'none' }}
+            />
+            <FeeConfig
+              setFeeAmount={setFeeAmount}
+              feeAmount={feeAmount}
+              editFeeAmount={editFeeAmount}
+              token={token}
+              suggestedFees={suggestedFees}
+            />
+          </>
+        )}
+      </TransactionContainer>
+    )
+  }
+
   if (step !== Steps.Input) {
     return (
-      <TxnAmountContainer header={<TokenLogoWithSymbol width="60" height="60" symbol={token.symbol ?? ''} />}>
+      <TxnAmountContainer>
         {step === Steps.Pending && <TxnConfirm wallet={txnType === ETxnType.deposit ? 'Keplr' : 'Metamask'} />}
       </TxnAmountContainer>
     );
@@ -138,16 +189,13 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
       handleContinue={handleContinue(Number(amount), feeAmount)}
       buttonDisabled={Number(amount) === 0 || editFeeAmount}
       header={
-        <>
-          <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol ?? ''} />
-          <BaseTab
-            choiceA={depositTab}
-            choiceB={withdrawTab}
-            defaultSelected={txnType === ETxnType.deposit}
-            handler={() => onTabChange(txnType === ETxnType.deposit ? ETxnType.withdraw : ETxnType.deposit)}
-            margin={{ top: 'medium' }}
-          />
-        </>
+        <BaseTab
+          choiceA={chainMode === Chain.cosmos ? withdrawTab : depositTab}
+          choiceB={chainMode === Chain.cosmos ? depositTab : withdrawTab}
+          defaultSelected={chainMode === Chain.cosmos ? txnType === ETxnType.withdraw : txnType === ETxnType.deposit}
+          handler={() => onTabChange(txnType === ETxnType.deposit ? ETxnType.withdraw : ETxnType.deposit)}
+          margin={{ top: 'medium' }}
+        />
       }
     >
       <Box pad={{ horizontal: 'medium' }}>
@@ -161,7 +209,7 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
         <TxnAmountInputRow txnAvailability={txnMaxAvail} setTxnAmount={setAmount} txnAmount={amount} />
       </Box>
       <Box
-        border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+        border={{ size: '1px', color: 'clrBorderGrey', side: 'top' }}
         pad={{ horizontal: 'medium', top: 'medium' }}
       >
         <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
@@ -183,72 +231,98 @@ const BridgeInputAmount: React.FC<BridgeInputProps> = ({
       </Box>
       {txnType === ETxnType.deposit && (
         <Box
-          border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+          border={{ size: '1px', color: 'clrBorderGrey', side: 'top' }}
           pad={{ horizontal: 'medium', top: 'small' }}
         >
-          <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
-            BRIDGE FEE
-          </Text>
-          <Box pad={{ top: 'small' }} direction="row" align="center" justify="between">
-            <Text color="clrTextAndDataListHeader" size="small">
-              Suggested fee
-            </Text>
-            <Box direction="row" align="center" justify="between">
-              {editFeeAmount ? (
-                <TextInput
-                  color="clrTextAndDataListHeader"
-                  autoFocus
-                  style={{
-                    borderStyle: 'none',
-                    width: '6em',
-                    maxWidth: '6em',
-                    fontSize: '15px',
-                    fontWeight: 'normal',
-                    textAlign: 'right',
-                    padding: 0,
-                  }}
-                  onChange={(e: any) => setFeeAmount(e.target.value)}
-                  value={feeAmount}
-                  type="number"
-                  min="0"
-                />
-              ) : (
-                <Text color="clrTextAndDataListHeader" size="small">
-                  {feeAmount}
-                </Text>
-              )}
-              <Text color="clrTextAndDataListHeader" size="small" style={{ paddingLeft: 5 }}>
-                {token.symbol}
-              </Text>
-            </Box>
-          </Box>
-          <Box margin={{ top: 'medium' }} direction="row" gap="0" flex>
-            {suggestedFees.map((fee, index) => (
-              <Box
-                key={index}
-                direction="row"
-                justify="center"
-                align="center"
-                background={feeAmount === fee.value ? 'clrBoxGradient' : 'clrBridgeFeeBox'}
-                pad="small"
-                flex
-                onClick={() => setFeeAmount(fee.value)}
-              >
-                <Box>
-                  <Text color="clrPrimary" size="small" alignSelf="center" weight="bold">
-                    {fee.label}
-                  </Text>
-                  <Text color="clrPrimary" margin={{ top: 'xsmall' }} size="xsmall" alignSelf="center">
-                    {fee.value} {token.symbol}
-                  </Text>
-                </Box>
-              </Box>
-            ))}
-          </Box>
+          <FeeConfig
+            setFeeAmount={setFeeAmount}
+            feeAmount={feeAmount}
+            editFeeAmount={editFeeAmount}
+            token={token}
+            suggestedFees={suggestedFees}
+          />
         </Box>
       )}
     </TxnAmountContainer>
   );
 };
+
+interface FeeConfigProps {
+  setFeeAmount: (val: number) => void
+  feeAmount: number
+  editFeeAmount: boolean
+  token: ITokenData
+  suggestedFees: suggestedFee[]
+}
+
+const FeeConfig = ({
+  setFeeAmount,
+  feeAmount,
+  editFeeAmount,
+  token,
+  suggestedFees,
+}: FeeConfigProps) => (
+  <Box>
+    <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
+      BRIDGE FEE
+    </Text>
+    <Box pad={{ top: 'small' }} direction="row" align="center" justify="between">
+      <Text color="clrTextAndDataListHeader" size="small">
+        Suggested fee
+      </Text>
+      <Box direction="row" align="center" justify="between">
+        {editFeeAmount ? (
+          <TextInput
+            color="clrTextAndDataListHeader"
+            autoFocus
+            style={{
+              borderStyle: 'none',
+              width: '6em',
+              maxWidth: '6em',
+              fontSize: '15px',
+              fontWeight: 'normal',
+              textAlign: 'right',
+              padding: 0,
+            }}
+            onChange={(e: any) => setFeeAmount(e.target.value)}
+            value={feeAmount}
+            type="number"
+            min="0"
+          />
+        ) : (
+          <Text color="clrTextAndDataListHeader" size="small">
+            {feeAmount}
+          </Text>
+        )}
+        <Text color="clrTextAndDataListHeader" size="small" style={{ paddingLeft: 5 }}>
+          {token.symbol}
+        </Text>
+      </Box>
+    </Box>
+    <Box margin={{ top: 'medium' }} direction="row" gap="0" flex>
+      {suggestedFees.map((fee, index) => (
+        <Box
+          key={index}
+          direction="row"
+          justify="center"
+          align="center"
+          background={feeAmount === fee.value ? 'clrBoxGradient' : 'clrBridgeFeeBox'}
+          pad="small"
+          flex
+          onClick={() => setFeeAmount(fee.value)}
+        >
+          <Box>
+            <Text color="clrPrimary" size="small" alignSelf="center" weight="bold">
+              {fee.label}
+            </Text>
+            <Text color="clrPrimary" margin={{ top: 'xsmall' }} size="xsmall" alignSelf="center">
+              {fee.value} {token.symbol}
+            </Text>
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  </Box>
+)
 
 export default BridgeInputAmount;

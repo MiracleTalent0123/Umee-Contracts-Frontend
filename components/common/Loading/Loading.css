@@ -3,6 +3,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  padding-top: 35px;
 }
 
 .loader {
@@ -13,10 +14,23 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;  
-  animation: rot 2.5s linear infinite; 
+  opacity: 0;
+  animation: rot 2s linear infinite, bounceIn .75s cubic-bezier(0.28, 0.84, 0.42, 1);
 }
 
 @keyframes rot {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); opacity: 0; }
+  20% { opacity: 1 }
+  75% { opacity: .7; }
+  100% { transform: rotate(360deg); opacity: .5 }
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(.8,1)     translateY(0); }
+  10%  { transform: scale(1.1,.95)  translateY(0); }
+  30%  { transform: scale(.95,1.1)  translateY(0); }
+  50%  { transform: scale(1.05,.98) translateY(0); }
+  57%  { transform: scale(1,1)      translateY(0); }
+  64%  { transform: scale(1,1)      translateY(0); }
+  100% { transform: scale(1,1)      translateY(0); }
 }

@@ -6,7 +6,8 @@ import { MeterProps } from 'grommet';
 import { bigNumberToNumber } from 'lib/number-utils';
 import { IAssetPrices } from './pricedata';
 
-const useUserAccountData = (lendingPool: LendingPool | undefined, user: string | undefined) => {
+
+export const useUserAccountData = (lendingPool: LendingPool | undefined, user: string | undefined) => {
   const [userAccountData, setUserAccountData] = useState<{
     totalCollateralETH: BigNumber;
     totalDebtETH: BigNumber;
@@ -54,7 +55,7 @@ const useUserAccountData = (lendingPool: LendingPool | undefined, user: string |
   return userAccountData;
 };
 
-const useUserReserveData = (
+export const useUserReserveData = (
   umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined,
   assets: { symbol: string; tokenAddress: string }[] | undefined,
   reserveConfigurations: IReserveConfigurationData[] | undefined,
@@ -130,7 +131,7 @@ export interface IUserCollateralTotals {
   USD: string;
 }
 
-const useUserCollateralTotals = (
+export const useUserCollateralTotals = (
   priceData: IAssetPrices | undefined,
   userReserves: IUserReserveData[],
   toFixedETH = 5,
@@ -176,7 +177,7 @@ export interface IUserCollateralData {
   [symbol: string]: ITokenCollateralData;
 }
 
-const useUserCollateralData = (
+export const useUserCollateralData = (
   priceData: IAssetPrices | undefined,
   userReserves: IUserReserveData[],
   toFixedETH = 5,
@@ -211,7 +212,7 @@ const useUserCollateralData = (
   return collateralData;
 };
 
-const useUserCollateralChartData = (
+export const useUserCollateralChartData = (
   priceData: IAssetPrices | undefined,
   userReserves: IUserReserveData[],
 ) => {
@@ -247,7 +248,7 @@ const useUserCollateralChartData = (
   return chartData;
 };
 
-const useUserDepositChartData = (
+export const useUserDepositChartData = (
   priceData: IAssetPrices | undefined,
   userReserves: IUserReserveData[],
 ) => {
@@ -276,13 +277,4 @@ const useUserDepositChartData = (
   }, [userReserves, priceData]);
 
   return chartData;
-};
-
-export {
-  useUserAccountData,
-  useUserReserveData,
-  useUserDepositChartData,
-  useUserCollateralChartData,
-  useUserCollateralData,
-  useUserCollateralTotals,
 };

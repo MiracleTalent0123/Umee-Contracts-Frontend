@@ -1,3 +1,7 @@
+.primary-btn:hover {
+  background-image: var(--umee-gradient-inverse);
+}
+
 .secondary-btn:hover {
   border: double 2px transparent;
   background-image: linear-gradient(white, white), var(--umee-gradient);

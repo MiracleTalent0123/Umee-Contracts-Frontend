@@ -1,5 +1,6 @@
-import React from 'react';
-import { Button, Box, Text, TextProps, BoxProps, ButtonProps } from 'grommet';
+import React, { useContext } from 'react'
+import { Button, TextProps, BoxProps, ButtonProps, ResponsiveContext } from 'grommet'
+import { PrimaryBtnBox } from './PrimaryButtonBox'
 
 export interface ButtonItemProps extends BoxProps {
   text?: string;
@@ -10,6 +11,7 @@ export interface ButtonItemProps extends BoxProps {
   fullWidth?: boolean;
   disabled?: boolean;
   className?: string;
+  children?: React.ReactNode;
 }
 
 export const PrimaryBtn = ({
@@ -27,8 +29,11 @@ export const PrimaryBtn = ({
   fullWidth,
   disabled,
   className,
+  children,
   ...props
 }: ButtonItemProps) => {
+  const size = useContext(ResponsiveContext)
+
   return (
     <Button
       style={{ width: fullWidth ? '100%' : 'auto' }}
@@ -37,18 +42,16 @@ export const PrimaryBtn = ({
       hoverIndicator={hoverIndicator || 'false'}
       disabled={disabled}
     >
-      <Box
-        background="clrBoxGradient"
-        justify={justify || 'center'}
-        align={align || 'center'}
-        pad={pad || { vertical: 'xsmall' }}
-        margin={margin || '0'}
-        round={round || '3px'}
-        className={className}
+      <PrimaryBtnBox
+        pad={pad}
+        margin={margin}
+        round={round}
+        justify={justify}
+        align={align}
+        text={text}
+        textSize={textSize}
         {...props}
-      >
-        <Text size={textSize || 'xsmall'}>{text}</Text>
-      </Box>
+      />
     </Button>
-  );
-};
+  )
+}

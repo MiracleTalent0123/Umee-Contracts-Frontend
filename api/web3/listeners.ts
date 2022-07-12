@@ -12,7 +12,10 @@ const useListeners = (provider: ethers.providers.Provider | undefined, web3Modal
     const switchNetwork = async (provider: any) => {
       try {
         await provider
-          .request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x5' }] })
+          .request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x' + Number(process.env.FALLBACK_CHAIN_ID).toString(16) }]
+          })
           .then((value: any) => {
             const web3Provider = new ethers.providers.Web3Provider(provider);
             setMyProvider(web3Provider);

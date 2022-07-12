@@ -1,23 +1,27 @@
-import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
-import { Box, Text } from 'grommet';
-import React from 'react';
+import React from 'react'
+import { Box, Text } from 'grommet'
+import ConnectWallet from 'components/ConnectWallet/ConnectWallet'
 
-const NoWalletConnectedBox = () => {
+const NoConnectWalletedBox = () => {
   return (
     <>
-      <Box direction="column" alignContent="center" alignSelf="center" margin={{ top: 'xlarge' }} pad="small">
+      <Box direction="column" alignContent="center" alignSelf="center" margin={{ top: 'large' }} pad="small">
         <Box justify="center" alignContent="center" alignSelf="center" pad="small">
-          <Text weight="bold">Please connect your wallet</Text>
+          <Text color="clrTextAndDataListHeader" size="medium" weight="bold">
+            Please connect your wallet
+          </Text>
         </Box>
         <Box justify="center" alignContent="center" alignSelf="center">
-          To see your deposited / borrowed assets, you need to connect your wallet.
+          <Text color="clrTextAndDataListHeader" textAlign='center' size="small">
+            To see your deposited / borrowed assets, you need to connect your wallet.
+          </Text>
         </Box>
         <Box justify="center" alignContent="center" alignSelf="center" pad="small">
-          <ConnectWalletButton />
+          <ConnectWallet />
         </Box>
       </Box>
     </>
-  );
-};
+  )
+}
 
-export default NoWalletConnectedBox;
+export default NoConnectWalletedBox

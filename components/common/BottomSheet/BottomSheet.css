@@ -1,0 +1,14 @@
+.dark [data-rsbs-overlay] {
+  outline: 1px solid var(--umee-dark-grey-on-navy);
+  background-color: var(--umee-full-dark);
+  outline-offset: -1px;
+}
+
+.dark [data-rsbs-header]:before {
+  background-color: var(--umee-dark-grey-on-navy);
+}
+
+[data-rsbs-header] {
+  padding: 0;
+  padding-top: 20px !important;
+}

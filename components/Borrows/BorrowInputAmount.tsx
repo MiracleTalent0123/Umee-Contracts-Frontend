@@ -1,17 +1,17 @@
-import React from 'react';
-import { Box, Text, Image } from 'grommet';
-import { TxnAmountContainer } from 'components/Transactions';
-import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types';
-import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions';
-import TokenLogo from 'components/TokenLogo';
-import { BigNumber, utils } from 'ethers';
-import Arrow from '/public/images/arrow.png';
-import _ from 'lodash';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
-import { BaseTab } from 'components/Transactions/TxnTabs';
-import { TxnConfirm } from 'components/Transactions';
+import React from 'react'
+import { Box, Text, Image } from 'grommet'
+import { TxnAmountContainer } from 'components/Transactions'
+import { TTxnAvailability, ETxnSteps, ETxnType } from 'lib/types'
+import { AvailableToTxnInformationRow, TxnAmountInputRow } from 'components/Transactions'
+import TokenLogo from 'components/TokenLogo'
+import { BigNumber, utils } from 'ethers'
+import Arrow from '/public/images/arrow.png'
+import _ from 'lodash'
+import { BaseTab } from 'components/Transactions/TxnTabs'
+import { TxnConfirm } from 'components/Transactions'
+import { Chain, useChain } from 'lib/hooks/chain/context'
 
-const aprDecimals = BigNumber.from(25);
+const aprDecimals = BigNumber.from(25)
 
 export interface DepositProps {
   txnAvailability: TTxnAvailability;
@@ -42,17 +42,18 @@ const BorrowInputAmount = ({
   balance,
   txnAmount,
 }: DepositProps) => {
-  const { availableAmount, tokenDecimals, token } = txnAvailability;
-  const [isPending, setIsPending] = React.useState(false);
-  const [isFinal, setIsFinal] = React.useState(false);
+  const { availableAmount, tokenDecimals, token } = txnAvailability
+  const [isPending, setIsPending] = React.useState(false)
+  const [isFinal, setIsFinal] = React.useState(false)
+  const { chainMode } = useChain()
 
   React.useEffect(() => {
     txnStep === ETxnSteps.Pending || txnStep === ETxnSteps.PendingApprove || txnStep === ETxnSteps.PendingSubmit
       ? setIsPending(true)
-      : setIsPending(false);
+      : setIsPending(false)
 
-    txnStep === ETxnSteps.Failure || txnStep === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false);
-  }, [txnStep]);
+    txnStep === ETxnSteps.Failure || txnStep === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false)
+  }, [txnStep])
 
   return (
     <TxnAmountContainer
@@ -63,18 +64,15 @@ const BorrowInputAmount = ({
       buttonDisabled={Number(txnAmount) === 0}
       header={
         token.symbol && (
-          <>
-            <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />
-            {!isPending && !isFinal && (
-              <BaseTab
-                choiceA={ETxnType.borrow}
-                choiceB={ETxnType.repay}
-                defaultSelected={txnType === ETxnType.borrow}
-                handler={setActiveTab}
-                margin={{ top: 'medium' }}
-              />
-            )}
-          </>
+          !isPending && !isFinal && (
+            <BaseTab
+              choiceA={ETxnType.borrow}
+              choiceB={ETxnType.repay}
+              defaultSelected={txnType === ETxnType.borrow}
+              handler={setActiveTab}
+              margin={{ top: 'medium' }}
+            />
+          )
         )
       }
     >
@@ -91,7 +89,7 @@ const BorrowInputAmount = ({
             <TxnAmountInputRow txnAmount={txnAmount} txnAvailability={txnAvailability} setTxnAmount={setTxnAmount} />
           </Box>
           <Box
-            border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+            border={{ size: '1px', color: 'clrBorderGrey', side: 'top' }}
             pad={{ top: 'medium', horizontal: 'medium' }}
           >
             <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case letter-spacing">
@@ -101,23 +99,25 @@ const BorrowInputAmount = ({
               <Box direction="row" justify="start" align="center">
                 {token?.symbol && <TokenLogo symbol={token?.symbol} width="36" height="36" />}
                 <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
-                  Borrow APY
+                  {ETxnType.borrow} {chainMode === Chain.cosmos ? 'APR' : 'APY'}
                 </Text>
               </Box>
               <Text color="clrTextAndDataListHeader" size="small">
                 {token.variableBorrowRate &&
-                  parseFloat(utils.formatUnits(token.variableBorrowRate, aprDecimals)).toFixed(2).toString()}
+                  (chainMode == Chain.ethereum
+                    ? parseFloat(utils.formatUnits(token.variableBorrowRate, aprDecimals)).toFixed(2).toString()
+                    : token.variableBorrowRate)}
                 %
               </Text>
             </Box>
           </Box>
           <Box margin={{ top: 'small' }} pad={{ horizontal: 'medium' }}>
             <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case letter-spacing">
-              Borrow Information
+              {ETxnType.borrow} Information
             </Text>
             <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Text color="clrTextAndDataListHeader" size="small" margin={{ right: 'medium' }}>
-                Borrow Position
+                {ETxnType.borrow} Position
               </Text>
               <Box direction="row" align="center">
                 <Text color="clrTextAndDataListHeader" size="small">
@@ -135,7 +135,7 @@ const BorrowInputAmount = ({
             </Box>
             <Box direction="row" justify="between" align="center">
               <Text color="clrTextAndDataListHeader" margin={{ right: 'medium' }} size="small">
-                Borrow Limit Used
+                {ETxnType.borrow} Limit Used
               </Text>
               <Box direction="row" align="center">
                 <Text color="clrTextAndDataListHeader" size="small">
@@ -154,9 +154,9 @@ const BorrowInputAmount = ({
           </Box>
         </>
       )}
-      {isPending && <TxnConfirm wallet="Metamask" />}
+      {isPending && <TxnConfirm wallet={chainMode == Chain.ethereum ? 'Metamask' : 'Keplr'} />}
     </TxnAmountContainer>
-  );
-};
+  )
+}
 
-export default BorrowInputAmount;
+export default BorrowInputAmount

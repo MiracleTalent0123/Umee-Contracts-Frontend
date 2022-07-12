@@ -1,12 +1,13 @@
-import { Box, Button, Image, Main, Text } from 'grommet';
-import React, { useEffect, useState } from 'react';
+import { Box, ResponsiveContext, Text } from 'grommet';
+import React, { useEffect, useContext } from 'react';
 import TokenLogo from 'components/TokenLogo';
-import { ETxnSteps } from 'lib/types';
+import { ETxnSteps, ETxnType } from 'lib/types';
 import { bigNumberToString } from 'lib/number-utils';
-import { BigNumber, constants } from 'ethers';
+import { BigNumber } from 'ethers';
 import { PrimaryBtn } from 'components/common';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { TxnConfirm } from 'components/Transactions';
+
+const aprDecimals = BigNumber.from(25);
 
 const EnableDeposit = ({ enabled, token, steps }: { token: any; enabled: () => void; steps: ETxnSteps }) => {
   const [isPending, setIsPending] = React.useState(false);
@@ -20,21 +21,20 @@ const EnableDeposit = ({ enabled, token, steps }: { token: any; enabled: () => v
     steps === ETxnSteps.Failure || steps === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false);
   }, [steps]);
 
-  const aprDecimals = BigNumber.from(25);
+  const size = useContext(ResponsiveContext)
 
   return (
-    <Box style={{ minWidth: '350px' }} pad={{ horizontal: 'medium' }}>
-      {token?.symbol && <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />}
+    <Box pad={size === 'small' ? 'large' : { horizontal: 'medium' }}>
       {!isPending && !isFinal && (
         <>
           <Text color="clrTextAndDataListHeader" size="xsmall">
-            Deposit Rates
+            {ETxnType.deposit} Rates
           </Text>
           <Box pad="10px 0" width="100%" direction="row" justify="between" align="center">
             <Box direction="row" justify="start" align="center">
               {token?.symbol && <TokenLogo symbol={token?.symbol} width="36" height="36" />}
               <Text color="clrTextAndDataListHeader" margin="0 0 0 10px" size="small">
-                Deposit APY
+                {ETxnType.deposit} APY
               </Text>
             </Box>
             <Text color="clrTextAndDataListHeader" size="small">

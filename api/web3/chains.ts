@@ -1,13 +1,21 @@
 import { useState, useEffect, useMemo } from 'react';
 
-const supportedChains = () => {
+export const supportedChains = () => {
   const dev = process.env.NODE_ENV !== 'production' ? [parseInt(process.env.LOCAL_CHAIN_ID || '0', 10)] : [];
   const supported = [...dev, ...(process.env.SUPPORTED_CHAIN_IDS || '').split(',').map(i => parseInt(i, 10))];
-  console.log('supported ', supported);
   return supported;
 };
 
-const useGravityAddress = (chainId: number | undefined) => {
+export const useUmeeTokenAddress = (chainId?: number): (string | null) => useMemo(() => {
+  if (!chainId || !process.env.UMEE_TOKEN_ADDRESSES) {
+    return null;
+  }
+
+  const addresses = JSON.parse(process.env.UMEE_TOKEN_ADDRESSES);
+  return addresses[chainId];
+}, [chainId]);
+
+export const useGravityAddress = (chainId: number | undefined) => {
   const address = useMemo(() => {
     if (!chainId || !process.env.GRAVITY_ADDRESSES) {
       return null;
@@ -15,7 +23,6 @@ const useGravityAddress = (chainId: number | undefined) => {
 
     const addresses = JSON.parse(process.env.GRAVITY_ADDRESSES);
     const addr: string = addresses[chainId];
-    console.log('addr ', addresses);
     if (!addr) {
       console.error(`Peggy address for network ${chainId} is not set. Check settings or wallet network.`);
       return null;
@@ -27,7 +34,7 @@ const useGravityAddress = (chainId: number | undefined) => {
   return address;
 };
 
-const useDataProviderAddress = (chainId: number | undefined) => {
+export const useDataProviderAddress = (chainId: number | undefined) => {
   const [addresses, setAddresses] = useState('');
 
   useEffect(() => {
@@ -67,7 +74,7 @@ const useDataProviderAddress = (chainId: number | undefined) => {
   return addresses;
 };
 
-const useLendingPoolAddress = (chainId: number | undefined) => {
+export const useLendingPoolAddress = (chainId: number | undefined) => {
   const [addresses, setAddresses] = useState('');
 
   useEffect(() => {
@@ -102,11 +109,4 @@ const useLendingPoolAddress = (chainId: number | undefined) => {
   }, [chainId]);
 
   return addresses;
-};
-
-export {
-  supportedChains,
-  useGravityAddress,
-  useDataProviderAddress,
-  useLendingPoolAddress,
 };

@@ -35,6 +35,7 @@ const usePriceData = () => {
       symbolPriceMap['ATOM'].eth = atomPrice['cosmos'].eth;
       symbolPriceMap['UMEE'].usd = umeePrice['umee'].usd;
       symbolPriceMap['UMEE'].eth = umeePrice['umee'].eth;
+
       setPriceData(symbolPriceMap);
     } else {
       console.error(response);

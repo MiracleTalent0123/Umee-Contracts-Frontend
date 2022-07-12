@@ -1,51 +1,73 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { IBCCurrency } from '@keplr-wallet/types';
+import { Currency } from '@keplr-wallet/types';
 import { useStore } from 'api/cosmosStores';
-import { useData } from 'api/data';
 import { Bech32Address } from '@keplr-wallet/cosmos';
 import { WalletStatus } from '@keplr-wallet/stores';
 import { useFakeFeeConfig } from '../lib/hooks';
-import { useBasicAmountConfig } from '../lib/hooks/basic-amount-config';
+import { useBasicAmountConfig } from 'lib/hooks/basic-amount-config';
 import { useAccountConnection } from '../lib/hooks/account/useAccountConnection';
 import { ConnectAccountButton } from '../components/ConnectAccountButton';
 import { BaseModal, PrimaryBtn } from 'components/common';
-import { Box, Button, Text, Image, TextInput } from 'grommet';
+import { Box, Text, TextInput } from 'grommet';
 import TxnAmountRangeInput from 'components/Transactions/TxnAmountRangeInput';
-import ATOM from '../public/images/cosmos-hub-logo.svg';
-import UMEE from '../public/images/Logo.svg';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
 import { truncateAfterDecimals } from 'lib/number-utils';
 import { BaseTab } from 'components/Transactions/TxnTabs';
 import { displayToast, TToastType } from 'components/common/toasts';
-import { ETxnSteps } from 'lib/types';
+import { ETxnSteps, ETxnType } from 'lib/types';
 import { TxnConfirm } from 'components/Transactions';
+import TokenLogo from 'components/TokenLogo';
+import { useConvexityData } from 'api/convexity';
+import { IBCAssetInfos } from '../config';
+import TransactionContainer from 'components/TransactionsMobile/TransactionContainer';
+import { BigNumber } from 'ethers'
+import GradientBox from 'components/common/GradientBox/GradientBox';
 
 interface TransferDialogProps {
-  currency: IBCCurrency;
-  counterpartyCurrency: IBCCurrency;
-  counterpartyChainId: string;
-  sourceChannelId: string;
-  destChannelId: string;
-  onClose: () => void;
-  isMobileView: boolean;
+  onClose: () => void
+  chainId: string
+  coinMinimalDenom: string
+  isMobileView: boolean
+  direction: boolean
 }
 
 export const TransferDialog = observer(
-  ({
-    currency,
-    counterpartyCurrency,
-    counterpartyChainId,
-    sourceChannelId,
-    destChannelId,
-    onClose,
-    isMobileView,
-  }: TransferDialogProps) => {
-    const [isWithdraw, setIsWithdraw] = useState<boolean>(false);
+  ({ onClose, chainId, coinMinimalDenom, direction, isMobileView }: TransferDialogProps) => {
+    const [isWithdraw, setIsWithdraw] = useState<boolean>(!direction)
     const [step, setStep] = useState<ETxnSteps>(ETxnSteps.Input);
-    const { chainStore, accountStore, queriesStore, priceStore } = useStore();
+    const { chainStore, accountStore, queriesStore } = useStore();
+    const [preview, setPreview] = useState<boolean>(false)
+
+    const chainInfo = chainStore.getChain(chainId)
+
     const account = accountStore.getAccount(chainStore.current.chainId);
+    const counterpartyChainId = chainId
     const counterpartyAccount = accountStore.getAccount(counterpartyChainId);
+
+    const channelInfo = IBCAssetInfos.find(
+      channelInfo => channelInfo.counterpartyChainId === chainId && channelInfo.coinMinimalDenom === coinMinimalDenom
+    )
+
+    const currency = chainStore.current.currencies.find(
+      cur => cur.coinMinimalDenom === channelInfo?.coinMinimalDenom
+    ) as Currency
+
+    const counterpartyCurrency = {
+      ...(chainInfo.currencies.find(
+        cur => cur.coinMinimalDenom === channelInfo?.counterpartyCoinMinimalDenom
+      ) as Currency),
+      paths: [
+        {
+          portId: 'transfer',
+          channelId: channelInfo?.sourceChannelId || '',
+        },
+      ],
+      originChainId: chainId,
+    }
+
+    const sourceChannelId = channelInfo?.sourceChannelId || ''
+    const destChannelId = channelInfo?.destChannelId || ''
+
     const bal = queriesStore
       .get(chainStore.current.chainId)
       .queryBalances.getQueryBech32Address(account.bech32Address)
@@ -60,7 +82,7 @@ export const TransferDialog = observer(
       if (account.bech32Address && counterpartyAccount.walletStatus === WalletStatus.NotInit) {
         counterpartyAccount.init();
       }
-    }, [account.bech32Address, counterpartyAccount]);
+    }, [account.bech32Address, counterpartyAccount, counterpartyAccount.walletStatus]);
 
     const amountConfig = useBasicAmountConfig(
       chainStore,
@@ -73,6 +95,7 @@ export const TransferDialog = observer(
         isWithdraw
       )
     );
+
     const feeConfig = useFakeFeeConfig(
       chainStore,
       pickOne(chainStore.current.chainId, counterpartyChainId, isWithdraw),
@@ -80,20 +103,25 @@ export const TransferDialog = observer(
     );
 
     useEffect(() => {
+      setIsWithdraw(!direction)
+    }, [direction])
+  
+    useEffect(() => {
       amountConfig.setFeeConfig(feeConfig);
     }, [amountConfig, feeConfig]);
 
     const { isAccountConnected, connectAccount } = useAccountConnection();
 
-    const { priceData } = useData();
+    const { ConvexityPriceData } = useConvexityData();
 
     const price = useMemo(() => {
-      if (priceData && currency.coinDenom) {
-        return Number(amountConfig.amount) * priceData[currency.coinDenom].usd;
+      if (ConvexityPriceData && currency.coinDenom) {
+        const priceData = ConvexityPriceData.find((item) => item.denom == currency.coinDenom);
+        return Number(amountConfig.amount) * Number(priceData?.amount);
       } else {
         return 0;
       }
-    }, [priceData, amountConfig.amount, currency.coinDenom]);
+    }, [ConvexityPriceData, amountConfig.amount, currency.coinDenom]);
 
     const max = pickOne(
       parseFloat(bal.hideDenom(true).trim(true).maxDecimals(currency.coinDecimals).toString().replaceAll(',', '')),
@@ -109,24 +137,171 @@ export const TransferDialog = observer(
       isWithdraw
     );
 
+    const amountConfigError = useMemo(
+      () => !!amountConfig.getError(),
+      [amountConfig, amountConfig.amount]
+    )
+
+    const handleContinue = async (e: MouseEvent) => {
+      e.preventDefault();
+
+      setStep(ETxnSteps.Pending);
+
+      try {
+        if (isWithdraw) {
+          if (account.isReadyToSendMsgs && counterpartyAccount.bech32Address) {
+            await account.cosmos.sendIBCTransferMsg(
+              {
+                portId: 'transfer',
+                channelId: sourceChannelId,
+                counterpartyChainId,
+              },
+              amountConfig.amount,
+              amountConfig.currency,
+              counterpartyAccount.bech32Address,
+              '',
+              undefined,
+              undefined,
+              {
+                onBroadcasted: (txHash: Uint8Array) => {
+                  displayToast('Transferring', TToastType.TX_BROADCASTING);
+                },
+                onFulfill: (tx) => {
+                  if (!tx.code) {
+                    displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
+                      customLink: chainStore
+                        .getChain(chainStore.current.chainId)
+                        .raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
+                    });
+                  }
+                },
+              }
+            );
+          }
+        } else {
+          // Depositing atom from test node to umee network
+          if (counterpartyAccount.isReadyToSendMsgs && account.bech32Address) {
+            await counterpartyAccount.cosmos.sendIBCTransferMsg(
+              {
+                portId: 'transfer',
+                channelId: destChannelId,
+                counterpartyChainId: chainStore.current.chainId,
+              },
+              amountConfig.amount,
+              amountConfig.currency,
+              account.bech32Address,
+              '',
+              undefined,
+              undefined,
+              {
+                onBroadcasted: (txHash: Uint8Array) => {
+                  displayToast('Transferring', TToastType.TX_BROADCASTING);
+                },
+                onFulfill: (tx) => {
+                  if (!tx.code) {
+                    displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
+                      customLink: chainStore
+                        .getChain(counterpartyChainId)
+                        .raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
+                    });
+                  }
+                },
+              }
+            );
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+      onClose();
+    }
+
+    const sourceAddr = pickOne(
+      account.bech32Address,
+      counterpartyAccount.bech32Address,
+      isWithdraw
+    )
+
+    const destAddr = pickOne(
+      account.bech32Address,
+      counterpartyAccount.bech32Address,
+      !isWithdraw
+    )
+
+    if (isMobileView) {
+      return (
+        <TransactionContainer
+          onClose={() => {}}
+          bridge
+          symbol={isWithdraw ? currency.coinDenom : counterpartyCurrency.coinDenom}
+          txnType={ETxnType.transfer}
+          withdrawModal={false}
+          availableAmount={BigNumber.from(isWithdraw ? bal.toCoin().amount : counterpartyBal.toCoin().amount)}
+          tokenDecimals={isWithdraw ? currency.coinDecimals : counterpartyCurrency.coinDecimals}
+          txnAmount={amountConfig.amount}
+          txnAvailability={{
+            availableAmount: BigNumber.from(isWithdraw ? bal.toCoin().amount : counterpartyBal.sub(feeConfig.fee).toCoin().amount),
+            token: { symbol: isWithdraw ? currency.coinDenom : counterpartyCurrency.coinDenom },
+            tokenDecimals: isWithdraw ? currency.coinDecimals : counterpartyCurrency.coinDecimals
+          }}
+          disableSubmitButton={!account.isReadyToSendMsgs || !counterpartyAccount.isReadyToSendMsgs || amountConfigError}
+          setTxnAmount={amount => amountConfig.setAmount(amount)}
+          setIsPreview={setPreview}
+          isPreview={preview}
+          handleContinue={e => handleContinue(e as any)}
+          isPending={step === ETxnSteps.Pending}
+          isFinal={!preview}
+        >
+          <Text color='clrTextAndDataListHeader' size='small'>
+            From
+          </Text>
+          <GradientBox pad='.5em' margin={{ top: 'xsmall' }} title={sourceAddr}>
+            <Box direction="row" justify="start" align="center">
+              <TokenLogo
+                width="36px"
+                height="36px"
+                symbol={pickOne(chainStore.current.currencies[0].coinDenom, currency.coinDenom, isWithdraw)}
+              />
+              <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
+                {Bech32Address.shortenAddress(sourceAddr, 30)}
+              </Text>
+            </Box>
+          </GradientBox>
+          <Text color='clrTextAndDataListHeader' size='small' margin={{ top: 'small'}}>
+            To
+          </Text>
+          <GradientBox pad='.5em' margin={{ top: 'xsmall' }} title={destAddr}>
+            <Box direction="row" justify="start" align="center">
+              <TokenLogo
+                width="36px"
+                height="36px"
+                symbol={pickOne(chainStore.current.currencies[0].coinDenom, currency.coinDenom, !isWithdraw)}
+              />
+              <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
+                {Bech32Address.shortenAddress(destAddr, 30)}
+              </Text>
+            </Box>
+          </GradientBox>
+        </TransactionContainer>
+      )
+    }
+
     if (step === ETxnSteps.Pending) {
       return (
-        <BaseModal onClose={onClose}>
+        <BaseModal symbol={currency.coinDenom} onClose={onClose}>
           <Box className="modal-width">
-            <TokenLogoWithSymbol width="60" height="60" symbol={currency.coinDenom} />
             <TxnConfirm wallet="Keplr" />
           </Box>
         </BaseModal>
-      );
+      )
     }
 
     return (
-      <BaseModal onClose={onClose}>
+      <BaseModal symbol={currency.coinDenom} onClose={onClose}>
         <Box className="modal-width">
-          <TokenLogoWithSymbol width="60" height="60" symbol={currency.coinDenom} />
           <BaseTab
-            choiceA="Umee"
-            choiceB="Cosmos Hub"
+            choiceA={chainStore.current.currencies[0].coinDenom}
+            choiceB={currency.coinDenom}
             defaultSelected={!isWithdraw}
             handler={() => setIsWithdraw(!isWithdraw)}
             margin={{ top: 'medium' }}
@@ -135,8 +310,8 @@ export const TransferDialog = observer(
             <Box margin={{ top: 'xxsmall', bottom: 'medium' }}>
               <Box direction="row" align="center" style={{ letterSpacing: '0.1em' }}>
                 <Text color="clrTextAndDataListHeader" size="xsmall" className="upper-case">
-                  Balance:{' '}
-                  <span style={{ marginLeft: '3px' }}>
+                  Balance:&nbsp;
+                  <span style={{ marginLeft: '3px', color: 'inherit' }}>
                     {pickOne(
                       bal.upperCase(true).trim(true).maxDecimals(currency.coinDecimals).toString(),
                       counterpartyBal
@@ -190,11 +365,7 @@ export const TransferDialog = observer(
                     </Text>
                   </Box>
                 </Box>
-                <Box
-                  onClick={() => {
-                    amountConfig.setIsMax(true);
-                  }}
-                >
+                <Box onClick={() => amountConfig.setIsMax(true)}>
                   <Text color="clrMidGreyOnNavy" size="xsmall" className="letter-spacing">
                     MAX
                   </Text>
@@ -211,7 +382,7 @@ export const TransferDialog = observer(
             </Box>
           </Box>
           <Box
-            border={{ size: '1px', color: 'clrButtonBorderGrey', side: 'top' }}
+            border={{ size: '1px', color: 'clrBorderGrey', side: 'top' }}
             pad={{ top: 'medium', horizontal: 'medium' }}
           >
             <Text color="clrTextAndDataListHeader" size="xsmall" className="letter-spacing">
@@ -219,13 +390,13 @@ export const TransferDialog = observer(
             </Text>
             <Box pad={{ vertical: 'small' }} width="100%" direction="row" justify="between" align="center">
               <Box direction="row" justify="start" align="center">
-                <Image width="36px" height="36px" alt="token logo" src={pickOne(UMEE, ATOM, isWithdraw)} />
-                <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
-                  {pickOne(
-                    Bech32Address.shortenAddress(account.bech32Address, 30),
-                    Bech32Address.shortenAddress(counterpartyAccount.bech32Address, 30),
-                    isWithdraw
-                  )}
+                <TokenLogo
+                  width="36px"
+                  height="36px"
+                  symbol={pickOne(chainStore.current.currencies[0].coinDenom, currency.coinDenom, isWithdraw)}
+                />
+                <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small" title={sourceAddr}>
+                  {Bech32Address.shortenAddress(sourceAddr, 30)}
                 </Text>
               </Box>
             </Box>
@@ -233,13 +404,13 @@ export const TransferDialog = observer(
               To
             </Text>
             <Box margin={{ vertical: 'small' }} direction="row" justify="start" align="center">
-              <Image width="36px" height="36px" alt="token logo" src={pickOne(ATOM, UMEE, isWithdraw)} />
-              <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small">
-                {pickOne(
-                  Bech32Address.shortenAddress(counterpartyAccount.bech32Address, 30),
-                  Bech32Address.shortenAddress(account.bech32Address, 30),
-                  isWithdraw
-                )}
+              <TokenLogo
+                width="36px"
+                height="36px"
+                symbol={pickOne(currency.coinDenom, chainStore.current.currencies[0].coinDenom, isWithdraw)}
+              />
+              <Text color="clrTextAndDataListHeader" margin={{ left: 'small' }} size="small" title={destAddr}>
+                {Bech32Address.shortenAddress(destAddr, 30)}
               </Text>
             </Box>
           </Box>
@@ -261,75 +432,9 @@ export const TransferDialog = observer(
                 disabled={
                   !account.isReadyToSendMsgs ||
                   !counterpartyAccount.isReadyToSendMsgs ||
-                  amountConfig.getError() != null
+                  amountConfigError
                 }
-                onClick={async (e) => {
-                  e.preventDefault();
-
-                  setStep(ETxnSteps.Pending);
-
-                  try {
-                    if (isWithdraw) {
-                      if (account.isReadyToSendMsgs && counterpartyAccount.bech32Address) {
-                        await account.cosmos.sendIBCTransferMsg(
-                          {
-                            portId: 'transfer',
-                            channelId: sourceChannelId,
-                            counterpartyChainId,
-                          },
-                          amountConfig.amount,
-                          amountConfig.currency,
-                          counterpartyAccount.bech32Address,
-                          '',
-                          undefined,
-                          undefined,
-                          {
-                            onFulfill: (tx) => {
-                              if (!tx.code) {
-                                displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
-                                  customLink: chainStore
-                                    .getChain(chainStore.current.chainId)
-                                    .raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
-                                });
-                              }
-                            },
-                          }
-                        );
-                      }
-                    } else {
-                      // Depositing atom from test node to umee network
-                      if (counterpartyAccount.isReadyToSendMsgs && account.bech32Address) {
-                        await counterpartyAccount.cosmos.sendIBCTransferMsg(
-                          {
-                            portId: 'transfer',
-                            channelId: destChannelId,
-                            counterpartyChainId: chainStore.current.chainId,
-                          },
-                          amountConfig.amount,
-                          amountConfig.currency,
-                          account.bech32Address,
-                          '',
-                          undefined,
-                          undefined,
-                          {
-                            onFulfill: (tx) => {
-                              if (!tx.code) {
-                                displayToast('Transfer Successful', TToastType.TX_SUCCESSFUL, {
-                                  customLink: chainStore
-                                    .getChain(counterpartyChainId)
-                                    .raw.explorerUrlToTx.replace('{txHash}', tx.hash.toUpperCase()),
-                                });
-                              }
-                            },
-                          }
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    console.log(e);
-                  }
-                  onClose();
-                }}
+                onClick={e => handleContinue(e as any)}
               />
             )}
           </Box>

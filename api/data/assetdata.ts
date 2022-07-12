@@ -7,11 +7,10 @@ import {
   LendingPool,
 } from '../types';
 import { IReserveData, IReserveConfigurationData } from 'lib/types';
-import { result } from 'lodash';
 import { useWeb3 } from 'api/web3';
 
-const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined) => {
-  let [reservesAddresses, setReservesAddresses] = useState<{ symbol: string; tokenAddress: string; }[]>([]);
+const useAllReserveTokens = (umeeProtocolDataProvider?: UmeeProtocolDataProvider) => {
+  const [reservesAddresses, setReservesAddresses] = useState<{ symbol: string; tokenAddress: string; }[]>([]);
   const {chainId} = useWeb3();
   useEffect(() => {
     if (!umeeProtocolDataProvider) {
@@ -31,16 +30,17 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
               result[i].tokenAddress == '0x0747376a18185921fceafeab0d643067ce3ed505' || //uatom
               result[i].tokenAddress == '0x4884E2a214DC5040f52A41c3f21c765283170B6e' || //usdt
               result[i].tokenAddress == '0x4A55a3a00D3AfD19062dCad21B24c09d935f895A' || //dai
-              result[i].tokenAddress == '0x3fC84A29104Cef50F360064BEF5Ed0175C2bb80f' //usdc
+              result[i].tokenAddress == '0x3fC84A29104Cef50F360064BEF5Ed0175C2bb80f' || //usdc
+              result[i].tokenAddress == '0x260eDFFa7648ddC398b91884D78485612fC6d246' //atom
             ) {
               atomCount++;
               // Do nothing. Need this separate check otherwise get USD undefined error, until we remove this old atom from contract
             } else {
               if (result[i].symbol == 'uatom' && atomCount == 0) {
                 atomCount++;
-                let build = ['ATOM', '0x8e29d12b3df274c2df416b423ccc466a56bebfe2'];
+                let build = ['ATOM', '0x7529eb0a200596f46ae5aca4206dbaf5a88c2a3e'];
                 build.symbol = 'ATOM';
-                build.tokenAddress = '0x8e29d12b3df274c2df416b423ccc466a56bebfe2';
+                build.tokenAddress = '0x7529eb0a200596f46ae5aca4206dbaf5a88c2a3e';
                 assets.push(build);
               } else {
                 if (result[i].symbol != 'uatom') {
@@ -97,16 +97,16 @@ const useAllReserveTokens = (umeeProtocolDataProvider: UmeeProtocolDataProvider 
       })
       .then(setReservesAddresses)
       .catch(console.error);
-  }, [umeeProtocolDataProvider]);
+  }, [chainId, umeeProtocolDataProvider]);
 
   return reservesAddresses;
 };
 
 const useReserveConfigurationData = (
-  umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined,
-  lendingPool: LendingPool | undefined,
-  user: string | undefined,
-  assets: { symbol: string; tokenAddress: string; }[] | undefined
+  umeeProtocolDataProvider?: UmeeProtocolDataProvider,
+  lendingPool?: LendingPool,
+  user?: string,
+  assets?: { symbol: string; tokenAddress: string; }[]
 ) => {
   const [reserveConfiguration, setReserveConfiguration] = useState<IReserveConfigurationData[]>([]);
 
@@ -116,7 +116,11 @@ const useReserveConfigurationData = (
       return;
     }
 
-    Promise.all(assets.map(asset => Promise.all([asset.symbol, asset.tokenAddress, umeeProtocolDataProvider.getReserveConfigurationData(asset.tokenAddress)])))
+    Promise.all(assets.map(asset => Promise.all([
+      asset.symbol,
+      asset.tokenAddress,
+      umeeProtocolDataProvider.getReserveConfigurationData(asset.tokenAddress)
+    ])))
       .then(results => {
         setReserveConfiguration(results.map(([symbol, address, data]) => ({
           symbol: symbol,
@@ -179,55 +183,84 @@ const useReserveConfigurationData = (
   return reserveConfiguration;
 };
 
-const useReserveData = (umeeProtocolDataProvider: UmeeProtocolDataProvider | undefined, lendingPool: LendingPool | undefined, assets: { symbol: string; tokenAddress: string; }[] | undefined, priceData: IAssetPrices | undefined) => {
+const API_URL = process.env.API_ENDPOINT || 'http://127.0.0.1:3001'
+
+type EthAssetData = Array<
+  [
+    string, // token name
+    string, // token address
+    {
+      availableLiquidity: any,
+      totalStableDebt: any,
+      totalVariableDebt: any,
+      liquidityRate: any,
+      variableBorrowRate: any,
+      stableBorrowRate: any,
+      averageStableBorrowRate: any,
+      liquidityIndex: any,
+      variableBorrowIndex: any,
+      lastUpdateTimestamp: number
+    } // token data
+  ]
+>
+
+const useReserveData = (lendingPool?: LendingPool, priceData?: IAssetPrices) => {
   const [reserveData, setReserveData] = useState<IReserveData[]>([]);
 
   useEffect(() => {
-    if (!umeeProtocolDataProvider || !lendingPool || !assets) {
-      setReserveData([]);
-      return;
+    if (!priceData) {
+      return
     }
 
-    Promise.all(assets.map(asset => Promise.all([asset.symbol, asset.tokenAddress, umeeProtocolDataProvider.getReserveData(asset.tokenAddress)])))
-      .then(results => {
-        setReserveData(results.map(([symbol, address, data]) => ({
-          symbol: symbol,
-          address: address,
-          usdPrice: priceData? priceData[symbol].usd : 0,
-          availableLiquidity: data.availableLiquidity,
-          totalStableDebt: data.totalStableDebt,
-          totalVariableDebt: data.totalVariableDebt,
-          liquidityRate: data.liquidityRate,
-          variableBorrowRate: data.variableBorrowRate,
-          stableBorrowRate: data.stableBorrowRate,
-          averageStableBorrowRate: data.averageStableBorrowRate,
-          liquidityIndex: data.liquidityIndex,
-          variableBorrowIndex: data.variableBorrowRate,
-          lastUpdateTimestamp: data.lastUpdateTimestamp,
-        })));
-        
-      })
-      .catch(console.error);
-    
+    fetch(API_URL + '/eth_asset_data')
+      .then(res => res.json())
+      .then(
+        (assets: EthAssetData) => setReserveData(assets.map(
+          ([symbol, address, data]) => ({
+            symbol,
+            address,
+            usdPrice: priceData ? priceData[symbol].usd : 0,
+            availableLiquidity: BigNumber.from(data.availableLiquidity.hex),
+            totalStableDebt: BigNumber.from(data.totalStableDebt.hex),
+            totalVariableDebt: BigNumber.from(data.totalVariableDebt.hex),
+            liquidityRate: BigNumber.from(data.liquidityRate.hex),
+            variableBorrowRate: BigNumber.from(data.variableBorrowRate.hex),
+            stableBorrowRate: BigNumber.from(data.stableBorrowRate.hex),
+            averageStableBorrowRate: BigNumber.from(data.averageStableBorrowRate.hex),
+            liquidityIndex: BigNumber.from(data.liquidityIndex.hex),
+            variableBorrowIndex: BigNumber.from(data.variableBorrowIndex.hex),
+            lastUpdateTimestamp: data.lastUpdateTimestamp,
+          }), {}
+        ))
+      )
+      .catch(console.error)
+  }, [priceData])
 
-    const updateReserveData = (reserve: string, liquidityRate: BigNumber, stableBorrowRate: BigNumber, variableBorrowRate: BigNumber, liquidityIndex: BigNumber, variableBorrowIndex: BigNumber) => {
-      setReserveData(data => {
-        const newData = [...data];
+  useEffect(() => {
+    const updateReserveData = (
+      reserve: string,
+      liquidityRate: BigNumber,
+      stableBorrowRate: BigNumber,
+      variableBorrowRate: BigNumber,
+      liquidityIndex: BigNumber,
+      variableBorrowIndex: BigNumber
+    ) => {
+      const tokenIndex = reserveData.findIndex(d => d.address === reserve)
+      if (tokenIndex >= 0) {
+        setReserveData(data => data.map((item, key) => key === tokenIndex ? {
+          ...item,
+          liquidityRate: liquidityRate,
+          stableBorrowRate: stableBorrowRate,
+          variableBorrowRate: variableBorrowRate,
+          liquidityIndex: liquidityIndex,
+          variableBorrowIndex: variableBorrowIndex
+        } : item))
+      }
+    }
 
-        const tokenIndex = newData.findIndex(d => d.address === reserve);
-        if (tokenIndex === -1) {
-          return newData;
-        }
-
-        newData[tokenIndex].liquidityRate = liquidityRate;
-        newData[tokenIndex].stableBorrowRate = stableBorrowRate;
-        newData[tokenIndex].variableBorrowRate = variableBorrowRate;
-        newData[tokenIndex].liquidityIndex = liquidityIndex;
-        newData[tokenIndex].variableBorrowIndex = variableBorrowIndex;
-
-        return newData;
-      });
-    };
+    if (!lendingPool) {
+      return
+    }
 
     const reserveDataUpdatedFilter = lendingPool.filters.ReserveDataUpdated(null, null, null, null, null, null);
     lendingPool.on(reserveDataUpdatedFilter, updateReserveData);
@@ -235,7 +268,7 @@ const useReserveData = (umeeProtocolDataProvider: UmeeProtocolDataProvider | und
     return () => {
       lendingPool.removeListener(reserveDataUpdatedFilter, updateReserveData);
     };
-  }, [assets, umeeProtocolDataProvider, priceData, lendingPool]);
+  }, [reserveData, lendingPool])
 
   return reserveData;
 };

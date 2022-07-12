@@ -1,10 +1,13 @@
-import { Box, Button, Image, Text } from 'grommet';
-import React from 'react';
-import Logo from '../../public/images/Logo.svg';
-import { ConnectWalletButton } from 'components/ConnectWallet/ConnectWalletButton';
-import { NavLink } from 'react-router-dom';
-import ToggleTheme from './ToggleTheme';
-import { Close } from 'grommet-icons';
+import { Box, ResponsiveContext, Text } from 'grommet'
+import React, { useContext } from 'react'
+import { Link } from 'react-router-dom'
+import { ToggleSwitch } from 'components/Switches'
+import { Chain, useChain } from 'lib/hooks/chain/context'
+import { Modal } from 'components/common/Modals/CommonModal'
+import SideNavActions from './SideNavActions'
+import ToggleTheme from './ToggleTheme'
+import { Theme, useTheme } from 'lib/hooks/theme/context'
+import ConnectWallet from 'components/ConnectWallet/ConnectWallet'
 
 const MobileNav = ({ navOpen, close }: { navOpen: boolean; close: () => void }) => {
   const menus = [
@@ -24,44 +27,88 @@ const MobileNav = ({ navOpen, close }: { navOpen: boolean; close: () => void }) 
       title: 'Borrow',
       url: '/borrow',
     },
-    { title: 'Stake' },
-    { title: 'Vote' },
-  ];
+    { title: 'Stake', link: 'https://wallet.keplr.app/#/umee/stake' },
+    { title: 'Vote', link: 'https://wallet.keplr.app/#/umee/governance' },
+    { title: 'Analytics', link: 'https://astrolabe.umee.cc/' },
+  ]
 
-  return (
-    <Box pad="medium" className={`navbar ${navOpen ? 'open' : ''}`} background="clrPrimary">
-      <Box height={'100%'} style={{ position: 'relative' }}>
-        <Box height={'42px'} direction="row" justify="between" align="center">
-          <Image src={Logo} alt="logo" />
-          <Box focusIndicator={false} onClick={() => close()} direction="row" align="center">
-            <Text color={'white'} margin={{ right: 'small' }} size="medium">
-              Close
-            </Text>
-            <Button plain={true} icon={<Close color="clrWhite" />} />
-          </Box>
-        </Box>
-        <Box direction="row" justify="between" margin={{ top: 'xlarge' }}>
-          <Box>
+  const { chainMode, setChainMode } = useChain()
+  const size = useContext(ResponsiveContext)
+  const { themeMode } = useTheme()
+
+  return navOpen ? (
+    <Modal position="top" fullwidth onClose={() => close()} margin={{ top: '84px' }}>
+      <Box width={'100%'} background="#16183C">
+        <Box
+          pad={size === 'small' ? 'large' : 'medium'}
+          border={{ side: 'bottom', size: '1px', color: 'clrDarkGreyOnNavy' }}
+        >
+          <Text size="small" color={'clrIconOff'}>
+            Menu
+          </Text>
+          <Box margin={{ top: 'small' }}>
             {menus.map((menu, index) => (
-              <Box pad={{ bottom: 'medium' }} key={index}>
-                <NavLink onClick={() => close()} to={menu.url ? menu.url : '#'}>
-                  <Text size="medium" color={'white'}>
-                    {menu.title}
-                  </Text>
-                </NavLink>
+              <Box pad={{ bottom: '24px' }} key={index}>
+                {menu.url && (
+                  <Link onClick={() => close()} to={menu.url}>
+                    <Text size="small" color="clrWhite">
+                      {menu.title}
+                    </Text>
+                  </Link>
+                )}
+                {menu.link && (
+                  <a onClick={() => close()} href={menu.link} target="_blank" rel="noreferrer">
+                    <Text size="small" color="clrWhite">
+                      {menu.title}
+                    </Text>
+                  </a>
+                )}
               </Box>
             ))}
           </Box>
-          <Box>
-            <ToggleTheme />
+          <Box width={'100%'}>
+            <ConnectWallet />
           </Box>
         </Box>
-        <Box className="connect-wallet-mobile" width={'100%'} direction="row" justify="center">
-          <ConnectWalletButton />
+        <Box
+          pad={size === 'small' ? 'large' : 'medium'}
+          border={{ side: 'bottom', size: '1px', color: 'clrDarkGreyOnNavy' }}
+        >
+          <Text size="small" color={'clrIconOff'}>
+            Settings
+          </Text>
+          <Box margin={{ top: 'small' }}>
+            <Box direction="row" justify="between" align="center" margin={{ bottom: '20px' }}>
+              <Text size="small" color="clrWhite">
+                Network
+              </Text>
+              <ToggleSwitch
+                isMobile
+                choiceB={Chain.ethereum}
+                choiceA={Chain.cosmos}
+                defaultSelected={chainMode}
+                handler={(chain) => setChainMode(chain)}
+              />
+            </Box>
+            <Box direction="row" justify="between" align="center">
+              <Text size="small" color="clrWhite">
+                {themeMode === Theme.dark ? 'Dark' : 'Light'} Mode
+              </Text>
+              <ToggleTheme />
+            </Box>
+          </Box>
+        </Box>
+        <Box pad={size === 'small' ? 'large' : 'medium'}>
+          <Text size="small" color={'clrIconOff'}>
+            Links
+          </Text>
+          <Box margin={{ top: 'small', bottom: '-24px' }}>
+            <SideNavActions />
+          </Box>
         </Box>
       </Box>
-    </Box>
-  );
-};
+    </Modal>
+  ) : null
+}
 
-export default MobileNav;
+export default MobileNav

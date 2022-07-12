@@ -1,41 +1,39 @@
-import { Box, Button, Text } from 'grommet';
-import React from 'react';
-import { BaseModal } from 'components/common/BaseModal';
-import { ETxnSteps } from 'lib/types';
-import { PrimaryBtn } from 'components/common';
-import TokenLogoWithSymbol from 'components/TokenLogoWithSymbol';
-import { TxnConfirm } from 'components/Transactions';
+import { Box, Text } from 'grommet'
+import React from 'react'
+import { BaseModal } from 'components/common/Modals/BaseModal'
+import { ETxnSteps } from 'lib/types'
+import { PrimaryBtn } from 'components/common'
+import { TxnConfirm } from 'components/Transactions'
+import { Chain, useChain } from 'lib/hooks/chain/context'
 
 const CollateralModal = ({
-  token: token,
-  address: tokenAddress,
+  token,
   onClose,
   enabled,
   steps,
   collateralSwitchChecked,
 }: {
-  token: any;
-  address: string;
+  token: string;
   onClose: (show: boolean) => void;
   enabled: () => void;
   steps: ETxnSteps;
   collateralSwitchChecked: any;
 }) => {
-  const [isPending, setIsPending] = React.useState(false);
-  const [isFinal, setIsFinal] = React.useState(false);
+  const [isPending, setIsPending] = React.useState(false)
+  const [isFinal, setIsFinal] = React.useState(false)
+  const { chainMode } = useChain()
 
   React.useEffect(() => {
     steps === ETxnSteps.Pending || steps === ETxnSteps.PendingApprove || steps === ETxnSteps.PendingSubmit
       ? setIsPending(true)
-      : setIsPending(false);
+      : setIsPending(false)
 
-    steps === ETxnSteps.Failure || steps === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false);
-  }, [steps]);
+    steps === ETxnSteps.Failure || steps === ETxnSteps.Success ? setIsFinal(true) : setIsFinal(false)
+  }, [steps])
 
   return (
-    <BaseModal onClose={onClose}>
+    <BaseModal symbol={token} onClose={onClose}>
       <Box width="350px" pad={{ horizontal: 'medium' }}>
-        {token?.symbol && <TokenLogoWithSymbol width="60" height="60" symbol={token.symbol} />}
         {!isPending && !isFinal && (
           <Box margin={{ top: 'small' }}>
             <Text color="clrTextAndDataListHeader" textAlign="center" size="medium">
@@ -48,8 +46,9 @@ const CollateralModal = ({
               size="small"
               textAlign="center"
             >
-              Enable {token?.symbol && token.symbol} to be used as collateral to increase your borrowing limit. Please
-              note collateralized assets can be seized in liquidation.
+              {collateralSwitchChecked ? 'Enable' : 'Disable'} {token} to be used as collateral
+              {collateralSwitchChecked && 'to increase your borrowing limit'}. Please note collateralized assets can be
+              seized in liquidation.
             </Text>
             <PrimaryBtn
               fullWidth
@@ -62,10 +61,10 @@ const CollateralModal = ({
             />
           </Box>
         )}
-        {isPending && <TxnConfirm wallet="Metamask" />}
+        {isPending && <TxnConfirm wallet={chainMode == Chain.ethereum ? 'Metamask' : 'Keplr'} />}
       </Box>
     </BaseModal>
-  );
-};
+  )
+}
 
-export default CollateralModal;
+export default CollateralModal

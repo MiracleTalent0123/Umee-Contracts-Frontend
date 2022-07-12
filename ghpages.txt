@@ -1,0 +1,14 @@
+Setting up Github Pages:
+
+Since our front-end repository will have multiple environments (branches) that push to different domains we needed to create the umee-v1-client-main, umee-v1-client-dev, umee-v1-client-convexity repos that hold build artifacts of umee-v1-client (Main react repo), so that it’s abstracted up to the repo level. We have it so that the Github action which builds the app pushes those built artifacts to these new different “hosting” repos, based on the branch being built.
+
+The three repositories mentioned above are hosted at the app (main), beta (dev), and testnet (convexity) subdomains. If you want to add a new subdomain with github secrets, follow the steps below:
+
+Example: Add a subdomain at testnet.umee.cc, with the GitHub page repository named umee-v1-client-convexity
+
+1. Create a CNAME record for the new subdomain that you want to spin up. This can be done through your hosting provider (Godaddy in our case). The type would be “CNAME”, name would be “testnet”, and data would be “umee-network.github.io.”
+2. Create a template repository of another GitHub Pages repo (ex: umee-v1-client-main) and name the new template repo “umee-v1-client-convexity”. If there is no template repo that you can copy, then create a new repo with the name that you want and store the build artifacts (/dist folder) from the main react app (umee-v1-client).
+3. In umee-v1-client-convexity go to settings->pages and make the source branch “gh-pages”. Make “testnet.umee.cc” the custom domain name.
+4. Create a convexity.yml file in the umee-v1-client/.github/workflows/ folder. The content of this file will be similar to the main.yml and dev.yml. Here is an example to follow if you’re confused, which also covers steps 4 & 5: https://gist.github.com/pataruco/91b6cda6b02b61b3bcd2bbbfaa963fd9
+5. Add an ssh deploy key (public key) to the umee-v1-client-convexity repo.
+6. Add the private ssh key (private key) as a GitHub secret to the umee-v1-client repo. In our case the new secret name would be CONVEXITY_DEPLOY_KEY with the private key set as the value. You can create multiple repository secrets if needed.

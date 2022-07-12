@@ -9,7 +9,7 @@ const NoDepositsBox = () => {
   return (
     <Box direction="column" alignContent="center" alignSelf="center">
       <Box justify="center">
-        <Text size="small">You have not supplied any assets</Text>
+        <Text color="clrTextAndDataListHeader" size="small">You have not supplied any assets</Text>
       </Box>
       <Box justify="center" pad="small">
         <PrimaryBtn

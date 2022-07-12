@@ -14,6 +14,7 @@ export interface Web3Custom {
   chainId?: number;
   provider?: ethers.providers.Provider;
   signerOrProvider?: ethers.providers.Provider | ethers.Signer;
+  disconnect?: () => void;
 }
 
 interface ProviderApiKeys {
@@ -172,7 +173,13 @@ const useProvider = () => {
     setWeb3Provider(getFallbackProvider());
   }, [web3Provider.connected, web3Provider.provider]);
 
-  return web3Provider;
+  
+  const disconnect = () => {
+    web3Modal.clearCachedProvider();
+    setWeb3Provider(defaultWeb3);
+  };
+
+  return { ...web3Provider, disconnect };
 };
 
 const connect = () => {

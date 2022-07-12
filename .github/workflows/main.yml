@@ -1,0 +1,48 @@
+name: Build and Deploy Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: nvm
+
+      - name: Use Node.js (.nvmrc)
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.nvm.outputs.NVMRC }}
+
+      - name: Edit package.json
+        run: npx json -I -f package.json -e 'this.homepage="${{ secrets.MAIN_HOMEPAGE_URL }}"'
+
+      - name: Install and Build
+        run: |
+          npm install
+          npm run build
+        env:
+          FALLBACK_CHAIN_ID: ${{ secrets.MAIN_FALLBACK_CHAIN_ID }}
+          SUPPORTED_CHAIN_IDS: ${{ secrets.MAIN_SUPPORTED_CHAIN_IDS }}
+          GRAVITY_ADDRESSES: ${{ secrets.MAIN_GRAVITY_ADDRESSES }}
+          DATA_PROVIDER_ADDRESSES: ${{ secrets.MAIN_DATA_PROVIDER_ADDRESSES }}
+          LENDING_POOL_ADDRESSES: ${{ secrets.MAIN_LENDING_POOL_ADDRESSES }}
+          INFURA_API_KEY: ${{ secrets.MAIN_INFURA_API_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.MAIN_ALCHEMY_API_KEY }}
+          ETHERSCAN_API_KEY: ${{ secrets.MAIN_ETHERSCAN_API_KEY }}
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          repository-name: ${{ secrets.MAIN_DEPLOY_REPOSITORY_NAME }}
+          ssh-key: ${{ secrets.MAIN_DEPLOY_KEY }}
+          branch: gh-pages
+          folder: dist
+          clean: true

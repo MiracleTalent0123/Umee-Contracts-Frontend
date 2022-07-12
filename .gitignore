@@ -23,6 +23,9 @@ credentials
 .DS_Store
 *.pem
 
+#editor
+.idea
+
 # debug
 npm-debug.log*
 yarn-debug.log*

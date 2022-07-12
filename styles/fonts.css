@@ -2,10 +2,28 @@
 
 @font-face {
   font-family: 'Moret';
-  src: url('/public/fonts/FontsFree-Net-moret4.ttf');
+  font-weight: 600;
+  font-display: swap;
+  src: url('/public/fonts/Moret/font.woff2') format('woff2'), url('/public/fonts/Moret/font.woff') format('woff');
 }
 
 @font-face {
   font-family: 'Helvetica';
-  src: url('/public/fonts/helvetica.woff');
+  font-display: swap;
+  src: url('/public/fonts/Helvetica/Helvetica.ttf');
+}
+
+@font-face {
+  font-family: 'Helvetica';
+  font-weight: bold;
+  font-display: swap;
+  src: url('/public/fonts/Helvetica/Helvetica-Bold.ttf')
+}
+
+.font-moret {
+  font-family: 'Moret';
+}
+
+.font-helvetica {
+  font-family: 'Helvetica';
 }

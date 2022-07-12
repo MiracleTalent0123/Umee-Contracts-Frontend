@@ -1,6 +1,6 @@
-import { Box, BoxProps, Card, Grid, GridSizeType } from 'grommet';
+import { Box, BoxProps, Grid, GridProps, GridSizeType, ResponsiveContext } from 'grommet';
+import React, { MouseEventHandler, useContext } from 'react';
 import { Theme, useTheme } from 'lib/hooks/theme/context';
-import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './DataListRow.css';
 
@@ -10,7 +10,9 @@ export interface DataListRowProps {
   linkUrl?: string;
   rowColor?: string;
   tokenAddress?: string;
-  setTokenAddress?(tokenAddress: string): void;
+  select?(): void;
+  align?: GridProps['align'];
+  onClick?: MouseEventHandler;
 }
 
 /**
@@ -18,27 +20,28 @@ export interface DataListRowProps {
  * @param param0
  * @returns
  */
-const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress, tokenAddress }: DataListRowProps) => {
+const DataListRow = ({ children, columnSizes, rowColor, linkUrl, select, tokenAddress, align }: DataListRowProps) => {
+  const size = useContext(ResponsiveContext);
   const history = useHistory();
   const handleClick = (e: any) => {
     e.preventDefault();
     if (!!linkUrl) {
       history.push(linkUrl);
-    } else if (!!setTokenAddress && tokenAddress) {
-      setTokenAddress(tokenAddress);
+    } else if (!!select) {
+      select();
     }
   };
 
   const props: BoxProps = {
     direction: 'row',
-    pad: { vertical: 'small' },
+    pad: { vertical: size === 'small' ? 'medium' : 'small' },
     align: 'center',
     justify: 'start',
     fill: 'horizontal',
     round: '0px',
   };
 
-  if (!!linkUrl || !!setTokenAddress) {
+  if (!!linkUrl || !!select) {
     props.onClick = handleClick;
   }
 
@@ -46,9 +49,15 @@ const DataListRow = ({ children, columnSizes, rowColor, linkUrl, setTokenAddress
 
   return (
     <div className={`row-container ${themeMode === Theme.dark ? 'row-container-dark' : null}`}>
-      <Box border={{ side: 'bottom', color: 'clrDataListBorderBottom', size: '1px' }} {...props}>
+      <Box border={{ side: 'bottom', color: 'clrBorderGrey', size: '1px' }} {...props} focusIndicator={false}>
         {rowColor && <Box border={{ color: rowColor, side: 'left', size: '3px' }} height="2rem" />}
-        <Grid className="row-content" columns={columnSizes} gap="small" fill="horizontal" align="center">
+        <Grid
+          className="row-content"
+          columns={columnSizes}
+          gap="small"
+          fill="horizontal"
+          align={align ? align : 'center'}
+        >
           {children}
         </Grid>
       </Box>

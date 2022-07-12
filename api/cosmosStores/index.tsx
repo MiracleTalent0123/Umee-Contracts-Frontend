@@ -1,22 +1,30 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Observer } from 'mobx-react-lite';
 
-import { createRootStore, RootStore } from './root';
+import { RootStore } from './root';
+import { useKeplr } from 'lib/hooks/useKeplr';
+import { AccountInitManagement } from './account-init-management';
 
 const storeContext = React.createContext<RootStore | null>(null);
 
 export const StoreProvider: FunctionComponent = ({ children }) => {
-  const [stores] = useState(() => createRootStore());
+  const { getKeplr } = useKeplr();
+  const [rootStore] = useState(() => new RootStore(getKeplr));
 
-  return <storeContext.Provider value={stores}>{children}</storeContext.Provider>;
+  return (
+    <storeContext.Provider value={rootStore}>
+      <AccountInitManagement />
+      {children}
+    </storeContext.Provider>
+  );
 };
 
 export const StoreConsumer: FunctionComponent<{
-	children: (rootStore: RootStore) => React.ReactNode;
+  children: (rootStore: RootStore) => React.ReactNode;
 }> = ({ children }) => {
   return (
     <storeContext.Consumer>
-      {rootStore => {
+      {(rootStore) => {
         if (!rootStore) {
           throw new Error('You have forgot to use StoreProvider');
         }

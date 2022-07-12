@@ -60,7 +60,7 @@ export class FakeFeeConfig extends TxChainSetter implements IFeeConfig {
     const gasPriceStep = this.chainInfo.gasPriceStep ?? DefaultGasPriceStep;
     const feeAmount = new Dec(gasPriceStep.high.toString()).mul(new Dec(this.gas));
 
-    console.log(this.feeCurrency!.coinMinimalDenom, feeAmount.truncate().toString());
+    // console.log(this.feeCurrency!.coinMinimalDenom, feeAmount.truncate().toString());
 
     return {
       denom: this.feeCurrency!.coinMinimalDenom,

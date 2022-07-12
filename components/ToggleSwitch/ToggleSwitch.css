@@ -6,6 +6,7 @@
   width: 70px;
   display: inline-block;
   text-align: left;
+  z-index: 10;
 }
 .checkbox {
   display: none;
@@ -73,14 +74,14 @@
   background-color: var(--umee-dark-grey-on-navy);
 }
 
-.checkbox:checked + .label .inner {
+.toggle-switch.checked .label .inner {
   margin-left: 0;
 }
-.checkbox:checked + .label .switch {
+.toggle-switch.checked .label .switch {
   right: 0px;
   left: unset;
 }
 
-.checkbox:checked + .label .switch {
+.toggle-switch.checked .label .switch {
   background: linear-gradient(113.82deg, #FDA9FF -124.68%, #4DFFE5 103.28%);
 }

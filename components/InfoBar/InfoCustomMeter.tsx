@@ -1,21 +1,24 @@
-import { Theme, useTheme } from 'lib/hooks/theme/context';
-import React, { useEffect, useState } from 'react';
+import { Meter, ResponsiveContext } from 'grommet'
+import { Theme, useTheme } from 'lib/hooks/theme/context'
+import React, { useContext, useEffect, useState } from 'react'
 
 const InfoCustomMeter = ({ value }: { value?: number }) => {
-  const [strokeDasharray1, setStrokeDasharray1] = useState<string>('0, 376.8');
-  const [strokeDasharray2, setStrokeDasharray2] = useState<string>('376.8, 376.8');
-  const { themeMode } = useTheme();
+  const size = useContext(ResponsiveContext)
+
+  const [strokeDasharray1, setStrokeDasharray1] = useState<string>('0, 376.8')
+  const [strokeDasharray2, setStrokeDasharray2] = useState<string>('376.8, 376.8')
+  const { themeMode } = useTheme()
 
   useEffect(() => {
     if (value) {
-      const length1 = 376.8 * value;
-      const length2 = 376.8 - length1;
-      setStrokeDasharray1(length1 + ', 376.8');
-      setStrokeDasharray2(length2 + ', 376.8');
+      const length1 = 376.8 * value
+      const length2 = 376.8 - length1
+      setStrokeDasharray1(length1 + ', 376.8')
+      setStrokeDasharray2(length2 + ', 376.8')
     }
-  }, [value]);
+  }, [value])
 
-  return (
+  return size !== 'small' ? (
     <svg width="150" height="150">
       <defs>
         <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -46,7 +49,21 @@ const InfoCustomMeter = ({ value }: { value?: number }) => {
         style={{ transition: 'ease-in-out 1.2s' }}
       />
     </svg>
-  );
-};
+  ) : value ? (
+    <Meter
+      values={[
+        {
+          value: value * 100,
+          color: 'var(--umee-full-green)',
+        },
+      ]}
+      aria-label="meter"
+      type='circle'
+      thickness='xsmall'
+      background={'var(--umee-full-pink)'}
+      size='full'
+    />
+  ) : null
+}
 
-export default InfoCustomMeter;
+export default InfoCustomMeter
